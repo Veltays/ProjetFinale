@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProjetFinale.Models
 {
-    class ElementSuivi
+    public abstract class ElementSuivi
     {
         public int Id { get; set; }
         public string Nom { get; set; }

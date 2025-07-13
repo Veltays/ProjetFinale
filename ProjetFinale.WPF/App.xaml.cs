@@ -1,5 +1,7 @@
-﻿using System.Windows;
-using ProjetFinale.Views; // important
+﻿using ProjetFinale.Services;
+using ProjetFinale.Utils;
+using ProjetFinale.Views;
+using System.Windows;
 
 namespace ProjetFinale
 {
@@ -10,12 +12,30 @@ namespace ProjetFinale
             base.OnStartup(e);
 
             var paramManager = new MyAppParamManager();
-            bool isLoggedIn = paramManager.IsLogin;
 
-            MessageBox.Show("IsLogin: " + isLoggedIn); // debug visuel
+            if (paramManager.IsLogin)
+            {
+                var utilisateur = JsonService.ChargerUtilisateur();
+                if (utilisateur != null)
+                {
+                    UserService.UtilisateurActif = utilisateur;
+                    MessageBox.Show("Utilisateur chargé");
 
-            Window windowToShow = isLoggedIn ? new MainWindow() : new LoginWindow();
-            windowToShow.Show();
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
+                }
+                else
+                {
+                    MessageBox.Show("Fichier utilisateur non trouvé ou corrompu");
+                    var loginWindow = new LoginWindow();
+                    loginWindow.Show();
+                }
+            }
+            else
+            {
+                var loginWindow = new LoginWindow();
+                loginWindow.Show();
+            }
         }
     }
 }
