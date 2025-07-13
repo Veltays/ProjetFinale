@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProjetFinale.Models\ProjetFinale.Models.csproj" />
+    <ProjectReference Include="..\ProjetFinale.Utils\ProjetFinale.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\Kameron-Bold.ttf" />
+    <Resource Include="Assets\Fonts\Kameron-Medium.ttf" />
+    <Resource Include="Assets\Fonts\Kameron-Regular.ttf" />
+    <Resource Include="Assets\Fonts\Kameron-SemiBold.ttf" />
+    <Resource Include="Assets\img\Calendar.png" />
+    <Resource Include="Assets\img\Dumbell.png" />
+    <Resource Include="Assets\img\Export.png" />
+    <Resource Include="Assets\img\Logo.png" />
+    <Resource Include="Assets\img\Logout.png" />
+    <Resource Include="Assets\img\Setting.png" />
+    <Resource Include="Assets\img\Task.png" />
+    <Resource Include="Assets\img\User.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Login.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>
