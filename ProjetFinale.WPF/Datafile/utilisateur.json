@@ -1,0 +1,18 @@
+{
+  "Pseudo": "Veltays",
+  "Nom": "Gran",
+  "Prenom": "Yassine",
+  "Email": "granyassine774@gmail.com",
+  "Age": 21,
+  "MDPHash": "WWFzc2luZTc3IQ==",
+  "Poids": 65,
+  "Taille": 179,
+  "IMC": 0.0020286507911738087,
+  "ObjectifPoids": 60,
+  "DateInscription": "2025-07-14T23:45:34.5700556+02:00",
+  "MotDePasse": "WWFzc2luZTc3IQ==",
+  "DateObjectif": "2025-07-17T00:00:00",
+  "ListeActivites": [],
+  "ListeStatistiques": [],
+  "ListeTaches": []
+}

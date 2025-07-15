@@ -1,0 +1,326 @@
+﻿<Page x:Class="ProjetFinale.WPF.AccueilPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Accueil"
+      Background="#303030">
+
+    <Page.Resources>
+        <!-- Styles pour la page d'accueil -->
+        <Style x:Key="ProfileCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Padding" Value="25"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="4" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ObjectifCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#B974FF"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Padding" Value="25"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="4" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="StatCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="UserInfoContainerStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2E2E2E"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="0,8"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="MinWidth" Value="80"/>
+        </Style>
+
+        <Style x:Key="UserInfoValueStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#D393FF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+
+        <Style x:Key="UserInfoUnitStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#D393FF"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+
+        <Style x:Key="ObjectifLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ObjectifValueStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2E2E2E"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="12,0,0,0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="MinWidth" Value="90"/>
+        </Style>
+
+        <Style x:Key="StatTitleStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <Style x:Key="ChartPlaceholderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Height" Value="120"/>
+            <Setter Property="BorderBrush" Value="#AF66FF"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+
+            <!-- Section Profil + Objectif -->
+            <Grid Margin="0,0,0,25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Carte Profil Utilisateur -->
+                <Border Grid.Column="0" Style="{StaticResource ProfileCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Photo de profil -->
+                        <Border Grid.Column="0" 
+                                Width="100" 
+                                Height="100" 
+                                CornerRadius="50"
+                                Background="White"
+                                Margin="0,0,25,0"
+                                VerticalAlignment="Center">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
+                            </Border.Effect>
+                            <!-- Placeholder pour l'avatar -->
+                            <TextBlock Text="👤" 
+                                      FontSize="48" 
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"
+                                      Foreground="#666"/>
+                        </Border>
+
+                        <!-- Informations utilisateur -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock x:Name="PseudoLabel" 
+                                      Text="Veltays" 
+                                      Foreground="White"
+                                      FontSize="24"
+                                      FontWeight="Bold"
+                                      Margin="0,0,0,8"/>
+                            <TextBlock x:Name="DateInscriptionLabel" 
+                                      Text="INSCRIT LE 14/07/2025" 
+                                      Foreground="#B8B8B8"
+                                      FontSize="14"
+                                      FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <!-- Statistiques utilisateur -->
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <!-- Poids -->
+                            <Border Style="{StaticResource UserInfoContainerStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBox x:Name="PoidLabel" Text="65" Style="{StaticResource UserInfoValueStyle}"/>
+                                    <TextBlock Text="KG" Style="{StaticResource UserInfoUnitStyle}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- IMC -->
+                            <Border Style="{StaticResource UserInfoContainerStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBox x:Name="ImcLabel" Text="20.3" Style="{StaticResource UserInfoValueStyle}"/>
+                                    <TextBlock Text="IMC" Style="{StaticResource UserInfoUnitStyle}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Taille -->
+                            <Border Style="{StaticResource UserInfoContainerStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBox x:Name="TailleLabel" Text="179" Style="{StaticResource UserInfoValueStyle}"/>
+                                    <TextBlock Text="CM" Style="{StaticResource UserInfoUnitStyle}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Âge -->
+                            <Border Style="{StaticResource UserInfoContainerStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBox x:Name="AnsLabel" Text="21" Style="{StaticResource UserInfoValueStyle}"/>
+                                    <TextBlock Text="ANS" Style="{StaticResource UserInfoUnitStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Carte Objectif -->
+                <Border Grid.Column="2" Style="{StaticResource ObjectifCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="OBJECTIF 2026" 
+                                  Foreground="White" 
+                                  FontSize="18" 
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,20"/>
+
+                        <!-- Poids visé -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                            <TextBlock Text="POIDS VISÉ :" Style="{StaticResource ObjectifLabelStyle}"/>
+                            <Border Style="{StaticResource ObjectifValueStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="PoidObjectifLabel" Text="60" 
+                                              Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text=" KG" 
+                                              Foreground="White" FontWeight="Bold" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- IMC visé -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                            <TextBlock Text="IMC VISÉ :" Style="{StaticResource ObjectifLabelStyle}"/>
+                            <Border Style="{StaticResource ObjectifValueStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="ImcObjectifLabel" Text="18.7" 
+                                              Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text=" IMC" 
+                                              Foreground="White" FontWeight="Bold" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Durée -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <TextBlock Text="POUR :" Style="{StaticResource ObjectifLabelStyle}"/>
+                            <Border Style="{StaticResource ObjectifValueStyle}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="DateObjectifLabel" Text="0" 
+                                              Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text=" ANS" 
+                                              Foreground="White" FontWeight="Bold" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Section Statistiques -->
+            <UniformGrid Columns="2" Rows="2">
+
+                <!-- Calories totales brûlées -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="CALORIE TOTALE BRÛLÉES (KCAL)" 
+                                  Style="{StaticResource StatTitleStyle}"/>
+
+                        <!-- Zone pour futur graphique -->
+                        <Border Style="{StaticResource ChartPlaceholderStyle}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="📊" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="Graphique à venir" 
+                                          Foreground="#666666" 
+                                          FontSize="12" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tâches accomplies -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="TÂCHES ACCOMPLIES" 
+                                  Style="{StaticResource StatTitleStyle}"/>
+
+                        <!-- Zone pour futur graphique -->
+                        <Border Style="{StaticResource ChartPlaceholderStyle}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="✅" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="Graphique à venir" 
+                                          Foreground="#666666" 
+                                          FontSize="12" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Nombre total de séances -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="NOMBRE TOTAL DE SÉANCES" 
+                                  Style="{StaticResource StatTitleStyle}"/>
+
+                        <!-- Zone pour futur graphique -->
+                        <Border Style="{StaticResource ChartPlaceholderStyle}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🏃" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="Graphique à venir" 
+                                          Foreground="#666666" 
+                                          FontSize="12" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Objectif accompli -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="OBJECTIF ACCOMPLI (%)" 
+                                  Style="{StaticResource StatTitleStyle}"/>
+
+                        <!-- Zone pour futur graphique -->
+                        <Border Style="{StaticResource ChartPlaceholderStyle}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🎯" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="Graphique à venir" 
+                                          Foreground="#666666" 
+                                          FontSize="12" 
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

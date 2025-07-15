@@ -4,7 +4,7 @@
 
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 
-        Title="Fitness Tracker" Height="720" Width="1280" Background="#303030">
+        Title="Fitness Tracker" Height="800" Width="1280" Background="#303030">
 
     <Window.Resources>
         <Style x:Key="SidebarTextStyle" TargetType="TextBlock">
@@ -12,26 +12,7 @@
             <Setter Property="FontFamily" Value="{StaticResource KameronBold}"/>
             <Setter Property="FontSize" Value="18"/>
         </Style>
-        <Style x:Key="InfoCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Height" Value="200"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="White" BlurRadius="10" ShadowDepth="3" Opacity="0.25"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="{StaticResource KameronBold}"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-        </Style>
+
         <Style x:Key="ObjectifLabelStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="{StaticResource KameronBold}"/>
@@ -74,22 +55,21 @@
 
     <Grid>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <!-- ASIDE -->
+            <!-- ASIDE -->
 
         <StackPanel Background="#AF66FF" Grid.Column="0" Margin="10" VerticalAlignment="Stretch">
             <!-- Boutons principaux -->
             <StackPanel Margin="0,20,0,0" HorizontalAlignment="Center">
-                <!-- ACCOUNT -->
-                <Button Style="{StaticResource SidebarButtonStyle}">
+                <Button Click="AccueilButton_Click" Style="{StaticResource SidebarButtonStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,5">
                         <Image Source="/Assets/img/User.png" Width="25" Height="25" Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <TextBlock Text="ACCOUNT" VerticalAlignment="Center"
-                       FontFamily="{StaticResource KameronBold}" FontSize="18" Foreground="#303030"/>
+                   FontFamily="{StaticResource KameronBold}" FontSize="18" Foreground="#303030"/>
                     </StackPanel>
                 </Button>
 
@@ -103,7 +83,7 @@
                 </Button>
 
                 <!-- TASK -->
-                <Button Style="{StaticResource SidebarButtonStyle}">
+                <Button Click="ObjectifsButton_Click" Style="{StaticResource SidebarButtonStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,5">
                         <Image Source="/Assets/img/Task.png" Width="25" Height="25" Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <TextBlock Text="TASK" VerticalAlignment="Center"
@@ -126,7 +106,7 @@
 
             <StackPanel Margin="0,275,0,0" HorizontalAlignment="Center">
                 <!-- SETTINGS -->
-                <Button Style="{StaticResource SidebarButtonStyle}">
+                <Button Click="SettingsButton_Click" Style="{StaticResource SidebarButtonStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,5">
                         <Image Source="/Assets/img/Setting.png" Width="25" Height="25" Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <TextBlock Text="SETTINGS" VerticalAlignment="Center"
@@ -135,7 +115,7 @@
                 </Button>
                 <!-- EXPORT -->
 
-                <Button Style="{StaticResource SidebarButtonStyle}">
+                <Button Click="ExportsButton_Click" Style="{StaticResource SidebarButtonStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,5">
                         <Image Source="/Assets/img/Export.png" Width="25" Height="25" Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <TextBlock Text="EXPORT" VerticalAlignment="Center"
@@ -149,127 +129,12 @@
             </Button>
         </StackPanel>
 
-        <!-- Main Content -->
+        <!-- ➕ ICI, AJOUTE LE FRAME EN COLONNE 1 -->
+        <!-- Contenu dynamique -->
+        <Frame x:Name="ContentFrame"
+           Grid.Column="1"
+           NavigationUIVisibility="Hidden"/>
 
-        <StackPanel Grid.Column="1" Margin="20">
-            <Grid Margin="0,0,0,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- User Info -->
-                <Border Background="#2A2A2A" CornerRadius="10" Padding="20" Margin="0,0,10,0">
-                    <Border.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="10" ShadowDepth="3" Opacity="0.5"/>
-                    </Border.Effect>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <Ellipse Grid.Column="0" Width="100" Height="100" Fill="White" Margin="0,0,20,25"/>
-
-                        <StackPanel Grid.Column="1">
-                            <TextBlock x:Name="PseudoLabel" Text="Pseudo" Style="{StaticResource SidebarTextStyle}"/>
-                            <TextBlock x:Name="DateInscriptionLabel" Text="INSCRIT LE 19/06/2025" Style="{StaticResource SidebarTextStyle}" FontSize="13"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Style="{StaticResource UserInfoInnerStackStyle}">
-                                    <TextBox x:Name="PoidLabel" Style="{StaticResource UserInfoInputStyle}" />
-                                    <TextBlock Text="KG" Style="{StaticResource UserInfoUnitLabelStyle}" />
-                                </StackPanel>
-                            </Border>
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Style="{StaticResource UserInfoInnerStackStyle}">
-                                    <TextBox x:Name="ImcLabel" Style="{StaticResource UserInfoInputStyle}" />
-                                    <TextBlock  Text="IMC" Style="{StaticResource UserInfoUnitLabelStyle}" />
-                                </StackPanel>
-                            </Border>
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Style="{StaticResource UserInfoInnerStackStyle}">
-                                    <TextBox x:Name="TailleLabel" Style="{StaticResource UserInfoInputStyle}" />
-                                    <TextBlock Text="CM" Style="{StaticResource UserInfoUnitLabelStyle}" />
-                                </StackPanel>
-                            </Border>
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Style="{StaticResource UserInfoInnerStackStyle}">
-                                    <TextBox x:Name="AnsLabel" Text="0" Style="{StaticResource UserInfoInputStyle}" />
-                                    <TextBlock Text="ANS" Style="{StaticResource UserInfoUnitLabelStyle}" />
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                
-                
-                
-                <!-- Objectif -->
-                <Border Background="#B974FF" CornerRadius="10" Grid.Column="1" Padding="20">
-                    <Border.Effect>
-                        <DropShadowEffect Color="White" BlurRadius="10" ShadowDepth="3" Opacity="0.25"/>
-                    </Border.Effect>
-                    <StackPanel>
-                        <TextBlock Text="OBJECTIF 2026" Foreground="White" FontSize="16" FontFamily="{StaticResource KameronBold}"/>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                            <TextBlock Text="POIDS VISÉ :" Style="{StaticResource ObjectifLabelStyle}" />
-                            <Border Style="{StaticResource ObjectifValueBoxStyle}">
-                                <StackPanel Orientation="Horizontal" Width="59">
-                                    <TextBlock x:Name="PoidObjectifLabel" Text="0" Style="{StaticResource ObjectifValueTextStyle}" />
-                                    <TextBlock Text=" KG" Style="{StaticResource ObjectifValueTextStyle}" Margin="20,0,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-                            <TextBlock Text="IMC VISÉ :" Style="{StaticResource ObjectifLabelStyle}" />
-                            <Border Style="{StaticResource ObjectifValueBoxStyle}">
-                                <StackPanel Orientation="Horizontal" Width="59">
-                                    <TextBlock x:Name="ImcObjectifLabel" Text="0" Style="{StaticResource ObjectifValueTextStyle}" />
-                                    <TextBlock Text=" IMC" Style="{StaticResource ObjectifValueTextStyle}" Margin="15,0,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-                            <TextBlock Text="POUR :" Style="{StaticResource ObjectifLabelStyle}" />
-                            <Border Style="{StaticResource ObjectifValueBoxStyle}">
-                                <StackPanel Orientation="Horizontal" Width="59">
-                                    <TextBlock x:Name="DateObjectifLabel" Text="0" Style="{StaticResource ObjectifValueTextStyle}" />
-                                    <TextBlock Text=" ANS" Style="{StaticResource ObjectifValueTextStyle}" Margin="20,0,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            
-            
-            
-            
-            <!-- Carré stat -->
-            <UniformGrid Columns="2" Rows="2" Margin="0,0,0,20">
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <TextBlock Text="CALORIE TOTALE BRÛLÉES (KCAL)" Style="{StaticResource InfoCardTitleStyle}"/>
-                </Border>
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <TextBlock Text="TÂCHES ACCOMPLIES" Style="{StaticResource InfoCardTitleStyle}"/>
-                </Border>
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <TextBlock Text="NOMBRE TOTAL DE SÉANCES" Style="{StaticResource InfoCardTitleStyle}"/>
-                </Border>
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <TextBlock Text="OBJECTIF ACCOMPLI (%)" Style="{StaticResource InfoCardTitleStyle}"/>
-                </Border>
-            </UniformGrid>
-        </StackPanel>
     </Grid>
 </Window>
 

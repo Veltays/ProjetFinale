@@ -1,6 +1,7 @@
 ﻿using ProjetFinale.Services;
-using ProjetFinale.Views;
+using ProjetFinale.WPF;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace ProjetFinale.Views
 {
@@ -9,56 +10,44 @@ namespace ProjetFinale.Views
         public MainWindow()
         {
             InitializeComponent();
-            InitialiserUtilisateurConnecte();
+
+            // Affiche la page d'accueil au démarrage
+            ContentFrame.Navigate(new AccueilPage());
         }
 
-
-        private void InitialiserUtilisateurConnecte()
+        // 🔁 Navigation vers la page d'objectifs (lorsqu'on clique sur "TASK")
+        private void ObjectifsButton_Click(object sender, RoutedEventArgs e)
         {
-            var user = UserService.UtilisateurActif;
-
-            if (user != null)
-            {
-                // 🧠 Infos principales
-                PseudoLabel.Text = user.Pseudo;
-                DateInscriptionLabel.Text = $"INSCRIT LE {user.DateInscription:dd/MM/yyyy}";
-
-                // 💪 Valeurs utilisateur
-                PoidLabel.Text = user.Poids.ToString();
-                TailleLabel.Text = user.Taille.ToString();
-                AnsLabel.Text = user.Age.ToString();
-
-                // 📊 IMC calculé dynamiquement
-                double imc = user.Taille > 0 ? user.Poids / Math.Pow(user.Taille / 100.0, 2) : 0;
-                ImcLabel.Text = imc.ToString("F1");
-
-                // 🎯 Objectif
-                PoidObjectifLabel.Text = user.ObjectifPoids.ToString();
-
-                // Date objectif en années (si logique basée sur durée)
-                int anneeObjectif = user.DateObjectif.Year;
-                int anneeActuelle = DateTime.Now.Year;
-                int difference = anneeObjectif - anneeActuelle;
-                DateObjectifLabel.Text = difference.ToString();
-
-                double imcObjectif = user.Taille > 0 ? user.ObjectifPoids / Math.Pow(user.Taille / 100.0, 2) : 0;
-                ImcObjectifLabel.Text = imcObjectif.ToString("F1");
-            }
+            ContentFrame.Navigate(new ObjectifPage());
         }
 
 
-        // clique sur le bouton de logout
+        private void AccueilButton_Click(object sender, RoutedEventArgs e)
+        {
+            ContentFrame.Navigate(new AccueilPage());
+        }
+
+
+        private void ExportsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ContentFrame.Navigate(new ExportsPage());
+        }
+
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ContentFrame.Navigate(new SettingsPage());
+        }
+
+        // 🔓 Déconnexion
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            // Réinitialiser la valeur dans le registre
             var paramManager = new MyAppParamManager();
             paramManager.IsLogin = false;
 
-            // Ouvrir LoginWindow
             var login = new LoginWindow();
             login.Show();
 
-            // Fermer la fenêtre actuelle
             this.Close();
         }
     }
