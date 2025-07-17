@@ -5,60 +5,40 @@
       Background="#303030">
 
     <Page.Resources>
-        <!-- Styles spécifiques à la page Export -->
-        <Style x:Key="ExportCardStyle" TargetType="Border">
+        <!-- Styles réutilisés -->
+        <Style x:Key="ExportCard" TargetType="Border">
             <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="0,0,10,20"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="25"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Width" Value="280"/>
+            <Setter Property="Height" Value="320"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style x:Key="ExportTitleStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style x:Key="ExportDescriptionStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#B8B8B8"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
-        </Style>
-
-        <Style x:Key="ExportInfoStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
-        </Style>
-
-        <Style x:Key="ExportInfoLabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#A8A8A8"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
-
-        <Style x:Key="ExportButtonStyle" TargetType="Button">
+        <Style x:Key="ExportButton" TargetType="Button">
             <Setter Property="Background" Value="#AF66FF"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,20,0,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="5">
+                                CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center"
                                             VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#B974FF"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#9C4DCC"/>
+                                <Setter Property="Background" Value="#D393FF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -66,193 +46,261 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ExportIconStyle" TargetType="Border">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="CornerRadius" Value="5"/>
-            <Setter Property="Margin" Value="0,0,15,0"/>
+        <Style x:Key="BigButton" TargetType="Button">
+            <Setter Property="Background" Value="#AF66FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinWidth" Value="200"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#D393FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style x:Key="ExportAllCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="30"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="MaxWidth" Value="500"/>
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#4A90E2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinWidth" Value="200"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#357ABD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Page.Resources>
 
     <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
-        <StackPanel>
+        <StackPanel MaxWidth="1200">
 
-            <!-- Titre principal -->
-            <TextBlock Text="EXPORTS" 
+            <!-- Titre -->
+            <TextBlock Text="EXPORTS"
                        Foreground="White"
-                       FontSize="32" 
+                       FontSize="32"
                        FontWeight="Bold"
-                       Margin="0,0,0,20"/>
+                       Margin="0,0,0,30"/>
 
-            <!-- Section formats d'export -->
-            <TextBlock Text="FORMATS D'EXPORT DISPONIBLES" 
+            <!-- Formats d'export disponibles -->
+            <TextBlock Text="FORMATS D'EXPORT DISPONIBLES"
                        Foreground="#D393FF"
-                       FontSize="20" 
+                       FontSize="18"
                        FontWeight="Bold"
-                       Margin="0,0,0,20"/>
+                       Margin="0,0,0,30"/>
 
-            <!-- Grille des exports -->
-            <UniformGrid Columns="3" Rows="1" Margin="0,0,0,10">
+            <!-- Cartes des formats d'export -->
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,50">
 
-                <!-- Carte CSV -->
-                <Border Style="{StaticResource ExportCardStyle}">
+                <!-- CSV Export -->
+                <Border Style="{StaticResource ExportCard}">
                     <StackPanel>
-                        <!-- Header avec icône -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                            <Border Style="{StaticResource ExportIconStyle}" 
-                                    Background="#059669">
-                                <TextBlock Text="📋" 
-                                           FontSize="20" 
-                                           HorizontalAlignment="Center" 
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="CSV (.csv)" 
-                                       Style="{StaticResource ExportTitleStyle}"
-                                       VerticalAlignment="Center"
-                                       Margin="0"/>
-                        </StackPanel>
+                        <!-- Icône CSV -->
+                        <Border Background="#10B981"
+                                Width="60"
+                                Height="60"
+                                CornerRadius="8"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,20">
+                            <Grid>
+                                <TextBlock Text="📊"
+                                          FontSize="24"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
 
-                        <!-- Description -->
+                        <!-- Titre et description -->
+                        <TextBlock Text="CSV (.csv)"
+                                   Foreground="White"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,10"/>
+
                         <TextBlock Text="Format de données séparées par des virgules. Compatible avec Excel, Google Sheets et la plupart des outils d'analyse."
-                                   Style="{StaticResource ExportDescriptionStyle}"/>
+                                   Foreground="#B8B8B8"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   LineHeight="18"
+                                   Margin="0,0,0,15"/>
 
-                        <!-- Informations -->
-                        <StackPanel Margin="0,0,0,15">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="TAILLE: " Style="{StaticResource ExportInfoLabelStyle}"/>
-                                <TextBlock Text="~850 KB" Style="{StaticResource ExportInfoStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
+                        <TextBlock Text="TAILLE: ~850 KB"
+                                   Foreground="#10B981"
+                                   FontSize="11"
+                                   FontWeight="Bold"/>
 
-                        <!-- Bouton -->
-                        <Button Content="EXPORTER EN CSV" 
-                                Style="{StaticResource ExportButtonStyle}"
+                        <!-- Bouton export -->
+                        <Button Content="EXPORTER EN CSV"
+                                Style="{StaticResource ExportButton}"
                                 Click="ExportCSV_Click"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Carte JSON -->
-                <Border Style="{StaticResource ExportCardStyle}">
+                <!-- JSON Export -->
+                <Border Style="{StaticResource ExportCard}">
                     <StackPanel>
-                        <!-- Header avec icône -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                            <Border Style="{StaticResource ExportIconStyle}" 
-                                    Background="#D97706">
-                                <TextBlock Text="" 
-                                           FontSize="16" 
-                                           FontWeight="Bold"
-                                           HorizontalAlignment="Center" 
-                                           VerticalAlignment="Center"
-                                           Foreground="White"/>
-                            </Border>
-                            <TextBlock Text="JSON (.json)" 
-                                       Style="{StaticResource ExportTitleStyle}"
-                                       VerticalAlignment="Center"
-                                       Margin="0"/>
-                        </StackPanel>
+                        <!-- Icône JSON -->
+                        <Border Background="#F59E0B"
+                                Width="60"
+                                Height="60"
+                                CornerRadius="8"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,20">
+                            <TextBlock Text="📋"
+                                      FontSize="24"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                        </Border>
 
-                        <!-- Description -->
+                        <!-- Titre et description -->
+                        <TextBlock Text="JSON (.json)"
+                                   Foreground="White"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,10"/>
+
                         <TextBlock Text="Format universel pour l'intégration avec d'autres applications ou pour les développeurs."
-                                   Style="{StaticResource ExportDescriptionStyle}"/>
+                                   Foreground="#B8B8B8"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   LineHeight="18"
+                                   Margin="0,0,0,15"/>
 
-                        <!-- Informations -->
-                        <StackPanel Margin="0,0,0,20">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="TAILLE: " Style="{StaticResource ExportInfoLabelStyle}"/>
-                                <TextBlock Text="~1.8 MB" Style="{StaticResource ExportInfoStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
+                        <TextBlock Text="TAILLE: ~1.8 MB"
+                                   Foreground="#F59E0B"
+                                   FontSize="11"
+                                   FontWeight="Bold"/>
 
-                        <!-- Bouton -->
-                        <Button Content="EXPORTER EN JSON" 
-                                Style="{StaticResource ExportButtonStyle}"
+                        <!-- Bouton export -->
+                        <Button Content="EXPORTER EN JSON"
+                                Style="{StaticResource ExportButton}"
                                 Click="ExportJSON_Click"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Carte SERIALIZE -->
-                <Border Style="{StaticResource ExportCardStyle}">
+                <!-- SERIALIZE Export -->
+                <Border Style="{StaticResource ExportCard}">
                     <StackPanel>
-                        <!-- Header avec icône -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                            <Border Style="{StaticResource ExportIconStyle}" 
-                                    Background="#1E40AF">
-                                <TextBlock Text="💾" 
-                                           FontSize="20" 
-                                           HorizontalAlignment="Center" 
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="SERIALIZE (.dat)" 
-                                       Style="{StaticResource ExportTitleStyle}"
-                                       VerticalAlignment="Center"
-                                       Margin="0"/>
-                        </StackPanel>
+                        <!-- Icône SERIALIZE -->
+                        <Border Background="#3B82F6"
+                                Width="60"
+                                Height="60"
+                                CornerRadius="8"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,20">
+                            <Grid>
+                                <TextBlock Text="💾"
+                                          FontSize="24"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
 
-                        <!-- Description -->
+                        <!-- Titre et description -->
+                        <TextBlock Text="SERIALIZE (.dat)"
+                                   Foreground="White"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,10"/>
+
                         <TextBlock Text="Format binaire optimisé pour la sauvegarde et restauration rapide de toutes vos données."
-                                   Style="{StaticResource ExportDescriptionStyle}"/>
+                                   Foreground="#B8B8B8"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   LineHeight="18"
+                                   Margin="0,0,0,15"/>
 
-                        <!-- Informations -->
-                        <StackPanel Margin="0,0,0,20">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="TAILLE: " Style="{StaticResource ExportInfoLabelStyle}"/>
-                                <TextBlock Text="~900 KB" Style="{StaticResource ExportInfoStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
+                        <TextBlock Text="TAILLE: ~900 KB"
+                                   Foreground="#3B82F6"
+                                   FontSize="11"
+                                   FontWeight="Bold"/>
 
-                        <!-- Bouton -->
-                        <Button Content="EXPORTER EN BINAIRE" 
-                                Style="{StaticResource ExportButtonStyle}"
+                        <!-- Bouton export -->
+                        <Button Content="EXPORTER EN BINAIRE"
+                                Style="{StaticResource ExportButton}"
                                 Click="ExportSerialize_Click"/>
                     </StackPanel>
                 </Border>
-            </UniformGrid>
 
-            <!-- Section export complet -->
-            <TextBlock Text="EXPORT COMPLET" 
+            </StackPanel>
+
+            <!-- Section Export Complet -->
+            <TextBlock Text="EXPORT COMPLET"
                        Foreground="#D393FF"
-                       FontSize="20" 
+                       FontSize="18"
                        FontWeight="Bold"
-                       Margin="0,5,0,10"/>
+                       Margin="0,20,0,20"/>
 
-            <Border Style="{StaticResource ExportAllCardStyle}">
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="EXPORTER TOUT" 
-                               Foreground="#B974FF"
-                               FontSize="22" 
+            <!-- Carte Export Tout -->
+            <Border Background="#2A2A2A"
+                    CornerRadius="12"
+                    Padding="30"
+                    MaxWidth="500"
+                    HorizontalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
+                </Border.Effect>
+
+                <StackPanel>
+                    <TextBlock Text="EXPORTER TOUT"
+                               Foreground="#D393FF"
+                               FontSize="22"
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
                                Margin="0,0,0,10"/>
 
                     <TextBlock Text="Téléchargez toutes vos données dans tous les formats disponibles en une seule fois"
-                               Style="{StaticResource ExportDescriptionStyle}"
-                               HorizontalAlignment="Center"
+                               Foreground="#B8B8B8"
+                               FontSize="13"
                                TextAlignment="Center"
+                               TextWrapping="Wrap"
                                Margin="0,0,0,25"/>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="EXPORTER TOUT (.zip)" 
-                                Style="{StaticResource ExportButtonStyle}"
-                                Width="200"
-                                Margin="0,0,15,0"
+                    <!-- Boutons alignés -->
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Center">
+                        <Button Content="EXPORTER TOUT (.zip)"
+                                Style="{StaticResource BigButton}"
                                 Click="ExportAll_Click"/>
 
-                        <Button Content="PROGRAMMER EXPORT" 
-                                Style="{StaticResource ExportButtonStyle}"
-                                Width="200"
-                                Background="#6366F1"
+                        <Button Content="PROGRAMMER EXPORT"
+                                Style="{StaticResource SecondaryButton}"
                                 Click="ScheduleExport_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

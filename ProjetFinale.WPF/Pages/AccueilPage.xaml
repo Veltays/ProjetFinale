@@ -6,24 +6,26 @@
 
     <Page.Resources>
         <!-- Styles pour la page d'accueil -->
-        <Style x:Key="ProfileCardStyle" TargetType="Border">
+        <Style x:Key="WelcomeCardStyle" TargetType="Border">
             <Setter Property="Background" Value="#2A2A2A"/>
             <Setter Property="CornerRadius" Value="15"/>
             <Setter Property="Padding" Value="25"/>
+            <Setter Property="Margin" Value="20"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="4" Opacity="0.3"/>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <Style x:Key="ObjectifCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#B974FF"/>
-            <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Padding" Value="25"/>
+        <Style x:Key="ProfileCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Padding" Value="30"/>
+            <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="4" Opacity="0.2"/>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Opacity="0.4"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -32,10 +34,46 @@
             <Setter Property="Background" Value="#2A2A2A"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinHeight" Value="120"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.4"/>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ChartPlaceholderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#AF66FF"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinHeight" Value="200"/>
+        </Style>
+
+        <Style x:Key="QuickActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#AF66FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#D393FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -81,246 +119,305 @@
             <Setter Property="Padding" Value="12,6"/>
             <Setter Property="MinWidth" Value="90"/>
         </Style>
-
-        <Style x:Key="StatTitleStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
-        </Style>
-
-        <Style x:Key="ChartPlaceholderStyle" TargetType="Border">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Height" Value="120"/>
-            <Setter Property="BorderBrush" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="2"/>
-        </Style>
     </Page.Resources>
 
     <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
         <StackPanel>
 
-            <!-- Section Profil + Objectif -->
-            <Grid Margin="0,0,0,25">
+            <!-- Message de bienvenue -->
+            <Border Style="{StaticResource WelcomeCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="🎯 TABLEAU DE BORD"
+                               Foreground="#D393FF"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Bienvenue dans votre espace fitness ! Suivez vos progrès et atteignez vos objectifs."
+                               Foreground="#B8B8B8"
+                               FontSize="14"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Section profil et objectifs -->
+            <Grid Margin="0,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="15"/>
                     <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Carte Profil Utilisateur -->
+                <!-- Profil utilisateur -->
                 <Border Grid.Column="0" Style="{StaticResource ProfileCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Photo de profil -->
-                        <Border Grid.Column="0" 
-                                Width="100" 
-                                Height="100" 
+                        <Border Grid.Column="0"
+                                Background="#AF66FF"
                                 CornerRadius="50"
-                                Background="White"
-                                Margin="0,0,25,0"
-                                VerticalAlignment="Center">
-                            <Border.Effect>
-                                <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
-                            </Border.Effect>
-                            <!-- Placeholder pour l'avatar -->
-                            <TextBlock Text="👤" 
-                                      FontSize="48" 
-                                      HorizontalAlignment="Center" 
-                                      VerticalAlignment="Center"
-                                      Foreground="#666"/>
+                                Width="100"
+                                Height="100"
+                                Margin="0,0,25,0">
+                            <TextBlock Text="👤"
+                                      FontSize="40"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
                         </Border>
 
                         <!-- Informations utilisateur -->
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock x:Name="PseudoLabel" 
-                                      Text="Veltays" 
+                            <TextBlock Text="Veltays"
                                       Foreground="White"
                                       FontSize="24"
                                       FontWeight="Bold"
-                                      Margin="0,0,0,8"/>
-                            <TextBlock x:Name="DateInscriptionLabel" 
-                                      Text="INSCRIT LE 14/07/2025" 
+                                      Margin="0,0,0,5"/>
+
+                            <TextBlock Text="INSCRIT LE 17/07/2025"
                                       Foreground="#B8B8B8"
-                                      FontSize="14"
-                                      FontWeight="Bold"/>
-                        </StackPanel>
+                                      FontSize="12"
+                                      Margin="0,0,0,15"/>
 
-                        <!-- Statistiques utilisateur -->
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <!-- Poids -->
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBox x:Name="PoidLabel" Text="65" Style="{StaticResource UserInfoValueStyle}"/>
-                                    <TextBlock Text="KG" Style="{StaticResource UserInfoUnitStyle}"/>
-                                </StackPanel>
-                            </Border>
+                            <!-- Stats utilisateur -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
 
-                            <!-- IMC -->
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBox x:Name="ImcLabel" Text="20.3" Style="{StaticResource UserInfoValueStyle}"/>
-                                    <TextBlock Text="IMC" Style="{StaticResource UserInfoUnitStyle}"/>
+                                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="0,5">
+                                    <TextBlock Text="POIDS:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
+                                    <TextBlock Text="69 KG" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
-                            </Border>
 
-                            <!-- Taille -->
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBox x:Name="TailleLabel" Text="179" Style="{StaticResource UserInfoValueStyle}"/>
-                                    <TextBlock Text="CM" Style="{StaticResource UserInfoUnitStyle}"/>
+                                <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="0,5">
+                                    <TextBlock Text="TAILLE:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
+                                    <TextBlock Text="179 CM" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
-                            </Border>
 
-                            <!-- Âge -->
-                            <Border Style="{StaticResource UserInfoContainerStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBox x:Name="AnsLabel" Text="21" Style="{StaticResource UserInfoValueStyle}"/>
-                                    <TextBlock Text="ANS" Style="{StaticResource UserInfoUnitStyle}"/>
+                                <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="0,5">
+                                    <TextBlock Text="IMC:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
+                                    <TextBlock Text="21,5" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
-                            </Border>
+
+                                <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Margin="0,5">
+                                    <TextBlock Text="ÂGE:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
+                                    <TextBlock Text="21 ANS" Foreground="White" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Carte Objectif -->
-                <Border Grid.Column="2" Style="{StaticResource ObjectifCardStyle}">
+                <!-- Objectifs 2026 -->
+                <Border Grid.Column="1" Style="{StaticResource ProfileCardStyle}" Background="#AF66FF">
                     <StackPanel>
-                        <TextBlock Text="OBJECTIF 2026" 
-                                  Foreground="White" 
-                                  FontSize="18" 
+                        <TextBlock Text="🎯 OBJECTIF 2026"
+                                  Foreground="White"
+                                  FontSize="18"
                                   FontWeight="Bold"
                                   HorizontalAlignment="Center"
                                   Margin="0,0,0,20"/>
 
-                        <!-- Poids visé -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
-                            <TextBlock Text="POIDS VISÉ :" Style="{StaticResource ObjectifLabelStyle}"/>
-                            <Border Style="{StaticResource ObjectifValueStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock x:Name="PoidObjectifLabel" Text="60" 
-                                              Foreground="White" FontWeight="Bold"/>
-                                    <TextBlock Text=" KG" 
-                                              Foreground="White" FontWeight="Bold" Margin="5,0,0,0"/>
-                                </StackPanel>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="POIDS VISÉ :" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                            <Border Background="#2A2A2A" CornerRadius="5" Padding="8" Margin="0,5">
+                                <TextBlock Text="60 KG" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- IMC visé -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
-                            <TextBlock Text="IMC VISÉ :" Style="{StaticResource ObjectifLabelStyle}"/>
-                            <Border Style="{StaticResource ObjectifValueStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock x:Name="ImcObjectifLabel" Text="18.7" 
-                                              Foreground="White" FontWeight="Bold"/>
-                                    <TextBlock Text=" IMC" 
-                                              Foreground="White" FontWeight="Bold" Margin="5,0,0,0"/>
-                                </StackPanel>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="IMC VISÉ :" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                            <Border Background="#2A2A2A" CornerRadius="5" Padding="8" Margin="0,5">
+                                <TextBlock Text="18.7 IMC" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- Durée -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <TextBlock Text="POUR :" Style="{StaticResource ObjectifLabelStyle}"/>
-                            <Border Style="{StaticResource ObjectifValueStyle}">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock x:Name="DateObjectifLabel" Text="0" 
-                                              Foreground="White" FontWeight="Bold"/>
-                                    <TextBlock Text=" ANS" 
-                                              Foreground="White" FontWeight="Bold" Margin="5,0,0,0"/>
-                                </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="POUR :" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                            <Border Background="#2A2A2A" CornerRadius="5" Padding="8" Margin="0,5">
+                                <TextBlock Text="0 ANS" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- Section Statistiques -->
-            <UniformGrid Columns="2" Rows="2">
+            <!-- Actions rapides -->
+            <Border Style="{StaticResource StatCardStyle}" Margin="10,20">
+                <StackPanel>
+                    <TextBlock Text="⚡ ACTIONS RAPIDES"
+                               Foreground="#D393FF"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Margin="0,0,0,15"/>
 
-                <!-- Calories totales brûlées -->
-                <Border Style="{StaticResource StatCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="CALORIE TOTALE BRÛLÉES (KCAL)" 
-                                  Style="{StaticResource StatTitleStyle}"/>
+                    <UniformGrid Rows="1" Columns="4">
+                        <Button Content="🏃 NOUVELLE SÉANCE" 
+                                Style="{StaticResource QuickActionButtonStyle}"
+                                Click="NouvelleSeance_Click"/>
+                        <Button Content="📊 VOIR PROGRÈS" 
+                                Style="{StaticResource QuickActionButtonStyle}"
+                                Click="VoirProgres_Click"/>
+                        <Button Content="🎯 MES OBJECTIFS" 
+                                Style="{StaticResource QuickActionButtonStyle}"
+                                Click="MesObjectifs_Click"/>
+                        <Button Content="📅 PLANNING" 
+                                Style="{StaticResource QuickActionButtonStyle}"
+                                Click="Planning_Click"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
 
-                        <!-- Zone pour futur graphique -->
-                        <Border Style="{StaticResource ChartPlaceholderStyle}">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="📊" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                <TextBlock Text="Graphique à venir" 
-                                          Foreground="#666666" 
-                                          FontSize="12" 
-                                          HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
+            <!-- Graphiques et statistiques -->
+            <Grid Margin="0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <!-- Calories brûlées -->
+                <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource ChartPlaceholderStyle}">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="📊 CALORIES TOTALE BRÛLÉES (KCAL)"
+                                  Foreground="#D393FF"
+                                  FontSize="14"
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,20"/>
+
+                        <TextBlock Text="📈"
+                                  FontSize="40"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Graphique à venir"
+                                  Foreground="#666"
+                                  FontSize="12"
+                                  HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Tâches accomplies -->
-                <Border Style="{StaticResource StatCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="TÂCHES ACCOMPLIES" 
-                                  Style="{StaticResource StatTitleStyle}"/>
+                <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource ChartPlaceholderStyle}">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="✅ TÂCHES ACCOMPLIES"
+                                  Foreground="#D393FF"
+                                  FontSize="14"
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,20"/>
 
-                        <!-- Zone pour futur graphique -->
-                        <Border Style="{StaticResource ChartPlaceholderStyle}">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="✅" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                <TextBlock Text="Graphique à venir" 
-                                          Foreground="#666666" 
-                                          FontSize="12" 
-                                          HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="☑️"
+                                  FontSize="40"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Graphique à venir"
+                                  Foreground="#666"
+                                  FontSize="12"
+                                  HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Nombre total de séances -->
-                <Border Style="{StaticResource StatCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="NOMBRE TOTAL DE SÉANCES" 
-                                  Style="{StaticResource StatTitleStyle}"/>
+                <!-- Nombre de séances -->
+                <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource ChartPlaceholderStyle}">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="🏋️ NOMBRE TOTAL DE SÉANCES"
+                                  Foreground="#D393FF"
+                                  FontSize="14"
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,20"/>
 
-                        <!-- Zone pour futur graphique -->
-                        <Border Style="{StaticResource ChartPlaceholderStyle}">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="🏃" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                <TextBlock Text="Graphique à venir" 
-                                          Foreground="#666666" 
-                                          FontSize="12" 
-                                          HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="💪"
+                                  FontSize="40"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Graphique à venir"
+                                  Foreground="#666"
+                                  FontSize="12"
+                                  HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Objectif accompli -->
-                <Border Style="{StaticResource StatCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="OBJECTIF ACCOMPLI (%)" 
-                                  Style="{StaticResource StatTitleStyle}"/>
+                <!-- Objectifs accomplis -->
+                <Border Grid.Column="1" Grid.Row="1" Style="{StaticResource ChartPlaceholderStyle}">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="🎯 OBJECTIF ACCOMPLI (%)"
+                                  Foreground="#D393FF"
+                                  FontSize="14"
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,20"/>
 
-                        <!-- Zone pour futur graphique -->
-                        <Border Style="{StaticResource ChartPlaceholderStyle}">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="🎯" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                <TextBlock Text="Graphique à venir" 
-                                          Foreground="#666666" 
-                                          FontSize="12" 
-                                          HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="🏆"
+                                  FontSize="40"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Graphique à venir"
+                                  Foreground="#666"
+                                  FontSize="12"
+                                  HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
-            </UniformGrid>
+            </Grid>
+
+            <!-- Résumé de la semaine -->
+            <Border Style="{StaticResource StatCardStyle}" Margin="10,20">
+                <StackPanel>
+                    <TextBlock Text="📅 RÉSUMÉ DE LA SEMAINE"
+                               Foreground="#D393FF"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Margin="0,0,0,15"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <TextBlock Text="5" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Séances" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <TextBlock Text="2,450" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Calories" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <TextBlock Text="12" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Tâches" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                            <TextBlock Text="8.5h" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Temps total" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

@@ -1,6 +1,7 @@
 ﻿using ProjetFinale.Services;
 using ProjetFinale.Utils;
 using ProjetFinale.Views;
+using ProjetFinale.WPF;
 using System.Windows;
 
 namespace ProjetFinale
@@ -11,7 +12,7 @@ namespace ProjetFinale
         {
             base.OnStartup(e);
 
-            var paramManager = new MyAppParamManager();
+            var paramManager = new SettingsManager();
 
             if (paramManager.IsLogin)
             {

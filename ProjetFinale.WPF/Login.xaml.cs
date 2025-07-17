@@ -2,6 +2,7 @@
 using ProjetFinale.Models;
 using ProjetFinale.Services;
 using ProjetFinale.Views;
+using ProjetFinale.WPF;
 using System;
 using System.Windows;
 
@@ -53,7 +54,7 @@ namespace ProjetFinale.Views
             // Si OK → continuer
             MessageBox.Show($"Bienvenue {utilisateur.Prenom} ! Profil créé avec succès.", "Succès");
 
-            var paramManager = new MyAppParamManager();
+            var paramManager = new SettingsManager();
             paramManager.IsLogin = true;
 
             var mainWindow = new MainWindow();
