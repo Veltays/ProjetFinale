@@ -9,6 +9,7 @@ namespace ProjetFinale.Models
         public string Nom { get; set; }
         public string Prenom { get; set; }
         public string Email { get; set; }
+        
 
         public int Age { get; set; }
         public string MDPHash { get; set; }
@@ -36,6 +37,8 @@ namespace ProjetFinale.Models
 
         public List<Activite> ListeActivites { get; set; } = new();
         public List<Statistique> ListeStatistiques { get; set; } = new();
+
+        public List<Agenda> ListeAgenda { get; set; } = new();
         public List<Tache> ListeTaches { get; set; } = new();
     }
 }

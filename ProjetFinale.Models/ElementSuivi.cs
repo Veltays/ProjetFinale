@@ -9,7 +9,6 @@ namespace ProjetFinale.Models
     public abstract class ElementSuivi
     {
         public int Id { get; set; }
-        public string Nom { get; set; }
         public DateTime Date { get; set; }
     }
 }

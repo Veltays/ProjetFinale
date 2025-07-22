@@ -6,7 +6,6 @@ namespace ProjetFinale.Models
     {
         public TypeStatistique Type { get; set; }
         public float Valeur { get; set; }
-        public DateTime Date { get; set; }
         public string Unite { get; set; }
     }
 }
