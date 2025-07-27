@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
 
 namespace ProjetFinale.Models
 {
@@ -21,7 +23,16 @@ namespace ProjetFinale.Models
         private DateTime _dateObjectif;
         private List<Activite> _listeActivites = new();
         private List<Statistique> _listeStatistiques = new();
-        private List<Agenda> _listeAgenda = new();
+        
+        
+        private ObservableCollection<Agenda> _listeAgenda = new ObservableCollection<Agenda>();
+        public ObservableCollection<Agenda> ListeAgenda
+        {
+            get => _listeAgenda;
+            set { _listeAgenda = value; OnPropertyChanged(); }
+        }
+
+
         private List<Tache> _listeTaches = new();
 
         // Propriétés publiques avec notification
