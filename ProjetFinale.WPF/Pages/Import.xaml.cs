@@ -1,8 +1,13 @@
 ﻿using Microsoft.Win32;
+using ProjetFinale.Models;
+using ProjetFinale.Services;
+using ProjetFinale.Utils;
 using System;
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ProjetFinale.WPF
 {
@@ -35,7 +40,7 @@ namespace ProjetFinale.WPF
                         return;
                     }
 
-                    // TODO: Implémenter la logique d'import CSV
+                    // Traitement de l'import CSV
                     ProcessImport("CSV", openFileDialog.FileName, fileInfo.Length);
 
                     MessageBox.Show($"Import CSV réussi !\nFichier : {Path.GetFileName(openFileDialog.FileName)}\nTaille : {FormatFileSize(fileInfo.Length)}",
@@ -71,7 +76,7 @@ namespace ProjetFinale.WPF
                         return;
                     }
 
-                    // TODO: Implémenter la logique d'import JSON
+                    // Traitement de l'import JSON
                     ProcessImport("JSON", openFileDialog.FileName, fileInfo.Length);
 
                     MessageBox.Show($"Import JSON réussi !\nFichier : {Path.GetFileName(openFileDialog.FileName)}\nTaille : {FormatFileSize(fileInfo.Length)}",
@@ -107,7 +112,7 @@ namespace ProjetFinale.WPF
                         return;
                     }
 
-                    // TODO: Implémenter la logique d'import Excel
+                    // Traitement de l'import Excel
                     ProcessImport("EXCEL", openFileDialog.FileName, fileInfo.Length);
 
                     MessageBox.Show($"Import Excel réussi !\nFichier : {Path.GetFileName(openFileDialog.FileName)}\nTaille : {FormatFileSize(fileInfo.Length)}",
@@ -123,14 +128,103 @@ namespace ProjetFinale.WPF
 
         private void ProcessImport(string format, string filePath, long fileSize)
         {
-            // Ajouter à l'historique
-            AddToHistory(format, Path.GetFileName(filePath), fileSize, DateTime.Now);
+            try
+            {
+                // Ajouter à l'historique
+                AddToHistory(format, Path.GetFileName(filePath), fileSize, DateTime.Now);
 
-            // TODO: Ici tu peux ajouter la logique spécifique pour chaque format :
-            // - Parser le CSV avec ta logique existante
-            // - Traiter le JSON 
-            // - Lire l'Excel avec EPPlus ou autre
-            // - Sauvegarder dans ta base de données
+                // Logique spécifique par format
+                switch (format)
+                {
+                    case "JSON":
+                        ImportJsonFile(filePath);
+                        break;
+                    case "CSV":
+                        // TODO: Implémenter l'import CSV
+                        MessageBox.Show("Import CSV pas encore implémenté", "Info",
+                                      MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                    case "EXCEL":
+                        // TODO: Implémenter l'import Excel
+                        MessageBox.Show("Import Excel pas encore implémenté", "Info",
+                                      MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'import {format} :\n{ex.Message}",
+                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ImportJsonFile(string filePath)
+        {
+            try
+            {
+                Console.WriteLine($"🔄 Début import JSON : {filePath}");
+
+                // Lire le fichier JSON
+                var json = File.ReadAllText(filePath);
+                var utilisateurImporte = JsonSerializer.Deserialize<Utilisateur>(json);
+
+                if (utilisateurImporte != null)
+                {
+                    Console.WriteLine($"✅ Utilisateur désérialisé : {utilisateurImporte.Pseudo}, Age: {utilisateurImporte.Age}");
+
+                    // ⚠️ ÉCRASEMENT COMPLET des données Account
+                    JsonService.SauvegarderUtilisateur(utilisateurImporte);
+                    Console.WriteLine("💾 Utilisateur sauvegardé dans le fichier JSON");
+
+                    // Mettre à jour l'utilisateur actif
+                    UserService.UtilisateurActif = utilisateurImporte;
+                    Console.WriteLine("🔄 UtilisateurActif mis à jour");
+
+                    // 🔥 NOUVEAU : Rafraîchir automatiquement la page Account
+                    RafraichirPageAccount();
+
+                    // Message de succès avec détails
+                    MessageBox.Show($"✅ Données utilisateur importées et remplacées !\n\n" +
+                                   $"👤 Utilisateur : {utilisateurImporte.Pseudo}\n" +
+                                   $"📅 Âge : {utilisateurImporte.Age} ans\n" +
+                                   $"⚖️ Poids : {utilisateurImporte.Poids} kg\n" +
+                                   $"📏 Taille : {utilisateurImporte.Taille} cm\n\n" +
+                                   $"➡️ Allez sur la page Account pour voir les changements !",
+                                   "Import réussi", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    throw new Exception("Impossible de désérialiser le fichier JSON");
+                }
+            }
+            catch (JsonException jsonEx)
+            {
+                throw new Exception($"Format JSON invalide : {jsonEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erreur lors de l'import : {ex.Message}");
+            }
+        }
+
+        // 🚀 NOUVELLE MÉTHODE : Rafraîchir la page Account
+        private void RafraichirPageAccount()
+        {
+            try
+            {
+                var mainWindow = Application.Current.MainWindow as Views.MainWindow;
+                if (mainWindow != null)
+                {
+                    // Naviguer vers la page Account pour forcer le rafraîchissement
+                    mainWindow.NavigateToAccueil();
+                    Console.WriteLine("🔄 Page Account rafraîchie automatiquement");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Erreur lors du rafraîchissement : {ex.Message}");
+                // L'erreur n'est pas critique, on continue
+            }
         }
 
         private void AddToHistory(string format, string fileName, long fileSize, DateTime importDate)
@@ -138,11 +232,12 @@ namespace ProjetFinale.WPF
             // Créer un nouvel élément d'historique
             var historyItem = new Border
             {
-                Background = System.Windows.Media.Brushes.Transparent,
-                BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 175, 102, 255)),
+                Background = Brushes.Transparent,
+                BorderBrush = new SolidColorBrush(Color.FromArgb(255, 175, 102, 255)),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
-
+                Margin = new Thickness(0, 5, 0, 5),
+                //Padding = new Thickness(15, 10)
             };
 
             var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
@@ -152,7 +247,7 @@ namespace ProjetFinale.WPF
             {
                 Text = GetFormatIcon(format),
                 FontSize = 16,
-                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 175, 102, 255)),
+                Foreground = new SolidColorBrush(Color.FromArgb(255, 175, 102, 255)),
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 15, 0)
             };
@@ -162,14 +257,14 @@ namespace ProjetFinale.WPF
             var fileNameText = new TextBlock
             {
                 Text = fileName,
-                Foreground = System.Windows.Media.Brushes.White,
+                Foreground = Brushes.White,
                 FontWeight = FontWeights.Bold,
                 FontSize = 14
             };
             var detailsText = new TextBlock
             {
                 Text = $"{format} • {FormatFileSize(fileSize)} • {importDate:dd/MM/yyyy HH:mm}",
-                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 204, 204, 204)),
+                Foreground = new SolidColorBrush(Color.FromArgb(255, 204, 204, 204)),
                 FontSize = 12
             };
 

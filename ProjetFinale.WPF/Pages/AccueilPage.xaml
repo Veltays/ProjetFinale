@@ -1,31 +1,31 @@
 ﻿<Page x:Class="ProjetFinale.WPF.AccueilPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Accueil"
+      Title="AccueilPage" 
       Background="#303030">
 
     <Page.Resources>
-        <!-- Styles pour la page d'accueil -->
+        <!-- Styles existants conservés -->
         <Style x:Key="WelcomeCardStyle" TargetType="Border">
             <Setter Property="Background" Value="#2A2A2A"/>
             <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Padding" Value="25"/>
-            <Setter Property="Margin" Value="20"/>
+            <Setter Property="Padding" Value="30"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.3"/>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
         </Style>
 
         <Style x:Key="ProfileCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Setter Property="CornerRadius" Value="20"/>
-            <Setter Property="Padding" Value="30"/>
-            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="25"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Opacity="0.4"/>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -34,8 +34,6 @@
             <Setter Property="Background" Value="#2A2A2A"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="MinHeight" Value="120"/>
             <Setter Property="Effect">
                 <Setter.Value>
                     <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
@@ -43,29 +41,21 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ChartPlaceholderStyle" TargetType="Border">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="BorderBrush" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="MinHeight" Value="200"/>
-        </Style>
-
         <Style x:Key="QuickActionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#AF66FF"/>
-            <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="{StaticResource KameronBold}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="60"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center"
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8"
+                                Padding="15,10">
+                            <ContentPresenter HorizontalAlignment="Center" 
                                             VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -76,48 +66,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-
-        <Style x:Key="UserInfoContainerStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2E2E2E"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="0,8"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="MinWidth" Value="80"/>
-        </Style>
-
-        <Style x:Key="UserInfoValueStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#D393FF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-        </Style>
-
-        <Style x:Key="UserInfoUnitStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#D393FF"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="8,0,0,0"/>
-        </Style>
-
-        <Style x:Key="ObjectifLabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="ObjectifValueStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2E2E2E"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="12,0,0,0"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="MinWidth" Value="90"/>
         </Style>
     </Page.Resources>
 
@@ -172,13 +120,15 @@
 
                         <!-- Informations utilisateur -->
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Veltays"
+                            <!-- BINDING: Pseudo dynamique -->
+                            <TextBlock Text="{Binding Pseudo}"
                                       Foreground="White"
                                       FontSize="24"
                                       FontWeight="Bold"
                                       Margin="0,0,0,5"/>
 
-                            <TextBlock Text="INSCRIT LE 17/07/2025"
+                            <!-- BINDING: Date d'inscription formatée -->
+                            <TextBlock Text="{Binding DateInscription, StringFormat='INSCRIT LE {0:dd/MM/yyyy}'}"
                                       Foreground="#B8B8B8"
                                       FontSize="12"
                                       Margin="0,0,0,15"/>
@@ -194,24 +144,28 @@
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
 
+                                <!-- BINDING: Poids -->
                                 <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="0,5">
                                     <TextBlock Text="POIDS:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
-                                    <TextBlock Text="69 KG" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding PoidsFormate}" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
 
+                                <!-- BINDING: Taille -->
                                 <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="0,5">
                                     <TextBlock Text="TAILLE:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
-                                    <TextBlock Text="179 CM" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding TailleFormatee}" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
 
+                                <!-- BINDING: IMC -->
                                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="0,5">
                                     <TextBlock Text="IMC:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
-                                    <TextBlock Text="21,5" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding IMCFormate}" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
 
+                                <!-- BINDING: Âge -->
                                 <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Margin="0,5">
                                     <TextBlock Text="ÂGE:" Foreground="#D393FF" FontWeight="Bold" Margin="0,0,10,0"/>
-                                    <TextBlock Text="21 ANS" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding AgeFormate}" Foreground="White" FontWeight="Bold"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -221,31 +175,35 @@
                 <!-- Objectifs 2026 -->
                 <Border Grid.Column="1" Style="{StaticResource ProfileCardStyle}" Background="#AF66FF">
                     <StackPanel>
-                        <TextBlock Text="🎯 OBJECTIF 2026"
+                        <!-- BINDING: Année d'objectif dynamique -->
+                        <TextBlock Text="{Binding DateObjectifFormatee, StringFormat='🎯 OBJECTIF {0}'}"
                                   Foreground="White"
                                   FontSize="18"
                                   FontWeight="Bold"
                                   HorizontalAlignment="Center"
                                   Margin="0,0,0,20"/>
 
+                        <!-- BINDING: Poids visé -->
                         <StackPanel Margin="0,0,0,10">
                             <TextBlock Text="POIDS VISÉ :" Foreground="White" FontSize="12" FontWeight="Bold"/>
                             <Border Background="#2A2A2A" CornerRadius="5" Padding="8" Margin="0,5">
-                                <TextBlock Text="60 KG" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding ObjectifPoidsFormate}" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
 
+                        <!-- BINDING: IMC visé -->
                         <StackPanel Margin="0,0,0,10">
                             <TextBlock Text="IMC VISÉ :" Foreground="White" FontSize="12" FontWeight="Bold"/>
                             <Border Background="#2A2A2A" CornerRadius="5" Padding="8" Margin="0,5">
-                                <TextBlock Text="18.7 IMC" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding IMCObjectifFormate}" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
 
+                        <!-- BINDING: Années restantes -->
                         <StackPanel>
                             <TextBlock Text="POUR :" Foreground="White" FontSize="12" FontWeight="Bold"/>
                             <Border Background="#2A2A2A" CornerRadius="5" Padding="8" Margin="0,5">
-                                <TextBlock Text="0 ANS" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding AnneesRestantesFormate}" Foreground="#D393FF" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
                     </StackPanel>
@@ -278,143 +236,20 @@
                 </StackPanel>
             </Border>
 
-            <!-- Graphiques et statistiques -->
-            <Grid Margin="0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-
-                <!-- Calories brûlées -->
-                <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource ChartPlaceholderStyle}">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="📊 CALORIES TOTALE BRÛLÉES (KCAL)"
-                                  Foreground="#D393FF"
-                                  FontSize="14"
-                                  FontWeight="Bold"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,20"/>
-
-                        <TextBlock Text="📈"
-                                  FontSize="40"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,10"/>
-
-                        <TextBlock Text="Graphique à venir"
-                                  Foreground="#666"
-                                  FontSize="12"
-                                  HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Tâches accomplies -->
-                <Border Grid.Column="1" Grid.Row="0" Style="{StaticResource ChartPlaceholderStyle}">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="✅ TÂCHES ACCOMPLIES"
-                                  Foreground="#D393FF"
-                                  FontSize="14"
-                                  FontWeight="Bold"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,20"/>
-
-                        <TextBlock Text="☑️"
-                                  FontSize="40"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,10"/>
-
-                        <TextBlock Text="Graphique à venir"
-                                  Foreground="#666"
-                                  FontSize="12"
-                                  HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Nombre de séances -->
-                <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource ChartPlaceholderStyle}">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="🏋️ NOMBRE TOTAL DE SÉANCES"
-                                  Foreground="#D393FF"
-                                  FontSize="14"
-                                  FontWeight="Bold"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,20"/>
-
-                        <TextBlock Text="💪"
-                                  FontSize="40"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,10"/>
-
-                        <TextBlock Text="Graphique à venir"
-                                  Foreground="#666"
-                                  FontSize="12"
-                                  HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Objectifs accomplis -->
-                <Border Grid.Column="1" Grid.Row="1" Style="{StaticResource ChartPlaceholderStyle}">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="🎯 OBJECTIF ACCOMPLI (%)"
-                                  Foreground="#D393FF"
-                                  FontSize="14"
-                                  FontWeight="Bold"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,20"/>
-
-                        <TextBlock Text="🏆"
-                                  FontSize="40"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,10"/>
-
-                        <TextBlock Text="Graphique à venir"
-                                  Foreground="#666"
-                                  FontSize="12"
-                                  HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- Résumé de la semaine -->
+            <!-- Section graphiques (placeholder) -->
             <Border Style="{StaticResource StatCardStyle}" Margin="10,20">
                 <StackPanel>
-                    <TextBlock Text="📅 RÉSUMÉ DE LA SEMAINE"
+                    <TextBlock Text="📈 VOS PROGRÈS"
                                Foreground="#D393FF"
                                FontSize="16"
                                FontWeight="Bold"
                                Margin="0,0,0,15"/>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                            <TextBlock Text="5" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Séances" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                            <TextBlock Text="2,450" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Calories" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                            <TextBlock Text="12" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Tâches" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="3" HorizontalAlignment="Center">
-                            <TextBlock Text="8.5h" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Temps total" Foreground="#B8B8B8" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
+                    <TextBlock Text="Les graphiques de progression seront affichés ici..."
+                               Foreground="#B8B8B8"
+                               FontSize="14"
+                               TextAlignment="Center"
+                               Margin="0,20"/>
                 </StackPanel>
             </Border>
 

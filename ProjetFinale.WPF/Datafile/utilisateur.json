@@ -4,31 +4,31 @@
   "Prenom": "Yassine",
   "Email": "granyassine774@gmail.com",
   "Age": 21,
-  "MDPHash": "VjFkR2VtTXliSFZhVkdNelNWRTlQUT09",
+  "MDPHash": "Vm0xd1IyRXhTWGxXYmxKVlYwZDRjRlV3V21GaFJscHlXa1UxYkdKRk5WaFZiRkp6VlZaV1ZVMUVhejA9",
   "Poids": 69,
   "Taille": 179,
-  "IMC": 0.0021534908398614275,
   "ObjectifPoids": 60,
   "DateInscription": "2025-07-17T21:45:57.0337727+02:00",
-  "MotDePasse": "VjFkR2VtTXliSFZhVkdNelNWRTlQUT09",
   "DateObjectif": "2025-07-26T00:00:00",
   "ListeActivites": [],
   "ListeStatistiques": [],
   "ListeAgenda": [],
   "ListeTaches": [
     {
-      "Titre": null,
-      "Description": "Salut",
-      "EstTerminee": false,
-      "Id": 0,
-      "Date": "0001-01-01T00:00:00"
-    },
-    {
-      "Titre": null,
       "Description": "YOOOO",
       "EstTerminee": false,
       "Id": 0,
       "Date": "0001-01-01T00:00:00"
     }
-  ]
+  ],
+  "IMC": 21.534908398614277,
+  "AgeFormate": "21 ANS",
+  "PoidsFormate": "69 KG",
+  "TailleFormatee": "179 CM",
+  "IMCFormate": "21,5",
+  "ObjectifPoidsFormate": "60 KG",
+  "DateObjectifFormatee": "2025",
+  "IMCObjectifFormate": "18,7 IMC",
+  "AnneesRestantesFormate": "0 ANS",
+  "MotDePasse": "Vm0xd1IyRXhTWGxXYmxKVlYwZDRjRlV3V21GaFJscHlXa1UxYkdKRk5WaFZiRkp6VlZaV1ZVMUVhejA9"
 }

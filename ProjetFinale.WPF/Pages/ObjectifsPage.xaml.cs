@@ -1,10 +1,10 @@
 ﻿using ProjetFinale.Models;
+using ProjetFinale.Services;
 using ProjetFinale.Utils;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace ProjetFinale.WPF
 {
@@ -15,20 +15,69 @@ namespace ProjetFinale.WPF
         public ObjectifPage()
         {
             InitializeComponent();
-            _utilisateur = JsonService.ChargerUtilisateur();
-            AfficherTaches();
+            InitialiserUtilisateur();
         }
+
+        private void InitialiserUtilisateur()
+        {
+            // Essayer d'abord l'utilisateur actif
+            _utilisateur = UserService.UtilisateurActif;
+
+            // Si pas d'utilisateur actif, charger depuis le fichier
+            if (_utilisateur == null)
+            {
+                _utilisateur = JsonService.ChargerUtilisateur();
+                if (_utilisateur != null)
+                {
+                    UserService.UtilisateurActif = _utilisateur;
+                }
+            }
+
+            // 🔥 DÉFINIR LE DATACONTEXT - C'est la magie du data binding !
+            if (_utilisateur != null)
+            {
+                this.DataContext = _utilisateur;
+                Console.WriteLine($"✅ DataContext défini pour ObjectifsPage : {_utilisateur.Pseudo}");
+                Console.WriteLine($"   Nombre de tâches : {_utilisateur.ListeTaches.Count}");
+            }
+            else
+            {
+                Console.WriteLine("⚠️ Aucun utilisateur trouvé pour ObjectifsPage");
+            }
+
+            // 🆕 S'abonner aux changements d'utilisateur
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+        }
+
+        // 🆕 Méthode appelée quand l'utilisateur change (après import par exemple)
+        private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
+        {
+            _utilisateur = nouvelUtilisateur;
+            this.DataContext = nouvelUtilisateur;
+
+            if (nouvelUtilisateur != null)
+            {
+                Console.WriteLine($"🔄 ObjectifsPage - Utilisateur changé : {nouvelUtilisateur.Pseudo}");
+                Console.WriteLine($"   Nouvelles tâches : {nouvelUtilisateur.ListeTaches.Count}");
+            }
+        }
+
+        // === GESTION DES ÉVÉNEMENTS (simplifiés) ===
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (NouvelleTacheTextBox.Text == "ENTREZ UNE TACHE....")
+            {
                 NouvelleTacheTextBox.Text = "";
+            }
         }
 
         private void NouvelleTacheTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
+            {
                 AjouterTacheDepuisChamp();
+            }
         }
 
         private void AjouterTacheButton_Click(object sender, RoutedEventArgs e)
@@ -43,145 +92,109 @@ namespace ProjetFinale.WPF
             if (!string.IsNullOrWhiteSpace(texte) && texte != "ENTREZ UNE TACHE....")
             {
                 AjouterTache(texte);
-                NouvelleTacheTextBox.Text = string.Empty;
+                NouvelleTacheTextBox.Text = "ENTREZ UNE TACHE...."; // Reset placeholder
             }
         }
 
+        // 🔥 MÉTHODE SIMPLIFIÉE : Plus besoin d'AfficherTaches() !
         private void AjouterTache(string texte)
         {
-            if (_utilisateur == null || string.IsNullOrWhiteSpace(texte)) return;
+            if (_utilisateur == null || string.IsNullOrWhiteSpace(texte))
+                return;
 
-            var nouvelle = new Tache { Description = texte };
-            _utilisateur.ListeTaches.Add(nouvelle);
+            try
+            {
+                var nouvelleTache = new Tache
+                {
+                    Description = texte,
+                    EstTerminee = false,
+                    Date = DateTime.Now
+                };
 
-            JsonService.SauvegarderUtilisateur(_utilisateur);
-            AfficherTaches();
+                // ✨ MAGIE : Juste ajouter à la liste, l'UI se met à jour automatiquement !
+                _utilisateur.ListeTaches.Add(nouvelleTache);
+
+                // Sauvegarder et mettre à jour l'utilisateur actif
+                JsonService.SauvegarderUtilisateur(_utilisateur);
+                UserService.UtilisateurActif = _utilisateur; // Déclenche la notification
+
+                Console.WriteLine($"✅ Nouvelle tâche ajoutée : {texte}");
+                Console.WriteLine($"   Total tâches : {_utilisateur.ListeTaches.Count}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ajout de la tâche :\n{ex.Message}",
+                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
+        // 🔥 MÉTHODE SIMPLIFIÉE : Plus de recherche manuelle !
         private void SupprimerTache_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is Tache tache && _utilisateur != null)
             {
-                _utilisateur.ListeTaches.Remove(tache);
-                JsonService.SauvegarderUtilisateur(_utilisateur);
-                AfficherTaches();
-            }
-        }
-
-        private void ToggleTacheEtat(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox checkBox && checkBox.Tag is Tache tache && _utilisateur != null)
-            {
-                tache.EstTerminee = checkBox.IsChecked == true;
-                JsonService.SauvegarderUtilisateur(_utilisateur);
-                AfficherTaches();
-            }
-        }
-
-        private void AfficherTaches()
-        {
-            TaskListContainer.Children.Clear();
-
-            if (this.FindName("EmptyStateMessage") is Border emptyMessage)
-                emptyMessage.Visibility = (_utilisateur?.ListeTaches.Count ?? 0) == 0 ? Visibility.Visible : Visibility.Collapsed;
-
-            if (_utilisateur == null) return;
-
-            foreach (var tache in _utilisateur.ListeTaches)
-            {
-                var item = CreerTacheElement(tache);
-                TaskListContainer.Children.Add(item);
-            }
-        }
-
-        private UIElement CreerTacheElement(Tache tache)
-        {
-            var border = new Border
-            {
-                Background = new SolidColorBrush(Color.FromRgb(42, 42, 42)),
-                CornerRadius = new CornerRadius(10),
-                Padding = new Thickness(20),
-                Margin = new Thickness(0, 0, 0, 15),
-                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                try
                 {
-                    Color = Colors.Black,
-                    BlurRadius = 8,
-                    ShadowDepth = 2,
-                    Opacity = 0.3
+                    // ✨ MAGIE : Juste supprimer de la liste, l'UI se met à jour automatiquement !
+                    _utilisateur.ListeTaches.Remove(tache);
+
+                    // Sauvegarder et notifier
+                    JsonService.SauvegarderUtilisateur(_utilisateur);
+                    UserService.UtilisateurActif = _utilisateur; // Déclenche la notification
+
+                    Console.WriteLine($"🗑️ Tâche supprimée : {tache.Description}");
+                    Console.WriteLine($"   Tâches restantes : {_utilisateur.ListeTaches.Count}");
                 }
-            };
-
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var checkBox = new CheckBox
-            {
-                IsChecked = tache.EstTerminee,
-                Width = 25,
-                Height = 25,
-                Margin = new Thickness(0, 0, 15, 0),
-                Tag = tache,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            if (this.Resources["CheckboxStyle"] is Style checkboxStyle)
-                checkBox.Style = checkboxStyle;
-
-            checkBox.Checked += ToggleTacheEtat;
-            checkBox.Unchecked += ToggleTacheEtat;
-            Grid.SetColumn(checkBox, 0);
-
-            var textBlock = new TextBlock
-            {
-                Text = tache.Description,
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
-                VerticalAlignment = VerticalAlignment.Center,
-                Foreground = tache.EstTerminee
-                    ? new SolidColorBrush(Color.FromRgb(136, 136, 136))
-                    : Brushes.White,
-                TextDecorations = tache.EstTerminee ? TextDecorations.Strikethrough : null
-            };
-            Grid.SetColumn(textBlock, 1);
-
-            var deleteButton = new Button
-            {
-                Width = 30,
-                Height = 30,
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-                Tag = tache,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            deleteButton.Click += SupprimerTache_Click;
-
-            var deleteText = new TextBlock
-            {
-                Text = "✕",
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(255, 68, 68)),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            deleteButton.Content = deleteText;
-
-            if (this.Resources["DeleteButtonStyle"] is Style deleteStyle)
-                deleteButton.Style = deleteStyle;
-
-            Grid.SetColumn(deleteButton, 2);
-
-            grid.Children.Add(checkBox);
-            grid.Children.Add(textBlock);
-            grid.Children.Add(deleteButton);
-
-            border.Child = grid;
-            return border;
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur lors de la suppression :\n{ex.Message}",
+                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
+
+        // 🆕 NOUVELLE MÉTHODE : Gestion automatique du changement d'état
+        private void TacheCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is Tache tache && _utilisateur != null)
+            {
+                try
+                {
+                    // ✨ Le binding s'occupe déjà de mettre à jour EstTerminee !
+                    // On n'a qu'à sauvegarder
+
+                    JsonService.SauvegarderUtilisateur(_utilisateur);
+                    UserService.UtilisateurActif = _utilisateur; // Déclenche la notification
+
+                    string etat = tache.EstTerminee ? "terminée" : "en cours";
+                    Console.WriteLine($"✅ Tâche '{tache.Description}' marquée comme {etat}");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur lors de la mise à jour :\n{ex.Message}",
+                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        // 🆕 MÉTHODE UTILITAIRE : Rafraîchir les données (si nécessaire)
+        public void RafraichirDonnees()
+        {
+            InitialiserUtilisateur();
+        }
+
+        // 🆕 Nettoyer les événements quand la page se ferme
+        ~ObjectifPage()
+        {
+            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
+        }
+
+        // === MÉTHODES SUPPRIMÉES ===
+        // ❌ Plus besoin de AfficherTaches() - le binding s'en occupe !
+        // ❌ Plus besoin de CreerTacheElement() - le DataTemplate s'en occupe !
+        // ❌ Plus besoin de ToggleTacheEtat() - le binding bidirectionnel s'en occupe !
+        // ❌ Plus besoin de boucles foreach - ItemsControl s'en occupe !
+        // ❌ Plus besoin de TaskListContainer.Children.Clear() - automatique !
+        // ❌ Plus besoin de gestion manuelle de EmptyStateMessage - binding conditionnel !
     }
 }
