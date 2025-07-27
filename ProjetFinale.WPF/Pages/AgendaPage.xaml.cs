@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using ProjetFinale.Models;
 using ProjetFinale.Services;
@@ -13,14 +15,14 @@ namespace ProjetFinale.WPF.Pages
     public partial class AgendaPage : Page
     {
         private DateTime _currentWeekStart;
-        private List<Agenda> _events;
+        private ObservableCollection<Agenda> _events;
         private Utilisateur _utilisateur;
 
         public AgendaPage()
         {
             InitializeComponent();
             _currentWeekStart = GetStartOfWeek(DateTime.Now);
-            _events = new List<Agenda>();
+            _events = new ObservableCollection<Agenda>();
 
             // S'abonner aux changements d'utilisateur
             UserService.UtilisateurActifChanged += OnUtilisateurChanged;
@@ -35,16 +37,15 @@ namespace ProjetFinale.WPF.Pages
             _utilisateur = UserService.UtilisateurActif;
             if (_utilisateur != null)
             {
-                _events = _utilisateur.ListeAgenda ?? new List<Agenda>();
+                _events = _utilisateur.ListeAgenda ?? new ObservableCollection<Agenda>();
                 RefreshCalendar();
             }
         }
 
-        private void OnUtilisateurChanged(object sender, EventArgs e)
+        private void OnUtilisateurChanged(Utilisateur? user)
         {
-            LoadCurrentUser();
+            LoadCurrentUser(); // Ou tu peux aussi passer "user" si besoin
         }
-
         private void InitializeCalendar()
         {
             CreateTimeGrid();
@@ -63,7 +64,7 @@ namespace ProjetFinale.WPF.Pages
                 TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
 
-            // Lignes : 24 heures (8h à 22h = 14 heures)
+            // Lignes : 24 heures (8h à 22h = 15 heures)
             for (int hour = 8; hour <= 22; hour++)
             {
                 TimeGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
@@ -90,10 +91,10 @@ namespace ProjetFinale.WPF.Pages
                     var timeSlot = new Border
                     {
                         Style = (Style)FindResource("TimeSlotStyle"),
-                        Tag = new { Hour = hour, Day = day }
+                        Tag = $"{hour},{day}" // Format simple "heure,jour"
                     };
 
-                    timeSlot.MouseLeftButtonDown += TimeSlot_Click;
+                    timeSlot.MouseLeftButtonDown += TimeSlot_MouseLeftButtonDown;
 
                     Grid.SetRow(timeSlot, row);
                     Grid.SetColumn(timeSlot, day + 1);
@@ -104,25 +105,30 @@ namespace ProjetFinale.WPF.Pages
             RefreshCalendar();
         }
 
-        private void TimeSlot_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void TimeSlot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is Border border && border.Tag is dynamic slot)
+            if (sender is Border border && border.Tag is string tagData)
             {
-                int hour = slot.Hour;
-                int dayOffset = slot.Day;
+                var parts = tagData.Split(',');
+                if (parts.Length == 2 &&
+                    int.TryParse(parts[0], out int hour) &&
+                    int.TryParse(parts[1], out int dayOffset))
+                {
+                    DateTime selectedDate = _currentWeekStart.AddDays(dayOffset);
+                    TimeSpan selectedTime = new TimeSpan(hour, 0, 0);
 
-                DateTime selectedDate = _currentWeekStart.AddDays(dayOffset);
-                TimeSpan selectedTime = new TimeSpan(hour, 0, 0);
-
-                ShowCreateEventDialog(selectedDate, selectedTime);
+                    ShowCreateEventDialog(selectedDate, selectedTime);
+                }
             }
         }
 
         private void ShowCreateEventDialog(DateTime date, TimeSpan startTime)
         {
+            // TODO: Créer le dialog une fois que CreateEventDialog est implémenté
+            /*
             var dialog = new CreateEventDialog(date, startTime, _utilisateur?.ListeActivites);
             dialog.Owner = Window.GetWindow(this);
-
+            
             if (dialog.ShowDialog() == true)
             {
                 var newEvent = dialog.CreatedEvent;
@@ -138,6 +144,10 @@ namespace ProjetFinale.WPF.Pages
                     UpdateWeekStats();
                 }
             }
+            */
+
+            // Version temporaire pour test
+            MessageBox.Show($"Créer événement le {date:dd/MM/yyyy} à {startTime:hh\\:mm}", "Agenda", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void RefreshCalendar()
@@ -231,14 +241,14 @@ namespace ProjetFinale.WPF.Pages
             }
 
             eventBorder.Child = eventContent;
-            eventBorder.MouseLeftButtonDown += Event_Click;
+            eventBorder.MouseLeftButtonDown += Event_MouseLeftButtonDown;
 
             Grid.SetRow(eventBorder, row);
             Grid.SetColumn(eventBorder, column);
             TimeGrid.Children.Add(eventBorder);
         }
 
-        private void Event_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Event_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border && border.Tag is Agenda evt)
             {
@@ -248,9 +258,11 @@ namespace ProjetFinale.WPF.Pages
 
         private void ShowEditEventDialog(Agenda evt)
         {
+            // TODO: Créer le dialog une fois que EditEventDialog est implémenté
+            /*
             var dialog = new EditEventDialog(evt, _utilisateur?.ListeActivites);
             dialog.Owner = Window.GetWindow(this);
-
+            
             if (dialog.ShowDialog() == true)
             {
                 if (dialog.IsDeleted)
@@ -259,11 +271,15 @@ namespace ProjetFinale.WPF.Pages
                     _utilisateur?.ListeAgenda.Remove(evt);
                 }
                 // L'événement a été modifié directement
-
+                
                 // TODO: Sauvegarder en JSON
                 RefreshCalendar();
                 UpdateWeekStats();
             }
+            */
+
+            // Version temporaire pour test
+            MessageBox.Show($"Éditer événement: {evt.Titre} le {evt.Date:dd/MM/yyyy}", "Agenda", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void UpdateWeekDisplay()
@@ -337,9 +353,10 @@ namespace ProjetFinale.WPF.Pages
         }
 
         // Nettoyer les événements
-        ~AgendaPage()
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
             UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
+
     }
 }

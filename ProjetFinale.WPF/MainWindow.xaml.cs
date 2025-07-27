@@ -1,5 +1,6 @@
 ﻿using ProjetFinale.Services;
 using ProjetFinale.WPF;
+using ProjetFinale.WPF.Pages;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -170,8 +171,8 @@ namespace ProjetFinale.Views
 
         private void ScheduleButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Page Schedule en cours de développement", "Info",
-                           MessageBoxButton.OK, MessageBoxImage.Information);
+            ContentFrame.Navigate(new AgendaPage());
+            ContentFrame.Visibility = Visibility.Visible;
         }
 
         private void ExercicesButton_Click(object sender, RoutedEventArgs e)

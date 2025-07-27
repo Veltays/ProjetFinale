@@ -146,11 +146,6 @@ namespace ProjetFinale.Models
             set { _listeStatistiques = value; OnPropertyChanged(); }
         }
 
-        public List<Agenda> ListeAgenda
-        {
-            get => _listeAgenda;
-            set { _listeAgenda = value; OnPropertyChanged(); }
-        }
 
         public List<Tache> ListeTaches
         {
