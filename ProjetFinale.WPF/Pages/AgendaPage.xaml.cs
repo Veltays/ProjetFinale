@@ -30,6 +30,18 @@ namespace ProjetFinale.WPF.Pages
 
             InitializeCalendar();
             UpdateWeekDisplay();
+
+            var allEvents = AgendaService.ChargerAgenda();
+            _events.Clear();
+
+            foreach (var evt in allEvents)
+            {
+                _events.Add(evt);
+            }
+
+            RefreshCalendar();
+            UpdateWeekStats();
+
         }
 
         private void LoadCurrentUser()
@@ -124,30 +136,39 @@ namespace ProjetFinale.WPF.Pages
 
         private void ShowCreateEventDialog(DateTime date, TimeSpan startTime)
         {
-            // TODO: Créer le dialog une fois que CreateEventDialog est implémenté
-            /*
             var dialog = new CreateEventDialog(date, startTime, _utilisateur?.ListeActivites);
             dialog.Owner = Window.GetWindow(this);
-            
+
             if (dialog.ShowDialog() == true)
             {
                 var newEvent = dialog.CreatedEvent;
                 if (newEvent != null)
                 {
-                    _events.Add(newEvent);
-                    if (_utilisateur != null)
+                    // Vérifier les conflits horaires
+                    if (!AgendaService.VerifierConflitHoraire(newEvent))
                     {
-                        _utilisateur.ListeAgenda.Add(newEvent);
-                        // TODO: Sauvegarder en JSON
+                        // Ajouter à la liste locale
+                        _events.Add(newEvent);
+
+                        // Ajouter à l'utilisateur
+                        if (_utilisateur != null)
+                        {
+                            _utilisateur.ListeAgenda.Add(newEvent);
+                        }
+
+                        // Sauvegarder avec AgendaService
+                        AgendaService.AjouterEvenement(newEvent);
+
+                        RefreshCalendar();
+                        UpdateWeekStats();
                     }
-                    RefreshCalendar();
-                    UpdateWeekStats();
+                    else
+                    {
+                        MessageBox.Show("Conflit horaire détecté ! Un autre événement existe déjà à cette heure.",
+                                      "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
             }
-            */
-
-            // Version temporaire pour test
-            MessageBox.Show($"Créer événement le {date:dd/MM/yyyy} à {startTime:hh\\:mm}", "Agenda", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void RefreshCalendar()
@@ -258,28 +279,29 @@ namespace ProjetFinale.WPF.Pages
 
         private void ShowEditEventDialog(Agenda evt)
         {
-            // TODO: Créer le dialog une fois que EditEventDialog est implémenté
-            /*
             var dialog = new EditEventDialog(evt, _utilisateur?.ListeActivites);
             dialog.Owner = Window.GetWindow(this);
-            
+
             if (dialog.ShowDialog() == true)
             {
                 if (dialog.IsDeleted)
                 {
+                    // Supprimer de la liste locale et de l'utilisateur
                     _events.Remove(evt);
                     _utilisateur?.ListeAgenda.Remove(evt);
+
+                    // Sauvegarder avec AgendaService
+                    AgendaService.SupprimerEvenement(evt);
                 }
-                // L'événement a été modifié directement
-                
-                // TODO: Sauvegarder en JSON
+                else
+                {
+                    // L'événement a été modifié, sauvegarder
+                    AgendaService.ModifierEvenement(evt);
+                }
+
                 RefreshCalendar();
                 UpdateWeekStats();
             }
-            */
-
-            // Version temporaire pour test
-            MessageBox.Show($"Éditer événement: {evt.Titre} le {evt.Date:dd/MM/yyyy}", "Agenda", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void UpdateWeekDisplay()
