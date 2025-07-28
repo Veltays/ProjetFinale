@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Collections.ObjectModel;
 
 namespace ProjetFinale.Models
 {
@@ -23,17 +22,10 @@ namespace ProjetFinale.Models
         private DateTime _dateObjectif;
         private List<Activite> _listeActivites = new();
         private List<Statistique> _listeStatistiques = new();
-        
-        
+
+        // ✅ CORRIGÉ : ObservableCollection pour l'agenda ET les tâches
         private ObservableCollection<Agenda> _listeAgenda = new ObservableCollection<Agenda>();
-        public ObservableCollection<Agenda> ListeAgenda
-        {
-            get => _listeAgenda;
-            set { _listeAgenda = value; OnPropertyChanged(); }
-        }
-
-
-        private List<Tache> _listeTaches = new();
+        private ObservableCollection<Tache> _listeTaches = new ObservableCollection<Tache>();
 
         // Propriétés publiques avec notification
         public string Pseudo
@@ -146,15 +138,21 @@ namespace ProjetFinale.Models
             set { _listeStatistiques = value; OnPropertyChanged(); }
         }
 
+        // ✅ CORRIGÉ : ObservableCollection au lieu de List
+        public ObservableCollection<Agenda> ListeAgenda
+        {
+            get => _listeAgenda;
+            set { _listeAgenda = value; OnPropertyChanged(); }
+        }
 
-        public List<Tache> ListeTaches
+        public ObservableCollection<Tache> ListeTaches
         {
             get => _listeTaches;
             set { _listeTaches = value; OnPropertyChanged(); }
         }
 
         // Propriétés calculées et formatées pour l'affichage
-        public double IMC => (Taille > 0) ? (Poids / Math.Pow(Taille / 100.0, 2)) : 0;
+        public double IMC => (Taille > 0) ? Math.Round(Poids / Math.Pow(Taille / 100, 2), 1) : 0;
 
         public string AgeFormate => $"{Age} ANS";
         public string PoidsFormate => $"{Poids} KG";
@@ -162,38 +160,21 @@ namespace ProjetFinale.Models
         public string IMCFormate => $"{IMC:F1}";
         public string ObjectifPoidsFormate => $"{ObjectifPoids} KG";
         public string DateObjectifFormatee => DateObjectif.Year.ToString();
-
-        public string IMCObjectifFormate
-        {
-            get
-            {
-                if (Taille > 0)
-                {
-                    double imcObjectif = ObjectifPoids / Math.Pow(Taille / 100.0, 2);
-                    return $"{imcObjectif:F1} IMC";
-                }
-                return "0.0 IMC";
-            }
-        }
-
+        public string IMCObjectifFormate => (Taille > 0) ? $"{Math.Round(ObjectifPoids / Math.Pow(Taille / 100, 2), 1):F1} IMC" : "0 IMC";
         public string AnneesRestantesFormate
         {
             get
             {
-                int anneesRestantes = DateObjectif.Year - DateTime.Now.Year;
-                return $"{Math.Max(0, anneesRestantes)} ANS";
+                var annees = Math.Max(0, DateObjectif.Year - DateTime.Now.Year);
+                return $"{annees} ANS";
             }
         }
 
-        // Propriété MotDePasse (conservée pour compatibilité)
+        // Propriété pour la compatibilité JSON (ne pas supprimer)
         public string MotDePasse
         {
             get => MDPHash;
-            set
-            {
-                // Hashage simple pour l'exemple, à remplacer par un vrai hashage sécurisé
-                MDPHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(value));
-            }
+            set => MDPHash = value;
         }
 
         // Implémentation INotifyPropertyChanged

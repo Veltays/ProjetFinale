@@ -1,5 +1,6 @@
 ﻿using ProjetFinale.Models;
 using ProjetFinale.Services;
+using ProjetFinale.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -111,17 +112,42 @@ namespace ProjetFinale.WPF.Pages
             ObjectifComboBox.Items.Clear();
             ObjectifComboBox.Items.Add("Aucun objectif");
 
-            if (_availableActivites != null && _availableActivites.Count > 0)
+            // 🔥 SOLUTION : Essayer plusieurs sources pour récupérer l'utilisateur
+            Utilisateur utilisateur = null;
+
+            // 1. Essayer UserService.UtilisateurActif
+            utilisateur = UserService.UtilisateurActif;
+
+            // 2. Si null, essayer de charger depuis le fichier
+            if (utilisateur == null)
             {
-                // Si on a accès à l'utilisateur via les activités, on peut récupérer ses tâches
-                var utilisateur = UserService.UtilisateurActif;
-                if (utilisateur != null && utilisateur.ListeTaches != null)
+                utilisateur = JsonService.ChargerUtilisateur();
+                if (utilisateur != null)
                 {
-                    foreach (var tache in utilisateur.ListeTaches)
-                    {
-                        ObjectifComboBox.Items.Add(tache);
-                    }
+                    UserService.UtilisateurActif = utilisateur; // Synchroniser
                 }
+            }
+
+            // 3. Si toujours null, essayer via les activités passées au constructeur
+            if (utilisateur == null && _availableActivites != null)
+            {
+                // Si vous avez accès à l'utilisateur via les activités
+                // (vous pourriez passer l'utilisateur complet au lieu de juste les activités)
+            }
+
+            if (utilisateur != null && utilisateur.ListeTaches != null)
+            {
+                Console.WriteLine($"🎯 Objectifs trouvés : {utilisateur.ListeTaches.Count} tâches");
+                foreach (var tache in utilisateur.ListeTaches)
+                {
+                    ObjectifComboBox.Items.Add(tache);
+                    Console.WriteLine($"   - {tache.Description}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("⚠️ Aucun utilisateur ou aucune tâche trouvé");
+                ObjectifComboBox.Items.Add("(Aucune tâche disponible)");
             }
 
             ObjectifComboBox.SelectedIndex = 0;

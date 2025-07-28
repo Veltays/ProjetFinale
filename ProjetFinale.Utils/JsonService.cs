@@ -1,37 +1,41 @@
-﻿using ProjetFinale.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using ProjetFinale.Models;
 
 namespace ProjetFinale.Utils
 {
     public static class JsonService
     {
-        private static readonly string BaseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Datafile"));
-        private static readonly string UserFilePath = Path.Combine(BaseDirectory, "utilisateur.json");
-        private static readonly string TachesFilePath = Path.Combine(BaseDirectory, "taches.json");
+        private static readonly string DataFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Datafile");
+        private static readonly string UserFilePath = Path.Combine(DataFolderPath, "utilisateur.json");
+        private static readonly string TachesFilePath = Path.Combine(DataFolderPath, "taches.json");
+        private static readonly string ActivitesFilePath = Path.Combine(DataFolderPath, "activites.json");
 
         static JsonService()
         {
-            // Créer le dossier s’il n’existe pas
-            if (!Directory.Exists(BaseDirectory))
+            // Créer le dossier Datafile s'il n'existe pas
+            if (!Directory.Exists(DataFolderPath))
             {
-                Directory.CreateDirectory(BaseDirectory);
+                Directory.CreateDirectory(DataFolderPath);
+                Console.WriteLine("📁 Dossier Datafile créé.");
             }
         }
 
+        // === GESTION UTILISATEUR ===
         public static void SauvegarderUtilisateur(Utilisateur utilisateur)
         {
             try
             {
                 var json = JsonSerializer.Serialize(utilisateur, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(UserFilePath, json);
-                Console.WriteLine("✅ Utilisateur sauvegardé dans Datafile/utilisateur.json");
+                Console.WriteLine($"✅ Utilisateur {utilisateur.Pseudo} sauvegardé.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Erreur lors de la sauvegarde de l'utilisateur : {ex.Message}");
+                Console.WriteLine($"❌ Erreur sauvegarde utilisateur : {ex.Message}");
             }
         }
 
@@ -47,6 +51,23 @@ namespace ProjetFinale.Utils
 
                 var json = File.ReadAllText(UserFilePath);
                 var utilisateur = JsonSerializer.Deserialize<Utilisateur>(json);
+
+                // ✅ IMPORTANT : S'assurer que les ObservableCollection sont initialisées
+                if (utilisateur != null)
+                {
+                    if (utilisateur.ListeTaches == null)
+                        utilisateur.ListeTaches = new ObservableCollection<Tache>();
+
+                    if (utilisateur.ListeAgenda == null)
+                        utilisateur.ListeAgenda = new ObservableCollection<Agenda>();
+
+                    if (utilisateur.ListeActivites == null)
+                        utilisateur.ListeActivites = new List<Activite>();
+
+                    if (utilisateur.ListeStatistiques == null)
+                        utilisateur.ListeStatistiques = new List<Statistique>();
+                }
+
                 Console.WriteLine(utilisateur != null ? $"✅ Utilisateur chargé : {utilisateur.Pseudo}" : "⚠️ Utilisateur null.");
                 return utilisateur;
             }
@@ -57,7 +78,8 @@ namespace ProjetFinale.Utils
             }
         }
 
-        public static void SauvegarderTaches(List<Tache> taches)
+        // === GESTION TÂCHES (maintenant avec ObservableCollection) ===
+        public static void SauvegarderTaches(ObservableCollection<Tache> taches)
         {
             try
             {
@@ -71,23 +93,81 @@ namespace ProjetFinale.Utils
             }
         }
 
-        public static List<Tache> ChargerTaches()
+        public static ObservableCollection<Tache> ChargerTaches()
         {
             try
             {
-                if (!File.Exists(TachesFilePath)) return new List<Tache>();
+                if (!File.Exists(TachesFilePath))
+                    return new ObservableCollection<Tache>();
+
                 var json = File.ReadAllText(TachesFilePath);
-                var taches = JsonSerializer.Deserialize<List<Tache>>(json);
-                return taches ?? new List<Tache>();
+
+                // Désérialiser en List d'abord (format JSON standard)
+                var tachesList = JsonSerializer.Deserialize<List<Tache>>(json);
+
+                // Convertir en ObservableCollection
+                return new ObservableCollection<Tache>(tachesList ?? new List<Tache>());
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Erreur chargement des tâches : {ex.Message}");
-                return new List<Tache>();
+                return new ObservableCollection<Tache>();
             }
         }
-    
-    
-    
+
+        // === GESTION ACTIVITÉS (inchangé) ===
+        public static void SauvegarderActivites(List<Activite> activites)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(activites, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(ActivitesFilePath, json);
+                Console.WriteLine("✅ Activités sauvegardées dans Datafile/activites.json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Erreur sauvegarde des activités : {ex.Message}");
+            }
+        }
+
+        public static List<Activite> ChargerActivites()
+        {
+            try
+            {
+                if (!File.Exists(ActivitesFilePath))
+                    return new List<Activite>();
+
+                var json = File.ReadAllText(ActivitesFilePath);
+                var activites = JsonSerializer.Deserialize<List<Activite>>(json);
+                return activites ?? new List<Activite>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Erreur chargement des activités : {ex.Message}");
+                return new List<Activite>();
+            }
+        }
+
+        // === MÉTHODES UTILITAIRES ===
+        public static bool FichierUtilisateurExiste()
+        {
+            return File.Exists(UserFilePath);
+        }
+
+        public static void SupprimerFichierUtilisateur()
+        {
+            try
+            {
+                if (File.Exists(UserFilePath))
+                {
+                    File.Delete(UserFilePath);
+                    Console.WriteLine("🗑️ Fichier utilisateur supprimé.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Erreur suppression fichier utilisateur : {ex.Message}");
+            }
+        }
     }
 }
