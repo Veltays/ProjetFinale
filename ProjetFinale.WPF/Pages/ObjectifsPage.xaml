@@ -213,12 +213,21 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBox x:Name="NouvelleTacheTextBox"
-                                Grid.Column="0"
-                                Style="{StaticResource TaskTextBoxStyle}"
-                                Text="ENTREZ UNE TACHE...."
-                                Margin="0,0,15,0"
-                                GotFocus="TextBox_GotFocus"
-                                KeyDown="NouvelleTacheTextBox_KeyDown"/>
+         Grid.Column="0"
+         Text="ENTREZ UNE TACHE...."
+         Margin="0,0,15,0"
+         Height="40"
+         Background="White"
+         Foreground="Black"
+         FontSize="14"
+         Padding="10"
+         BorderBrush="Purple"
+         BorderThickness="2"
+         IsEnabled="True"
+         IsReadOnly="False"
+         Focusable="True"
+         GotFocus="TextBox_GotFocus"
+         KeyDown="NouvelleTacheTextBox_KeyDown"/>
 
                         <Button Grid.Column="1"
                                Content="AJOUTER"

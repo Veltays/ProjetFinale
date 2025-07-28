@@ -1,11 +1,12 @@
-﻿using System;
+﻿using ProjetFinale.Models;
+using ProjetFinale.Services;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using ProjetFinale.Models;
 
 namespace ProjetFinale.WPF.Pages
 {
@@ -105,10 +106,25 @@ namespace ProjetFinale.WPF.Pages
         private void LierObjectifCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             ObjectifComboBox.Visibility = Visibility.Visible;
-            // TODO: Charger les objectifs de l'utilisateur
-            ObjectifComboBox.Items.Add("Objectif 1: 100 pompes d'affilée");
-            ObjectifComboBox.Items.Add("Objectif 2: Courir 10km");
-            ObjectifComboBox.Items.Add("Objectif 3: Perdre 5kg");
+
+            // Charger les tâches de l'utilisateur comme objectifs
+            ObjectifComboBox.Items.Clear();
+            ObjectifComboBox.Items.Add("Aucun objectif");
+
+            if (_availableActivites != null && _availableActivites.Count > 0)
+            {
+                // Si on a accès à l'utilisateur via les activités, on peut récupérer ses tâches
+                var utilisateur = UserService.UtilisateurActif;
+                if (utilisateur != null && utilisateur.ListeTaches != null)
+                {
+                    foreach (var tache in utilisateur.ListeTaches)
+                    {
+                        ObjectifComboBox.Items.Add(tache);
+                    }
+                }
+            }
+
+            ObjectifComboBox.SelectedIndex = 0;
         }
 
         private void LierObjectifCheckBox_Unchecked(object sender, RoutedEventArgs e)

@@ -1,10 +1,24 @@
 {
+  "ListeAgenda": [
+    {
+      "Titre": "Blalal",
+      "HeureDebut": "11:00:00",
+      "HeureFin": "14:00:00",
+      "Date": "2025-07-26T00:00:00",
+      "Activite": null,
+      "Couleur": "#EF4444",
+      "Description": "",
+      "Duree": "03:00:00",
+      "DureeFormatee": "3,0h",
+      "HeureFormatee": "11:00 - 14:00"
+    }
+  ],
   "Pseudo": "Veltays",
   "Nom": "Gran",
   "Prenom": "Yassine",
   "Email": "granyassine774@gmail.com",
   "Age": 21,
-  "MDPHash": "Vm0xd1IyRXhTWGxXYmxKVlYwZDRjRlV3V21GaFJscHlXa1UxYkdKRk5WaFZiRkp6VlZaV1ZVMUVhejA9",
+  "MDPHash": "Vm0wd2QyUXlVWGxXYTJoV1YwZG9WVll3WkRSV1JsbDNXa2M1VjFac2JETlhhMUpUVjBaS2RHVkVRbUZXVmxsM1ZtcEtTMUl5U2tWVWJHaG9UVlZ3VlZkV1pEUlRNazE0VjI1R1ZXSkhVazlaVjNSaFUxWmtWMVp0UmxSTmF6RTFWa2QwYzJGV1NuUmhSemxWVm14d1dGUnJXbXRYUjFKSVpFWlNUbFpZUWpWV1IzaGhZVEpHUjFOdVRtcFRSVXBYV1d4b1UwMHhVblJsUjBacVRWZFNNRlZ0ZUd0VWJGcDFVV3hvVjFKc2NGaFdha3BIVTBaYWRWSnNTbGRTTTAwMQ==",
   "Poids": 69,
   "Taille": 179,
   "ObjectifPoids": 60,
@@ -12,13 +26,24 @@
   "DateObjectif": "2025-07-26T00:00:00",
   "ListeActivites": [],
   "ListeStatistiques": [],
-  "ListeAgenda": [],
   "ListeTaches": [
     {
-      "Description": "YOOOO",
+      "Description": "bg",
       "EstTerminee": false,
       "Id": 0,
-      "Date": "0001-01-01T00:00:00"
+      "Date": "2025-07-28T20:51:57.7323498+02:00"
+    },
+    {
+      "Description": "CSLaut",
+      "EstTerminee": false,
+      "Id": 0,
+      "Date": "2025-07-28T21:02:07.101154+02:00"
+    },
+    {
+      "Description": "TUer",
+      "EstTerminee": false,
+      "Id": 0,
+      "Date": "2025-07-28T21:02:10.7665398+02:00"
     }
   ],
   "IMC": 21.534908398614277,
@@ -30,5 +55,5 @@
   "DateObjectifFormatee": "2025",
   "IMCObjectifFormate": "18,7 IMC",
   "AnneesRestantesFormate": "0 ANS",
-  "MotDePasse": "Vm0xd1IyRXhTWGxXYmxKVlYwZDRjRlV3V21GaFJscHlXa1UxYkdKRk5WaFZiRkp6VlZaV1ZVMUVhejA9"
+  "MotDePasse": "Vm0wd2QyUXlVWGxXYTJoV1YwZG9WVll3WkRSV1JsbDNXa2M1VjFac2JETlhhMUpUVjBaS2RHVkVRbUZXVmxsM1ZtcEtTMUl5U2tWVWJHaG9UVlZ3VlZkV1pEUlRNazE0VjI1R1ZXSkhVazlaVjNSaFUxWmtWMVp0UmxSTmF6RTFWa2QwYzJGV1NuUmhSemxWVm14d1dGUnJXbXRYUjFKSVpFWlNUbFpZUWpWV1IzaGhZVEpHUjFOdVRtcFRSVXBYV1d4b1UwMHhVblJsUjBacVRWZFNNRlZ0ZUd0VWJGcDFVV3hvVjFKc2NGaFdha3BIVTBaYWRWSnNTbGRTTTAwMQ=="
 }

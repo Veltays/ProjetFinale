@@ -22,11 +22,14 @@ namespace ProjetFinale.WPF
         {
             // Essayer d'abord l'utilisateur actif
             _utilisateur = UserService.UtilisateurActif;
+            Console.WriteLine($"🔍 UtilisateurActif : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
 
             // Si pas d'utilisateur actif, charger depuis le fichier
             if (_utilisateur == null)
             {
                 _utilisateur = JsonService.ChargerUtilisateur();
+                Console.WriteLine($"🔍 ChargerUtilisateur : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
+
                 if (_utilisateur != null)
                 {
                     UserService.UtilisateurActif = _utilisateur;
@@ -39,10 +42,12 @@ namespace ProjetFinale.WPF
                 this.DataContext = _utilisateur;
                 Console.WriteLine($"✅ DataContext défini pour ObjectifsPage : {_utilisateur.Pseudo}");
                 Console.WriteLine($"   Nombre de tâches : {_utilisateur.ListeTaches.Count}");
+                Console.WriteLine($"   ListeTaches est null ? {(_utilisateur.ListeTaches == null)}");
             }
             else
             {
                 Console.WriteLine("⚠️ Aucun utilisateur trouvé pour ObjectifsPage");
+                MessageBox.Show("Aucun utilisateur trouvé ! Assurez-vous d'être connecté.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
             // 🆕 S'abonner aux changements d'utilisateur
@@ -89,10 +94,19 @@ namespace ProjetFinale.WPF
         {
             string texte = NouvelleTacheTextBox.Text.Trim();
 
+            Console.WriteLine($"🔍 Debug - Texte saisi : '{texte}'");
+            Console.WriteLine($"🔍 Debug - Utilisateur : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
+
             if (!string.IsNullOrWhiteSpace(texte) && texte != "ENTREZ UNE TACHE....")
             {
+                Console.WriteLine($"✅ Validation OK - Ajout de la tâche");
                 AjouterTache(texte);
                 NouvelleTacheTextBox.Text = "ENTREZ UNE TACHE...."; // Reset placeholder
+            }
+            else
+            {
+                Console.WriteLine($"❌ Validation échouée - Texte invalide");
+                MessageBox.Show($"Texte invalide : '{texte}'", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
