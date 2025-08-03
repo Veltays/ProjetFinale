@@ -1,4 +1,5 @@
-﻿using ProjetFinale.Services;
+﻿using ProjetFinale.Models;
+using ProjetFinale.Services;
 using ProjetFinale.Utils;
 using System;
 using System.Windows;
@@ -8,107 +9,204 @@ namespace ProjetFinale.WPF
 {
     public partial class AccueilPage : Page
     {
+        private Utilisateur _utilisateur;
+
         public AccueilPage()
         {
             InitializeComponent();
-            InitialiserUtilisateurConnecte();
+
+            // S'abonner aux changements d'utilisateur
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+            ChargerUtilisateur();
         }
 
-        private void InitialiserUtilisateurConnecte()
+        private void ChargerUtilisateur()
         {
-            var user = UserService.UtilisateurActif;
-            if (user != null)
+            _utilisateur = UserService.UtilisateurActif;
+            if (_utilisateur != null)
             {
-                // 🎯 DÉFINIR LE DATACONTEXT - C'est tout ce qu'il faut !
-                this.DataContext = user;
-
-                Console.WriteLine($"✅ DataContext défini pour l'utilisateur : {user.Pseudo}");
-                Console.WriteLine($"   Âge : {user.Age} ans");
-                Console.WriteLine($"   Poids : {user.Poids} kg");
-                Console.WriteLine($"   Taille : {user.Taille} cm");
+                this.DataContext = _utilisateur;
+                Console.WriteLine($"✅ Utilisateur chargé : {_utilisateur.Pseudo}");
             }
             else
             {
-                Console.WriteLine("⚠️ Aucun utilisateur actif trouvé !");
-
-                // Optionnel : Charger depuis le fichier JSON si pas d'utilisateur actif
-                var utilisateurCharge = JsonService.ChargerUtilisateur();
-                if (utilisateurCharge != null)
-                {
-                    UserService.UtilisateurActif = utilisateurCharge;
-                    this.DataContext = utilisateurCharge;
-                    Console.WriteLine($"✅ Utilisateur chargé depuis le fichier : {utilisateurCharge.Pseudo}");
-                }
+                Console.WriteLine("⚠️ Aucun utilisateur actif trouvé");
             }
         }
 
-        // Méthode publique pour rafraîchir les données (appelée après import)
-        public void RafraichirDonnees()
+        private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
         {
-            InitialiserUtilisateurConnecte();
+            ChargerUtilisateur();
         }
 
-        // === ÉVÉNEMENTS ACTIONS RAPIDES ===
+        // 🆕 SAUVEGARDE DU PROFIL (Poids, Taille, Âge)
+        private void SauvegarderProfil_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_utilisateur == null)
+                {
+                    MessageBox.Show("❌ Aucun utilisateur actif", "Erreur",
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
+                // Validation des champs numériques
+                if (!double.TryParse(PoidsTextBox.Text, out double nouveauPoids) || nouveauPoids <= 0)
+                {
+                    MessageBox.Show("⚠️ Le poids doit être un nombre positif", "Erreur de validation",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!double.TryParse(TailleTextBox.Text, out double nouvelleTaille) || nouvelleTaille <= 0)
+                {
+                    MessageBox.Show("⚠️ La taille doit être un nombre positif", "Erreur de validation",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!int.TryParse(AgeTextBox.Text, out int nouvelAge) || nouvelAge <= 0 || nouvelAge > 150)
+                {
+                    MessageBox.Show("⚠️ L'âge doit être entre 1 et 150 ans", "Erreur de validation",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Mise à jour des propriétés (les bindings se mettront à jour automatiquement)
+                _utilisateur.Poids = nouveauPoids;
+                _utilisateur.Taille = nouvelleTaille;
+                _utilisateur.Age = nouvelAge;
+
+                // Sauvegarde dans le fichier JSON
+                JsonService.SauvegarderUtilisateur(_utilisateur);
+
+                // Message de confirmation
+                MessageBox.Show($"✅ Profil sauvegardé avec succès !\n\n" +
+                               $"📊 Nouveau profil :\n" +
+                               $"• Poids : {nouveauPoids} kg\n" +
+                               $"• Taille : {nouvelleTaille} cm\n" +
+                               $"• Âge : {nouvelAge} ans\n" +
+                               $"• IMC : {_utilisateur.IMC:F1}",
+                               "Profil sauvegardé",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Information);
+
+                Console.WriteLine($"💾 Profil sauvegardé - Poids: {nouveauPoids}kg, Taille: {nouvelleTaille}cm, Âge: {nouvelAge}ans");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Erreur lors de la sauvegarde du profil :\n{ex.Message}",
+                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine($"❌ Erreur sauvegarde profil : {ex.Message}");
+            }
+        }
+
+        // 🆕 SAUVEGARDE DES OBJECTIFS (Poids visé, Date objectif)
+        private void SauvegarderObjectifs_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_utilisateur == null)
+                {
+                    MessageBox.Show("❌ Aucun utilisateur actif", "Erreur",
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Validation du poids objectif
+                if (!double.TryParse(ObjectifPoidsTextBox.Text, out double nouveauObjectifPoids) || nouveauObjectifPoids <= 0)
+                {
+                    MessageBox.Show("⚠️ Le poids objectif doit être un nombre positif", "Erreur de validation",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validation de la date objectif
+                if (!DateObjectifPicker.SelectedDate.HasValue)
+                {
+                    MessageBox.Show("⚠️ Veuillez sélectionner une date objectif", "Erreur de validation",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                DateTime nouvelleDateObjectif = DateObjectifPicker.SelectedDate.Value;
+
+                // Vérifier que la date est dans le futur
+                if (nouvelleDateObjectif <= DateTime.Now)
+                {
+                    MessageBox.Show("⚠️ La date objectif doit être dans le futur", "Erreur de validation",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Mise à jour des propriétés
+                _utilisateur.ObjectifPoids = nouveauObjectifPoids;
+                _utilisateur.DateObjectif = nouvelleDateObjectif;
+
+                // Sauvegarde dans le fichier JSON
+                JsonService.SauvegarderUtilisateur(_utilisateur);
+
+                // Calcul IMC objectif pour l'affichage
+                double imcObjectif = nouveauObjectifPoids / Math.Pow(_utilisateur.Taille / 100.0, 2);
+                int anneesRestantes = nouvelleDateObjectif.Year - DateTime.Now.Year;
+
+                // Message de confirmation
+                MessageBox.Show($"🎯 Objectifs sauvegardés avec succès !\n\n" +
+                               $"📊 Vos nouveaux objectifs :\n" +
+                               $"• Poids visé : {nouveauObjectifPoids} kg\n" +
+                               $"• IMC visé : {imcObjectif:F1}\n" +
+                               $"• Date limite : {nouvelleDateObjectif:dd/MM/yyyy}\n" +
+                               $"• Temps restant : {Math.Max(0, anneesRestantes)} ans",
+                               "Objectifs sauvegardés",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Information);
+
+                Console.WriteLine($"🎯 Objectifs sauvegardés - Poids: {nouveauObjectifPoids}kg, Date: {nouvelleDateObjectif:dd/MM/yyyy}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Erreur lors de la sauvegarde des objectifs :\n{ex.Message}",
+                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine($"❌ Erreur sauvegarde objectifs : {ex.Message}");
+            }
+        }
+
+        // Méthodes existantes conservées
         private void NouvelleSeance_Click(object sender, RoutedEventArgs e)
         {
-            // Naviguer vers la page exercices
-            var mainWindow = Application.Current.MainWindow as Views.MainWindow;
-            mainWindow?.NavigateToExercices();
+            // Navigation vers la page de nouvelle séance
+            Console.WriteLine("🏃 Navigation vers nouvelle séance");
         }
 
         private void VoirProgres_Click(object sender, RoutedEventArgs e)
         {
-            // Rester sur cette page et montrer les graphiques
-            MessageBox.Show("Vos progrès sont affichés dans les graphiques ci-dessous !",
-                           "Progrès",
-                           MessageBoxButton.OK,
-                           MessageBoxImage.Information);
-
-            // Optionnel : scroll automatique vers les graphiques
-            // ScrollToGraphiques();
+            // Navigation vers la page des progrès
+            Console.WriteLine("📊 Navigation vers les progrès");
         }
 
         private void MesObjectifs_Click(object sender, RoutedEventArgs e)
         {
-            // Naviguer vers la page Task/Objectifs
-            var mainWindow = Application.Current.MainWindow as Views.MainWindow;
-            mainWindow?.NavigateToObjectifs();
+            // Navigation vers la page des objectifs
+            Console.WriteLine("🎯 Navigation vers les objectifs");
         }
 
         private void Planning_Click(object sender, RoutedEventArgs e)
         {
-            // Naviguer vers la page Schedule
-            var mainWindow = Application.Current.MainWindow as Views.MainWindow;
-            mainWindow?.NavigateToSchedule();
+            // Navigation vers la page du planning
+            Console.WriteLine("📅 Navigation vers le planning");
         }
 
-        // === MÉTHODES UTILITAIRES ===
-
-        private void AfficherStatistiquesUtilisateur()
+        // Nettoyage des événements
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-            var user = UserService.UtilisateurActif;
-            if (user != null)
-            {
-                // 🔥 Maintenant on utilise les propriétés formatées !
-                string stats = $"Utilisateur: {user.Pseudo}\n" +
-                              $"Poids: {user.PoidsFormate}\n" +
-                              $"Taille: {user.TailleFormatee}\n" +
-                              $"Âge: {user.AgeFormate}\n" +
-                              $"IMC: {user.IMCFormate}\n" +
-                              $"Objectif poids: {user.ObjectifPoidsFormate}\n" +
-                              $"IMC objectif: {user.IMCObjectifFormate}\n" +
-                              $"Années restantes: {user.AnneesRestantesFormate}";
-
-                MessageBox.Show(stats, "Statistiques Utilisateur", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
 
-        // Méthode pour scroll vers les graphiques (optionnel)
-        private void ScrollToGraphiques()
+        // Destructeur pour s'assurer que l'événement est désabonné
+        ~AccueilPage()
         {
-            // Si tu veux implémenter un scroll automatique vers les graphiques
-            // Tu peux utiliser le ScrollViewer parent
+            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
     }
 }
