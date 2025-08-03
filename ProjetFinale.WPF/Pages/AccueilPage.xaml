@@ -5,6 +5,27 @@
       Background="#303030">
 
     <Page.Resources>
+        <!-- 🆕 Style GLOBAL pour DatePickerTextBox - Fix du fond blanc -->
+        <Style TargetType="DatePickerTextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DatePickerTextBox">
+                        <Grid>
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        VerticalAlignment="Center"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="0"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Styles existants conservés -->
         <Style x:Key="WelcomeCardStyle" TargetType="Border">
             <Setter Property="Background" Value="#2A2A2A"/>
@@ -100,7 +121,53 @@
             </Setter>
         </Style>
 
-        <!-- 🆕 Style pour les boutons de sauvegarde -->
+        <!-- 🆕 Style personnalisé pour DatePicker dans les objectifs -->
+        <Style x:Key="ObjectifDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="Foreground" Value="#D393FF"/>
+            <Setter Property="BorderBrush" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DatePicker">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Zone de texte pour la date -->
+                                <DatePickerTextBox x:Name="PART_TextBox"
+                                                   Grid.Column="0"
+                                                   Margin="{TemplateBinding Padding}"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Background="Transparent"
+                                                   Foreground="{TemplateBinding Foreground}"
+                                                   BorderThickness="0"/>
+
+                                <!-- Bouton calendrier -->
+                                <Button x:Name="PART_Button"
+                                        Grid.Column="1"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Foreground="White"
+                                        FontSize="12"
+                                        Width="25"
+                                        Content="📅"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="SaveButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#4CAF50"/>
             <Setter Property="Foreground" Value="White"/>
@@ -345,10 +412,7 @@
                             <Border Background="#2A2A2A" CornerRadius="5" BorderBrush="#FFFFFF" BorderThickness="1" Padding="5">
                                 <DatePicker x:Name="DateObjectifPicker"
                                            SelectedDate="{Binding DateObjectif, UpdateSourceTrigger=PropertyChanged}"
-                                           Background="Transparent"
-                                           Foreground="#D393FF"
-                                           BorderThickness="0"
-                                           FontWeight="Bold"
+                                           Style="{StaticResource ObjectifDatePickerStyle}"
                                            HorizontalAlignment="Stretch"/>
                             </Border>
                         </StackPanel>
