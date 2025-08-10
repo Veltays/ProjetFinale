@@ -1,14 +1,19 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using ProjetFinale.Models;
+using ProjetFinale.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using ProjetFinale.Models;
-using ProjetFinale.Services;
+using Microsoft.Win32;
+using System.IO;
+using System.Text;
 
 namespace ProjetFinale.WPF.Pages
 {
@@ -378,6 +383,178 @@ namespace ProjetFinale.WPF.Pages
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
             UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
+        }
+
+
+        /// <summary>
+        /// Exporter l'agenda au format ICS (iCalendar)
+        /// </summary>
+        private void ExportIcs_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_events == null || _events.Count == 0)
+                {
+                    MessageBox.Show("Aucun événement à exporter dans votre agenda.",
+                                   "Export impossible",
+                                   MessageBoxButton.OK,
+                                   MessageBoxImage.Information);
+                    return;
+                }
+
+                // Ouvrir le dialogue de sauvegarde
+                var saveDialog = new SaveFileDialog
+                {
+                    Title = "Exporter l'agenda",
+                    Filter = "Fichier iCalendar (*.ics)|*.ics|Tous les fichiers (*.*)|*.*",
+                    DefaultExt = "ics",
+                    FileName = $"MonAgenda_{DateTime.Now:yyyy-MM-dd}.ics"
+                };
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    // Générer le contenu ICS
+                    string icsContent = GenerateIcsContent(_events);
+
+                    // Sauvegarder le fichier
+                    File.WriteAllText(saveDialog.FileName, icsContent, Encoding.UTF8);
+
+                    // Message de succès avec option d'ouvrir le dossier
+                    MessageBoxResult result = MessageBox.Show(
+                        $"✅ Agenda exporté avec succès !\n\n" +
+                        $"📁 Fichier : {Path.GetFileName(saveDialog.FileName)}\n" +
+                        $"📍 Emplacement : {Path.GetDirectoryName(saveDialog.FileName)}\n\n" +
+                        $"Voulez-vous ouvrir le dossier contenant le fichier ?",
+                        "Export réussi",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Ouvrir l'explorateur de fichiers
+                        System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{saveDialog.FileName}\"");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Erreur lors de l'export :\n{ex.Message}",
+                               "Erreur",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Générer le contenu du fichier ICS
+        /// </summary>
+        private string GenerateIcsContent(IEnumerable<Agenda> events)
+        {
+            var ics = new StringBuilder();
+
+            // Header ICS
+            ics.AppendLine("BEGIN:VCALENDAR");
+            ics.AppendLine("VERSION:2.0");
+            ics.AppendLine("PRODID:-//ProjetFinale//Agenda Export//FR");
+            ics.AppendLine("CALSCALE:GREGORIAN");
+            ics.AppendLine("METHOD:PUBLISH");
+            ics.AppendLine($"X-WR-CALNAME:Mon Agenda ProjetFinale");
+            ics.AppendLine($"X-WR-CALDESC:Agenda exporté depuis ProjetFinale le {DateTime.Now:dd/MM/yyyy}");
+
+            // Ajouter chaque événement
+            foreach (var evt in events.OrderBy(e => e.Date).ThenBy(e => e.HeureDebut))
+            {
+                ics.AppendLine("BEGIN:VEVENT");
+
+                // UID unique pour chaque événement
+                string uid = GenerateEventUid(evt);
+                ics.AppendLine($"UID:{uid}");
+
+                // Timestamp de création
+                ics.AppendLine($"DTSTAMP:{DateTime.UtcNow:yyyyMMddTHHmmssZ}");
+
+                // Date et heure de début
+                DateTime startDateTime = evt.Date.Add(evt.HeureDebut);
+                ics.AppendLine($"DTSTART:{startDateTime:yyyyMMddTHHmmss}");
+
+                // Date et heure de fin
+                DateTime endDateTime = evt.Date.Add(evt.HeureFin);
+                ics.AppendLine($"DTEND:{endDateTime:yyyyMMddTHHmmss}");
+
+                // Titre (obligatoire)
+                string summary = EscapeIcsText(evt.Titre ?? "Événement sans titre");
+                ics.AppendLine($"SUMMARY:{summary}");
+
+                // Description
+                if (!string.IsNullOrEmpty(evt.Description))
+                {
+                    string description = EscapeIcsText(evt.Description);
+                    ics.AppendLine($"DESCRIPTION:{description}");
+                }
+
+                // Activité liée
+                if (evt.Activite != null)
+                {
+                    string activityInfo = EscapeIcsText($"Activité: {evt.Activite.Titre}");
+                    if (string.IsNullOrEmpty(evt.Description))
+                    {
+                        ics.AppendLine($"DESCRIPTION:{activityInfo}");
+                    }
+                    else
+                    {
+                        // Ajouter l'activité aux catégories
+                        ics.AppendLine($"CATEGORIES:{EscapeIcsText(evt.Activite.Titre)}");
+                    }
+                }
+
+                // Couleur de l'événement (si supportée)
+                if (!string.IsNullOrEmpty(evt.Couleur))
+                {
+                    ics.AppendLine($"X-MICROSOFT-CDO-BUSYSTATUS:BUSY");
+                    // Certains clients supportent cette propriété pour la couleur
+                    ics.AppendLine($"X-OUTLOOK-COLOR:{evt.Couleur}");
+                }
+
+                // Statut
+                ics.AppendLine("STATUS:CONFIRMED");
+                ics.AppendLine("TRANSP:OPAQUE");
+
+                ics.AppendLine("END:VEVENT");
+            }
+
+            // Footer ICS
+            ics.AppendLine("END:VCALENDAR");
+
+            return ics.ToString();
+        }
+
+        /// <summary>
+        /// Générer un UID unique pour un événement
+        /// </summary>
+        private string GenerateEventUid(Agenda evt)
+        {
+            // Créer un UID basé sur les propriétés de l'événement
+            string baseString = $"{evt.Date:yyyyMMdd}-{evt.HeureDebut:hhmm}-{evt.Titre ?? "event"}";
+
+            // Utiliser un hash simple pour créer un UID unique
+            int hash = baseString.GetHashCode();
+            return $"{Math.Abs(hash)}@projetfinale.com";
+        }
+
+        /// <summary>
+        /// Échapper le texte pour le format ICS
+        /// </summary>
+        private string EscapeIcsText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return "";
+
+            return text
+                .Replace("\\", "\\\\")  // Échapper les backslashes
+                .Replace(",", "\\,")    // Échapper les virgules
+                .Replace(";", "\\;")    // Échapper les points-virgules
+                .Replace("\n", "\\n")   // Échapper les retours à la ligne
+                .Replace("\r", "");     // Supprimer les retours chariot
         }
 
     }

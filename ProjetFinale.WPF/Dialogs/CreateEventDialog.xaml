@@ -257,7 +257,7 @@
                 </Grid>
 
                 <!-- Heures personnalisées (masquées par défaut) -->
-                <Grid x:Name="CustomTimePanel" Visibility="Collapsed" Margin="0,0,0,20">
+                <Grid x:Name="CustomTimePanel" Visibility="Visible" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>
@@ -265,20 +265,21 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Heure début" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Text="Heure début *" Style="{StaticResource LabelStyle}"/>
                         <TextBox x:Name="HeureDebutTextBox" 
-                                Style="{StaticResource ModernTextBox}" 
-                                Text="09:00"/>
+                Style="{StaticResource ModernTextBox}" 
+                Text="09:00"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Heure fin" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Text="Heure fin *" Style="{StaticResource LabelStyle}"/>
                         <TextBox x:Name="HeureFinTextBox" 
-                                Style="{StaticResource ModernTextBox}" 
-                                Text="10:00"/>
+                Style="{StaticResource ModernTextBox}" 
+                Text="10:00"/>
                     </StackPanel>
                 </Grid>
-
+                
+                
                 <!-- Couleur -->
                 <TextBlock Text="Couleur" Style="{StaticResource LabelStyle}"/>
                 <WrapPanel x:Name="ColorPanel" Margin="0,0,0,20">

@@ -47,6 +47,34 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
+
+        <!-- ✅ NOUVEAU : Style pour le bouton d'export -->
+        <Style x:Key="ExportButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF28A745"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Kameron"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF218838"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Page.Resources>
 
     <Grid Background="{StaticResource BackgroundGradient}">
@@ -124,7 +152,14 @@
                                FontSize="14" 
                                Height="35" 
                                BorderThickness="0"
+                               Margin="0,0,0,10"
                                Click="GoToToday_Click"/>
+
+                        <!-- ✅ NOUVEAU : Bouton Export ICS -->
+                        <Button x:Name="ExportIcsButton" 
+                               Content="📥 Exporter ICS" 
+                               Style="{StaticResource ExportButtonStyle}"
+                               Click="ExportIcs_Click"/>
                     </StackPanel>
                 </Border>
 

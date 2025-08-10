@@ -6,22 +6,83 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using ProjetFinale.Models;    // ✅ AJOUTER CETTE LIGNE
+using ProjetFinale.Services;  // ✅ AJOUTER CETTE LIGNE (UserService est ici)
+using ProjetFinale.Utils;     // ✅ AJOUTER CETTE LIGNE
 
 namespace ProjetFinale.Views
 {
     public partial class ExercicesPage : Page
     {
-        // Liste des exercices
-        private List<Exercice> _exercices;
-        private List<Exercice> _exercicesFiltres;
+        // ✅ REMPLACER Exercice par Activite
+        private List<Activite> _exercices;
+        private List<Activite> _exercicesFiltres;
 
-        // Exercice en cours d'édition
-        private Exercice _exerciceEnEdition;
+        // ✅ REMPLACER Exercice par Activite
+        private Activite _exerciceEnEdition;
         private bool _estEnModeEdition = false;
+
+        // ✅ AJOUTER : Référence à l'utilisateur actuel
+        private Utilisateur _utilisateur;
 
         public ExercicesPage()
         {
             InitializeComponent();
+
+            // ✅ CHARGER L'UTILISATEUR AU DÉMARRAGE (comme pour les tâches)
+            ChargerUtilisateurEtDonnees();
+
+            InitialiserDonnees();
+            FiltrerExercices();
+            MettreAJourAffichage();
+
+            // ✅ AJOUTER : S'abonner aux changements d'utilisateur
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+        }
+
+        // ✅ NOUVELLE MÉTHODE : Charger l'utilisateur comme dans ObjectifsPage
+        private void ChargerUtilisateurEtDonnees()
+        {
+            // Essayer d'abord l'utilisateur actif
+            _utilisateur = UserService.UtilisateurActif;
+            Console.WriteLine($"🔍 UtilisateurActif : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
+
+            // Si pas d'utilisateur actif, charger depuis le fichier JSON
+            if (_utilisateur == null)
+            {
+                _utilisateur = JsonService.ChargerUtilisateur();
+                Console.WriteLine($"🔍 ChargerUtilisateur : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
+
+                if (_utilisateur != null)
+                {
+                    UserService.UtilisateurActif = _utilisateur;
+                }
+            }
+
+            if (_utilisateur != null)
+            {
+                Console.WriteLine($"✅ Utilisateur chargé pour ExercicesPage : {_utilisateur.Pseudo}");
+                Console.WriteLine($"   Nombre d'activités : {_utilisateur.ListeActivites.Count}");
+            }
+            else
+            {
+                Console.WriteLine("⚠️ Aucun utilisateur trouvé pour ExercicesPage");
+            }
+        }
+
+        // ✅ MODIFIER : Gérer les changements d'utilisateur avec rechargement complet
+        private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
+        {
+            Console.WriteLine("🔄 Changement d'utilisateur détecté dans ExercicesPage");
+            _utilisateur = nouvelUtilisateur;
+
+            if (_utilisateur != null)
+            {
+                Console.WriteLine($"   Nouvel utilisateur : {_utilisateur.Pseudo}");
+                Console.WriteLine($"   Activités disponibles : {_utilisateur.ListeActivites.Count}");
+            }
+
+            // Recharger toutes les données
             InitialiserDonnees();
             FiltrerExercices();
             MettreAJourAffichage();
@@ -29,36 +90,55 @@ namespace ProjetFinale.Views
 
         private void InitialiserDonnees()
         {
-            // Initialisation avec des données d'exemple
-            _exercices = new List<Exercice>
+            // ✅ MODIFIER : Ne charger depuis l'utilisateur QUE s'il a des activités
+            if (_utilisateur?.ListeActivites != null && _utilisateur.ListeActivites.Count > 0)
             {
-                new Exercice
+                // Charger les activités sauvegardées de l'utilisateur
+                _exercices = new List<Activite>(_utilisateur.ListeActivites);
+                Console.WriteLine($"✅ {_exercices.Count} activités chargées depuis l'utilisateur");
+            }
+            else
+            {
+                // ✅ CRÉER des données par défaut SEULEMENT si l'utilisateur n'a aucune activité
+                Console.WriteLine("ℹ️ Aucune activité trouvée, création des exercices par défaut");
+                _exercices = new List<Activite>
                 {
-                    Name = "Développé couché",
-                    Type = "repetitions",
-                    Value = "12 x 3",
-                    Calories = 180,
-                    Description = "Exercice de base pour les pectoraux"
-                },
-                new Exercice
-                {
-                    Name = "Course à pied",
-                    Type = "duration",
-                    Value = "30 minutes",
-                    Calories = 300,
-                    Description = "Cardio pour l'endurance"
-                },
-                new Exercice
-                {
-                    Name = "Squats",
-                    Type = "repetitions",
-                    Value = "15 x 4",
-                    Calories = 120,
-                    Description = "Renforcement des jambes"
-                }
-            };
+                    new Activite
+                    {
+                        Titre = "Développé couché",
+                        CaloriesBrulees = 180,
+                        Duree = TimeSpan.FromMinutes(45),
+                        ImagePath = "/Images/developpe_couche.png"
+                    },
+                    new Activite
+                    {
+                        Titre = "Course à pied",
+                        CaloriesBrulees = 300,
+                        Duree = TimeSpan.FromMinutes(30),
+                        ImagePath = "/Images/course.png"
+                    },
+                    new Activite
+                    {
+                        Titre = "Squats",
+                        CaloriesBrulees = 120,
+                        Duree = TimeSpan.FromMinutes(20),
+                        ImagePath = "/Images/squats.png"
+                    }
+                };
 
-            _exercicesFiltres = new List<Exercice>(_exercices);
+                // ✅ AJOUTER : Sauvegarder les données par défaut dans l'utilisateur
+                if (_utilisateur != null)
+                {
+                    foreach (var exercice in _exercices)
+                    {
+                        _utilisateur.ListeActivites.Add(exercice);
+                    }
+                    UserService.MettreAJourUtilisateur(_utilisateur);
+                    Console.WriteLine("✅ Exercices par défaut sauvegardés dans l'utilisateur");
+                }
+            }
+
+            _exercicesFiltres = new List<Activite>(_exercices);
         }
 
         #region Gestion du formulaire
@@ -93,36 +173,60 @@ namespace ProjetFinale.Views
                 string nom = ExerciseNameBox.Text.Trim();
                 ComboBoxItem selectedItem = TypeComboBox.SelectedItem as ComboBoxItem;
                 string type = selectedItem?.Tag.ToString();
-                string valeur = type == "repetitions" ? RepetitionsBox.Text.Trim() : DurationBox.Text.Trim();
-                int calories = 0;
-                int.TryParse(CaloriesBox.Text.Trim(), out calories);
-                string description = DescriptionBox.Text.Trim();
+
+                // ✅ MODIFIER : Gérer la durée selon le type
+                TimeSpan duree;
+                if (type == "repetitions")
+                {
+                    // Pour les répétitions, estimer une durée basée sur le nombre
+                    string repsValue = RepetitionsBox.Text.Trim();
+                    // Estimation : 1 minute par série
+                    duree = TimeSpan.FromMinutes(EstimerDureeRepetitions(repsValue));
+                }
+                else
+                {
+                    // Pour la durée, parser directement
+                    duree = ParserDuree(DurationBox.Text.Trim());
+                }
+
+                float calories = 0;
+                float.TryParse(CaloriesBox.Text.Trim(), out calories);
 
                 if (_estEnModeEdition)
                 {
-                    // Modifier l'exercice existant
-                    _exerciceEnEdition.Name = nom;
-                    _exerciceEnEdition.Type = type;
-                    _exerciceEnEdition.Value = valeur;
-                    _exerciceEnEdition.Calories = calories;
-                    _exerciceEnEdition.Description = description;
+                    // ✅ MODIFIER : Modifier l'activité existante
+                    _exerciceEnEdition.Titre = nom;
+                    _exerciceEnEdition.CaloriesBrulees = calories;
+                    _exerciceEnEdition.Duree = duree;
+
+                    // ✅ AJOUTER : Sauvegarder les modifications
+                    if (_utilisateur != null)
+                    {
+                        UserService.MettreAJourUtilisateur(_utilisateur);
+                    }
 
                     MessageBox.Show("Exercice modifié avec succès!", "Succès",
                                    MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // Créer un nouveau exercice
-                    Exercice nouvelExercice = new Exercice
+                    // ✅ MODIFIER : Créer une nouvelle Activite
+                    Activite nouvelleActivite = new Activite
                     {
-                        Name = nom,
-                        Type = type,
-                        Value = valeur,
-                        Calories = calories,
-                        Description = description
+                        Titre = nom,
+                        CaloriesBrulees = calories,
+                        Duree = duree,
+                        ImagePath = "/Images/default_exercise.png"
                     };
 
-                    _exercices.Add(nouvelExercice);
+                    _exercices.Add(nouvelleActivite);
+
+                    // ✅ AJOUTER : Ajouter à l'utilisateur et sauvegarder
+                    if (_utilisateur != null)
+                    {
+                        _utilisateur.ListeActivites.Add(nouvelleActivite);
+                        UserService.MettreAJourUtilisateur(_utilisateur);
+                    }
 
                     MessageBox.Show("Exercice créé avec succès!", "Succès",
                                    MessageBoxButton.OK, MessageBoxImage.Information);
@@ -137,6 +241,70 @@ namespace ProjetFinale.Views
             {
                 MessageBox.Show($"Erreur lors de la sauvegarde : {ex.Message}", "Erreur",
                                MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ✅ AJOUTER : Méthodes utilitaires pour gérer les durées
+        private int EstimerDureeRepetitions(string repsValue)
+        {
+            // Estimer la durée basée sur les répétitions (ex: "12 x 3" = 3 séries = 3 minutes)
+            try
+            {
+                if (repsValue.Contains("x"))
+                {
+                    var parts = repsValue.Split('x');
+                    if (parts.Length == 2 && int.TryParse(parts[1].Trim(), out int series))
+                    {
+                        return series; // 1 minute par série
+                    }
+                }
+                return 15; // Durée par défaut
+            }
+            catch
+            {
+                return 15;
+            }
+        }
+
+        private TimeSpan ParserDuree(string dureeStr)
+        {
+            try
+            {
+                // Supporter différents formats : "30 minutes", "1h30", "45min", etc.
+                dureeStr = dureeStr.ToLower().Replace(" ", "");
+
+                if (dureeStr.Contains("minute"))
+                {
+                    string numStr = dureeStr.Replace("minutes", "").Replace("minute", "");
+                    if (int.TryParse(numStr, out int minutes))
+                        return TimeSpan.FromMinutes(minutes);
+                }
+                else if (dureeStr.Contains("min"))
+                {
+                    string numStr = dureeStr.Replace("min", "");
+                    if (int.TryParse(numStr, out int minutes))
+                        return TimeSpan.FromMinutes(minutes);
+                }
+                else if (dureeStr.Contains("h"))
+                {
+                    // Format "1h30" ou "1h"
+                    var parts = dureeStr.Split('h');
+                    int heures = int.Parse(parts[0]);
+                    int minutes = parts.Length > 1 && !string.IsNullOrEmpty(parts[1]) ? int.Parse(parts[1]) : 0;
+                    return TimeSpan.FromHours(heures).Add(TimeSpan.FromMinutes(minutes));
+                }
+                else
+                {
+                    // Supposer que c'est en minutes
+                    if (int.TryParse(dureeStr, out int minutes))
+                        return TimeSpan.FromMinutes(minutes);
+                }
+
+                return TimeSpan.FromMinutes(30); // Défaut
+            }
+            catch
+            {
+                return TimeSpan.FromMinutes(30);
             }
         }
 
@@ -237,13 +405,13 @@ namespace ProjetFinale.Views
 
             if (searchTerm == "rechercher un exercice..." || string.IsNullOrWhiteSpace(searchTerm))
             {
-                _exercicesFiltres = new List<Exercice>(_exercices);
+                _exercicesFiltres = new List<Activite>(_exercices);
             }
             else
             {
+                // ✅ MODIFIER : Adapter pour la classe Activite
                 _exercicesFiltres = _exercices.Where(ex =>
-                    !string.IsNullOrEmpty(ex.Name) && ex.Name.ToLower().Contains(searchTerm) ||
-                    !string.IsNullOrEmpty(ex.Description) && ex.Description.ToLower().Contains(searchTerm)).ToList();
+                    !string.IsNullOrEmpty(ex.Titre) && ex.Titre.ToLower().Contains(searchTerm)).ToList();
             }
         }
 
@@ -275,7 +443,8 @@ namespace ProjetFinale.Views
             }
         }
 
-        private Border CreerCarteExercice(Exercice exercice)
+        // ✅ MODIFIER : Adapter pour la classe Activite
+        private Border CreerCarteExercice(Activite exercice)
         {
             var border = new Border
             {
@@ -288,10 +457,10 @@ namespace ProjetFinale.Views
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // Nom
+            // ✅ MODIFIER : Utiliser Titre au lieu de Name
             var nomText = new TextBlock
             {
-                Text = exercice.Name,
+                Text = exercice.Titre,
                 FontWeight = FontWeights.Bold,
                 Foreground = Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -299,21 +468,20 @@ namespace ProjetFinale.Views
             };
             Grid.SetColumn(nomText, 0);
 
-            // Type et valeur
-            string typeIcon = exercice.Type == "repetitions" ? "🏋️" : "⏱️";
-            var typeText = new TextBlock
+            // ✅ MODIFIER : Afficher la durée
+            var dureeText = new TextBlock
             {
-                Text = $"{typeIcon} {exercice.Value}",
+                Text = $"⏱️ {exercice.Duree.TotalMinutes:F0} min",
                 Foreground = new SolidColorBrush(Color.FromRgb(204, 204, 204)),
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 12
             };
-            Grid.SetColumn(typeText, 1);
+            Grid.SetColumn(dureeText, 1);
 
-            // Calories
+            // ✅ MODIFIER : Utiliser CaloriesBrulees
             var caloriesText = new TextBlock
             {
-                Text = $"🔥 {exercice.Calories} cal",
+                Text = $"🔥 {exercice.CaloriesBrulees:F0} cal",
                 Foreground = new SolidColorBrush(Color.FromRgb(204, 204, 204)),
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 12
@@ -356,7 +524,7 @@ namespace ProjetFinale.Views
             Grid.SetColumn(actionsPanel, 3);
 
             grid.Children.Add(nomText);
-            grid.Children.Add(typeText);
+            grid.Children.Add(dureeText);
             grid.Children.Add(caloriesText);
             grid.Children.Add(actionsPanel);
 
@@ -367,7 +535,7 @@ namespace ProjetFinale.Views
         private void EditExercise_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-            Exercice exercice = button.Tag as Exercice;
+            Activite exercice = button.Tag as Activite; // ✅ MODIFIER : Activite au lieu d'Exercice
 
             if (exercice != null)
             {
@@ -378,12 +546,12 @@ namespace ProjetFinale.Views
         private void DeleteExercise_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-            Exercice exercice = button.Tag as Exercice;
+            Activite exercice = button.Tag as Activite; // ✅ MODIFIER : Activite au lieu d'Exercice
 
             if (exercice != null)
             {
                 MessageBoxResult result = MessageBox.Show(
-                    $"Êtes-vous sûr de vouloir supprimer l'exercice '{exercice.Name}' ?",
+                    $"Êtes-vous sûr de vouloir supprimer l'exercice '{exercice.Titre}' ?", // ✅ MODIFIER : Titre
                     "Confirmation de suppression",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -391,6 +559,14 @@ namespace ProjetFinale.Views
                 if (result == MessageBoxResult.Yes)
                 {
                     _exercices.Remove(exercice);
+
+                    // ✅ AJOUTER : Supprimer de l'utilisateur
+                    if (_utilisateur != null)
+                    {
+                        _utilisateur.ListeActivites.Remove(exercice);
+                        UserService.MettreAJourUtilisateur(_utilisateur);
+                    }
+
                     FiltrerExercices();
                     MettreAJourAffichage();
                     MessageBox.Show("Exercice supprimé avec succès!", "Succès",
@@ -399,65 +575,55 @@ namespace ProjetFinale.Views
             }
         }
 
-        private void ChargerExercicePourEdition(Exercice exercice)
+        // ✅ MODIFIER : Adapter pour la classe Activite
+        private void ChargerExercicePourEdition(Activite exercice)
         {
             _estEnModeEdition = true;
             _exerciceEnEdition = exercice;
 
-            // Remplir le formulaire avec les données de l'exercice
-            ExerciseNameBox.Text = exercice.Name;
-            CaloriesBox.Text = exercice.Calories.ToString();
-            DescriptionBox.Text = exercice.Description;
+            // ✅ MODIFIER : Utiliser les propriétés de Activite
+            ExerciseNameBox.Text = exercice.Titre;
+            CaloriesBox.Text = exercice.CaloriesBrulees.ToString();
 
-            // Sélectionner le bon type
-            foreach (ComboBoxItem item in TypeComboBox.Items)
+            // Estimer le type basé sur la durée (vous pouvez ajuster cette logique)
+            if (exercice.Duree.TotalMinutes <= 10)
             {
-                if (item.Tag.ToString() == exercice.Type)
+                // Probablement des répétitions
+                foreach (ComboBoxItem item in TypeComboBox.Items)
                 {
-                    TypeComboBox.SelectedItem = item;
-                    break;
+                    if (item.Tag.ToString() == "repetitions")
+                    {
+                        TypeComboBox.SelectedItem = item;
+                        break;
+                    }
                 }
-            }
-
-            // Déclencher l'événement de changement de sélection
-            TypeComboBox_SelectionChanged(TypeComboBox, null);
-
-            // Set value
-            if (exercice.Type == "repetitions")
-            {
-                RepetitionsBox.Text = exercice.Value;
+                TypeComboBox_SelectionChanged(TypeComboBox, null);
+                RepetitionsBox.Text = $"10 x {exercice.Duree.TotalMinutes:F0}"; // Estimation
             }
             else
             {
-                DurationBox.Text = exercice.Value;
+                // Probablement une durée
+                foreach (ComboBoxItem item in TypeComboBox.Items)
+                {
+                    if (item.Tag.ToString() == "duration")
+                    {
+                        TypeComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
+                TypeComboBox_SelectionChanged(TypeComboBox, null);
+                DurationBox.Text = $"{exercice.Duree.TotalMinutes:F0} minutes";
             }
 
             AddButton.Content = "MODIFIER";
         }
 
         #endregion
-    }
 
-    #region Classes de modèle
-
-    public class Exercice
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
-        public int Calories { get; set; }
-        public string Description { get; set; }
-        public string ImagePath { get; set; }
-
-        // Propriété calculée pour l'icône selon le type
-        public string TypeIcon
+        // ✅ AJOUTER : Nettoyage lors de la fermeture
+        ~ExercicesPage()
         {
-            get
-            {
-                return Type == "repetitions" ? "🏋️" : "⏱️";
-            }
+            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
     }
-
-    #endregion
 }

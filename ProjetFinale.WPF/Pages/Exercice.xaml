@@ -180,7 +180,7 @@
             </Setter>
         </Style>
 
-        <!-- Style bouton principal -->
+        <!-- ✅ Style bouton principal MODIFIÉ - bouton plus grand -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource AccentPurple}"/>
             <Setter Property="Foreground" Value="White"/>
@@ -188,8 +188,11 @@
             <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="Padding" Value="30,12"/>
+            <!-- ✅ CHANGÉ de 20,8 à 30,12 pour un bouton plus grand -->
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="110"/>
+            <!-- ✅ AJOUTÉ : largeur minimum -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
