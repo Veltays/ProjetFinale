@@ -1,59 +1,52 @@
 {
-  "ListeAgenda": [
-    {
-      "Titre": "Blalal",
-      "HeureDebut": "11:00:00",
-      "HeureFin": "14:00:00",
-      "Date": "2025-07-26T00:00:00",
-      "Activite": null,
-      "Couleur": "#EF4444",
-      "Description": "",
-      "Duree": "03:00:00",
-      "DureeFormatee": "3,0h",
-      "HeureFormatee": "11:00 - 14:00"
-    }
-  ],
   "Pseudo": "Veltays",
   "Nom": "Gran",
   "Prenom": "Yassine",
   "Email": "granyassine774@gmail.com",
   "Age": 21,
-  "MDPHash": "Vm0wd2QyUXlVWGxXYTJoV1YwZG9WVll3WkRSV1JsbDNXa2M1VjFac2JETlhhMUpUVjBaS2RHVkVRbUZXVmxsM1ZtcEtTMUl5U2tWVWJHaG9UVlZ3VlZkV1pEUlRNazE0VjI1R1ZXSkhVazlaVjNSaFUxWmtWMVp0UmxSTmF6RTFWa2QwYzJGV1NuUmhSemxWVm14d1dGUnJXbXRYUjFKSVpFWlNUbFpZUWpWV1IzaGhZVEpHUjFOdVRtcFRSVXBYV1d4b1UwMHhVblJsUjBacVRWZFNNRlZ0ZUd0VWJGcDFVV3hvVjFKc2NGaFdha3BIVTBaYWRWSnNTbGRTTTAwMQ==",
-  "Poids": 69,
-  "Taille": 179,
-  "ObjectifPoids": 60,
-  "DateInscription": "2025-07-17T21:45:57.0337727+02:00",
-  "DateObjectif": "2025-07-26T00:00:00",
-  "ListeActivites": [],
-  "ListeStatistiques": [],
-  "ListeTaches": [
+  "MDPHash": "Yassine77!",
+  "Poids": 70,
+  "Taille": 180,
+  "ObjectifPoids": 75,
+  "DateInscription": "2025-08-10T21:40:05.5275712+02:00",
+  "DateObjectif": "2025-09-11T00:00:00",
+  "ListeActivites": [
     {
-      "Description": "bg",
-      "EstTerminee": false,
+      "Titre": "D\u00E9velopp\u00E9 couch\u00E9",
+      "Duree": "00:45:00",
+      "CaloriesBrulees": 180,
+      "ImagePath": "/Images/developpe_couche.png",
       "Id": 0,
-      "Date": "2025-07-28T20:51:57.7323498+02:00"
+      "Date": "0001-01-01T00:00:00"
     },
     {
-      "Description": "CSLaut",
-      "EstTerminee": false,
+      "Titre": "Course \u00E0 pied",
+      "Duree": "00:30:00",
+      "CaloriesBrulees": 300,
+      "ImagePath": "/Images/course.png",
       "Id": 0,
-      "Date": "2025-07-28T21:02:07.101154+02:00"
+      "Date": "0001-01-01T00:00:00"
     },
     {
-      "Description": "TUer",
-      "EstTerminee": false,
+      "Titre": "Squats",
+      "Duree": "00:20:00",
+      "CaloriesBrulees": 120,
+      "ImagePath": "/Images/squats.png",
       "Id": 0,
-      "Date": "2025-07-28T21:02:10.7665398+02:00"
+      "Date": "0001-01-01T00:00:00"
     }
   ],
-  "IMC": 21.534908398614277,
+  "ListeStatistiques": [],
+  "ListeAgenda": [],
+  "ListeTaches": [],
+  "IMC": 21.6,
   "AgeFormate": "21 ANS",
-  "PoidsFormate": "69 KG",
-  "TailleFormatee": "179 CM",
-  "IMCFormate": "21,5",
-  "ObjectifPoidsFormate": "60 KG",
+  "PoidsFormate": "70 KG",
+  "TailleFormatee": "180 CM",
+  "IMCFormate": "21,6",
+  "ObjectifPoidsFormate": "75 KG",
   "DateObjectifFormatee": "2025",
-  "IMCObjectifFormate": "18,7 IMC",
+  "IMCObjectifFormate": "23,1 IMC",
   "AnneesRestantesFormate": "0 ANS",
-  "MotDePasse": "Vm0wd2QyUXlVWGxXYTJoV1YwZG9WVll3WkRSV1JsbDNXa2M1VjFac2JETlhhMUpUVjBaS2RHVkVRbUZXVmxsM1ZtcEtTMUl5U2tWVWJHaG9UVlZ3VlZkV1pEUlRNazE0VjI1R1ZXSkhVazlaVjNSaFUxWmtWMVp0UmxSTmF6RTFWa2QwYzJGV1NuUmhSemxWVm14d1dGUnJXbXRYUjFKSVpFWlNUbFpZUWpWV1IzaGhZVEpHUjFOdVRtcFRSVXBYV1d4b1UwMHhVblJsUjBacVRWZFNNRlZ0ZUd0VWJGcDFVV3hvVjFKc2NGaFdha3BIVTBaYWRWSnNTbGRTTTAwMQ=="
+  "MotDePasse": "Yassine77!"
 }

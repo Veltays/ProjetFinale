@@ -211,15 +211,21 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Style bouton vert -->
+        <!-- ✅ Style bouton vert AGRANDI -->
         <Style x:Key="GreenButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource Green}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <!-- ✅ AUGMENTÉ de 12 à 14 -->
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="30,15"/>
+            <!-- ✅ AUGMENTÉ de 20,10 à 30,15 -->
+            <Setter Property="MinWidth" Value="140"/>
+            <!-- ✅ AJOUTÉ largeur minimum -->
+            <Setter Property="MinHeight" Value="45"/>
+            <!-- ✅ AJOUTÉ hauteur minimum -->
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -262,7 +268,8 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                             <TextBlock Text="✚" FontSize="16" Foreground="{StaticResource PurpleTitle}" 
-                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                       VerticalAlignment="Top" Margin="0,0,10,0"/>
+                            <!-- ✅ CHANGÉ Center en Top -->
                             <TextBlock Text="AJOUTER UN NOUVEL EXERCICE" Style="{StaticResource SectionTitleStyle}"/>
                         </StackPanel>
 
@@ -335,7 +342,8 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                             <TextBlock Text="📋" FontSize="16" Foreground="{StaticResource PurpleTitle}" 
-                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                       VerticalAlignment="Top" Margin="0,0,10,0"/>
+                            <!-- ✅ CHANGÉ Center en Top -->
                             <TextBlock Text="MES EXERCICES" Style="{StaticResource SectionTitleStyle}"/>
                         </StackPanel>
 

@@ -1,15 +1,18 @@
-﻿using System;
+﻿using ProjetFinale.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
-using ProjetFinale.Models;
 
 namespace ProjetFinale.Utils
 {
     public static class JsonService
     {
-        private static readonly string DataFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Datafile");
+        private static readonly string ProjectRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        private static readonly string DataFolderPath = Path.Combine(Path.GetFullPath(Path.Combine(ProjectRootPath, @"..\..\..")), "Datafile");
+
         private static readonly string UserFilePath = Path.Combine(DataFolderPath, "utilisateur.json");
         private static readonly string TachesFilePath = Path.Combine(DataFolderPath, "taches.json");
         private static readonly string ActivitesFilePath = Path.Combine(DataFolderPath, "activites.json");
@@ -20,7 +23,7 @@ namespace ProjetFinale.Utils
             if (!Directory.Exists(DataFolderPath))
             {
                 Directory.CreateDirectory(DataFolderPath);
-                Console.WriteLine("📁 Dossier Datafile créé.");
+                Console.WriteLine($"📁 Dossier Datafile créé à : {DataFolderPath}");
             }
         }
 
