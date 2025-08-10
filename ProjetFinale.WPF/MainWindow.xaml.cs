@@ -177,8 +177,8 @@ namespace ProjetFinale.Views
 
         private void ExercicesButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Page Exercices en cours de développement", "Info",
-                           MessageBoxButton.OK, MessageBoxImage.Information);
+            ContentFrame.Navigate(new ExercicesPage());
+            ContentFrame.Visibility = Visibility.Visible;
         }
 
         // === MÉTHODES DE NAVIGATION PUBLIQUES (pour AccueilPage) ===
@@ -191,7 +191,8 @@ namespace ProjetFinale.Views
 
         public void NavigateToExercices()
         {
-            ExercicesButton_Click(null, null);
+            ContentFrame.Navigate(new ExercicesPage());
+            ContentFrame.Visibility = Visibility.Visible;
         }
 
         public void NavigateToObjectifs()
