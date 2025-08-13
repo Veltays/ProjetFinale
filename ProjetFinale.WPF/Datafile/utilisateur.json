@@ -34,10 +34,76 @@
       "ImagePath": "/Images/squats.png",
       "Id": 0,
       "Date": "0001-01-01T00:00:00"
+    },
+    {
+      "Titre": "gbfvdcsxq",
+      "Duree": "00:15:00",
+      "CaloriesBrulees": 0,
+      "ImagePath": "/Images/default_exercise.png",
+      "Id": 0,
+      "Date": "0001-01-01T00:00:00"
     }
   ],
   "ListeStatistiques": [],
-  "ListeAgenda": [],
+  "ListeAgenda": [
+    {
+      "Titre": "lokiju,nhbg",
+      "HeureDebut": "12.00:00:00",
+      "HeureFin": "13.00:00:00",
+      "Date": "2025-08-10T00:00:00",
+      "Activite": {
+        "Titre": "Squats",
+        "Duree": "00:20:00",
+        "CaloriesBrulees": 120,
+        "ImagePath": "/Images/squats.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      },
+      "Couleur": "#6366F1",
+      "Description": "mlkj,nhbgv",
+      "Duree": "1.00:00:00",
+      "DureeFormatee": "24,0h",
+      "HeureFormatee": "00:00 - 00:00"
+    },
+    {
+      "Titre": "pmlokiujyhtg",
+      "HeureDebut": "17.00:00:00",
+      "HeureFin": "18.00:00:00",
+      "Date": "2025-08-10T00:00:00",
+      "Activite": {
+        "Titre": "Course \u00E0 pied",
+        "Duree": "00:30:00",
+        "CaloriesBrulees": 300,
+        "ImagePath": "/Images/course.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      },
+      "Couleur": "#8B5CF6",
+      "Description": "",
+      "Duree": "1.00:00:00",
+      "DureeFormatee": "24,0h",
+      "HeureFormatee": "00:00 - 00:00"
+    },
+    {
+      "Titre": "lk;j,hngbfvdc",
+      "HeureDebut": "11:00:00",
+      "HeureFin": "12:00:00",
+      "Date": "2025-08-12T00:00:00",
+      "Activite": {
+        "Titre": "Course \u00E0 pied",
+        "Duree": "00:30:00",
+        "CaloriesBrulees": 300,
+        "ImagePath": "/Images/course.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      },
+      "Couleur": "#8B5CF6",
+      "Description": "kj,hgbfv",
+      "Duree": "01:00:00",
+      "DureeFormatee": "1,0h",
+      "HeureFormatee": "11:00 - 12:00"
+    }
+  ],
   "ListeTaches": [],
   "IMC": 21.6,
   "AgeFormate": "21 ANS",

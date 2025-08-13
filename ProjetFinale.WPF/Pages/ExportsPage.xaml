@@ -4,148 +4,18 @@
       Title="ExportsPage" 
       Background="#303030">
 
-    <Page.Resources>
-        <!-- Styles pour les cartes d'export -->
-        <Style x:Key="ExportCard" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="25"/>
-            <Setter Property="Margin" Value="0,0,15,0"/>
-            <Setter Property="MinWidth" Value="280"/>
-            <Setter Property="MaxWidth" Value="320"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ExportButton" TargetType="Button">
-            <Setter Property="Background" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Margin" Value="0,10,0,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="6"
-                                Padding="15,8">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#D393FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="BigButton" TargetType="Button">
-            <Setter Property="Background" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="MinWidth" Value="200"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="10"
-                                Padding="20,10">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#D393FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="SecondaryButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Foreground" Value="#AF66FF"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="MinWidth" Value="200"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10"
-                                Padding="20,10">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#33AF66FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style pour les stats utilisateur -->
-        <Style x:Key="StatsCard" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Page.Resources>
-
     <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel>
             <!-- En-tête de la page -->
-            <StackPanel Margin="0,0,0,30">
-                <TextBlock Text="EXPORTS" 
-                           FontSize="32"
-                           Foreground="#AF66FF"
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10"/>
-
-                <TextBlock Text="Exportez vos données dans différents formats"
-                           FontSize="16"
-                           Foreground="#B8B8B8"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,30"/>
+            <StackPanel Style="{StaticResource ExportsHeaderStyle}">
+                <TextBlock Text="EXPORTS" Style="{StaticResource ExportsMainTitleStyle}"/>
+                <TextBlock Text="Exportez vos données dans différents formats" Style="{StaticResource ExportsSubtitleStyle}"/>
             </StackPanel>
 
-            <!-- 🔥 NOUVEAU : Section statistiques utilisateur avec data binding -->
-            <Border Style="{StaticResource StatsCard}">
+            <!-- Section statistiques utilisateur avec data binding -->
+            <Border Style="{StaticResource ExportsStatsCardStyle}">
                 <StackPanel>
-                    <TextBlock Text="📊 APERÇU DES DONNÉES À EXPORTER"
-                               Foreground="#D393FF"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Margin="0,0,0,15"/>
+                    <TextBlock Text="📊 APERÇU DES DONNÉES À EXPORTER" Style="{StaticResource ExportsStatsTitleStyle}"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -156,184 +26,99 @@
 
                         <!-- Infos utilisateur -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="👤 UTILISATEUR" Foreground="#AF66FF" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding Pseudo, StringFormat='Pseudo : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding AgeFormate, StringFormat='Âge : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding PoidsFormate, StringFormat='Poids : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding TailleFormatee, StringFormat='Taille : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
+                            <TextBlock Text="👤 UTILISATEUR" Style="{StaticResource ExportsStatsHeaderStyle}"/>
+                            <TextBlock Text="{Binding Pseudo, StringFormat='Pseudo : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding AgeFormate, StringFormat='Âge : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding PoidsFormate, StringFormat='Poids : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding TailleFormatee, StringFormat='Taille : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
                         </StackPanel>
 
                         <!-- Données à exporter -->
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="📈 DONNÉES" Foreground="#AF66FF" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding ListeTaches.Count, StringFormat='Tâches : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding ListeActivites.Count, StringFormat='Activités : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding ListeAgenda.Count, StringFormat='Agenda : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding ListeStatistiques.Count, StringFormat='Stats : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
+                            <TextBlock Text="📈 DONNÉES" Style="{StaticResource ExportsStatsHeaderStyle}"/>
+                            <TextBlock Text="{Binding ListeTaches.Count, StringFormat='Tâches : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding ListeActivites.Count, StringFormat='Activités : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding ListeAgenda.Count, StringFormat='Agenda : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding ListeStatistiques.Count, StringFormat='Stats : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
                         </StackPanel>
 
                         <!-- Objectifs -->
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="🎯 OBJECTIFS" Foreground="#AF66FF" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding ObjectifPoidsFormate, StringFormat='Objectif : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding IMCFormate, StringFormat='IMC actuel : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding IMCObjectifFormate, StringFormat='IMC objectif : {0}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
-                            <TextBlock Text="{Binding DateObjectif, StringFormat='Échéance : {0:dd/MM/yyyy}'}" 
-                                       Foreground="White" FontSize="12" Margin="0,2"/>
+                            <TextBlock Text="🎯 OBJECTIFS" Style="{StaticResource ExportsStatsHeaderStyle}"/>
+                            <TextBlock Text="{Binding ObjectifPoidsFormate, StringFormat='Objectif : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding IMCFormate, StringFormat='IMC actuel : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding IMCObjectifFormate, StringFormat='IMC objectif : {0}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
+                            <TextBlock Text="{Binding DateObjectif, StringFormat='Échéance : {0:dd/MM/yyyy}'}" Style="{StaticResource ExportsStatsValueStyle}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Formats d'export disponibles -->
-            <TextBlock Text="FORMATS D'EXPORT DISPONIBLES"
-                       Foreground="#D393FF"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0,0,0,30"/>
+            <TextBlock Text="FORMATS D'EXPORT DISPONIBLES" Style="{StaticResource ExportsSectionTitleStyle}"/>
 
             <!-- Cartes des formats d'export -->
-            <StackPanel Orientation="Horizontal" 
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,50">
+            <StackPanel Style="{StaticResource ExportsCardsContainerStyle}">
 
                 <!-- CSV Export -->
-                <Border Style="{StaticResource ExportCard}">
+                <Border Style="{StaticResource ExportsCardStyle}">
                     <StackPanel>
                         <!-- Icône CSV -->
-                        <Border Background="#10B981"
-                                Width="60"
-                                Height="60"
-                                CornerRadius="8"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,20">
-                            <Grid>
-                                <TextBlock Text="📊"
-                                          FontSize="24"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                            </Grid>
+                        <Border Style="{StaticResource ExportsIconGreenStyle}">
+                            <TextBlock Text="📊" Style="{StaticResource ExportsIconTextStyle}"/>
                         </Border>
 
                         <!-- Titre et description -->
-                        <TextBlock Text="CSV (.csv)"
-                                   Foreground="White"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,10"/>
-
-                        <TextBlock Text="Format de données séparées par des virgules. Compatible avec Excel, Google Sheets et la plupart des outils d'analyse."
-                                   Foreground="#B8B8B8"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   LineHeight="18"
-                                   Margin="0,0,0,15"/>
-
-                        <TextBlock Text="TAILLE: ~850 KB"
-                                   Foreground="#10B981"
-                                   FontSize="11"
-                                   FontWeight="Bold"/>
+                        <TextBlock Text="CSV (.csv)" Style="{StaticResource ExportsCardTitleStyle}"/>
+                        <TextBlock Text="Format de données séparées par des virgules. Compatible avec Excel, Google Sheets et la plupart des outils d'analyse." 
+                                   Style="{StaticResource ExportsCardDescriptionStyle}"/>
+                        <TextBlock Text="TAILLE: ~850 KB" Style="{StaticResource ExportsCardSizeGreenStyle}"/>
 
                         <!-- Bouton export -->
                         <Button Content="EXPORTER EN CSV"
-                                Style="{StaticResource ExportButton}"
+                                Style="{StaticResource ExportsButtonStyle}"
                                 Click="ExportCSV_Click"/>
                     </StackPanel>
                 </Border>
 
                 <!-- JSON Export -->
-                <Border Style="{StaticResource ExportCard}">
+                <Border Style="{StaticResource ExportsCardStyle}">
                     <StackPanel>
                         <!-- Icône JSON -->
-                        <Border Background="#F59E0B"
-                                Width="60"
-                                Height="60"
-                                CornerRadius="8"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,20">
-                            <TextBlock Text="📋"
-                                      FontSize="24"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
+                        <Border Style="{StaticResource ExportsIconOrangeStyle}">
+                            <TextBlock Text="📋" Style="{StaticResource ExportsIconTextStyle}"/>
                         </Border>
 
                         <!-- Titre et description -->
-                        <TextBlock Text="JSON (.json)"
-                                   Foreground="White"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,10"/>
-
+                        <TextBlock Text="JSON (.json)" Style="{StaticResource ExportsCardTitleStyle}"/>
                         <TextBlock Text="Format universel pour l'intégration avec d'autres applications ou pour les développeurs."
-                                   Foreground="#B8B8B8"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   LineHeight="18"
-                                   Margin="0,0,0,15"/>
-
-                        <TextBlock Text="TAILLE: ~1.8 MB"
-                                   Foreground="#F59E0B"
-                                   FontSize="11"
-                                   FontWeight="Bold"/>
+                                   Style="{StaticResource ExportsCardDescriptionStyle}"/>
+                        <TextBlock Text="TAILLE: ~1.8 MB" Style="{StaticResource ExportsCardSizeOrangeStyle}"/>
 
                         <!-- Bouton export -->
                         <Button Content="EXPORTER EN JSON"
-                                Style="{StaticResource ExportButton}"
+                                Style="{StaticResource ExportsButtonStyle}"
                                 Click="ExportJSON_Click"/>
                     </StackPanel>
                 </Border>
 
-                <!-- SERIALIZE Export -->
-                <Border Style="{StaticResource ExportCard}">
+                <!-- XML Export -->
+                <Border Style="{StaticResource ExportsCardStyle}">
                     <StackPanel>
-                        <!-- Icône SERIALIZE -->
-                        <Border Background="#3B82F6"
-                                Width="60"
-                                Height="60"
-                                CornerRadius="8"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,20">
-                            <Grid>
-                                <TextBlock Text="💾"
-                                          FontSize="24"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                            </Grid>
+                        <!-- Icône XML -->
+                        <Border Style="{StaticResource ExportsIconBlueStyle}">
+                            <TextBlock Text="💾" Style="{StaticResource ExportsIconTextStyle}"/>
                         </Border>
 
                         <!-- Titre et description -->
-                        <TextBlock Text="XML (.xml)"
-                                   Foreground="White"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,10"/>
-
+                        <TextBlock Text="XML (.xml)" Style="{StaticResource ExportsCardTitleStyle}"/>
                         <TextBlock Text="Format XML structuré pour la sauvegarde et restauration de toutes vos données."
-                                   Foreground="#B8B8B8"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   LineHeight="18"
-                                   Margin="0,0,0,15"/>
-
-                        <TextBlock Text="TAILLE: ~900 KB"
-                                   Foreground="#3B82F6"
-                                   FontSize="11"
-                                   FontWeight="Bold"/>
+                                   Style="{StaticResource ExportsCardDescriptionStyle}"/>
+                        <TextBlock Text="TAILLE: ~900 KB" Style="{StaticResource ExportsCardSizeBlueStyle}"/>
 
                         <!-- Bouton export -->
                         <Button Content="EXPORTER EN XML"
-                                Style="{StaticResource ExportButton}"
+                                Style="{StaticResource ExportsButtonStyle}"
                                 Click="ExportSerialize_Click"/>
                     </StackPanel>
                 </Border>
@@ -341,43 +126,17 @@
             </StackPanel>
 
             <!-- Section Export Complet -->
-            <TextBlock Text="EXPORT COMPLET"
-                       Foreground="#D393FF"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0,20,0,20"/>
+            <TextBlock Text="EXPORT COMPLET" Style="{StaticResource ExportsSectionTitleStyle}"/>
 
             <!-- Carte Export Tout -->
-            <Border Background="#2A2A2A"
-                    CornerRadius="12"
-                    Padding="30"
-                    MaxWidth="500"
-                    HorizontalAlignment="Center">
-                <Border.Effect>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
-                </Border.Effect>
-
+            <Border Style="{StaticResource ExportsCompleteCardStyle}">
                 <StackPanel>
-                    <TextBlock Text="EXPORTER TOUT"
-                               Foreground="#D393FF"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-
+                    <TextBlock Text="EXPORTER TOUT" Style="{StaticResource ExportsCompleteTitleStyle}"/>
                     <TextBlock Text="Téléchargez toutes vos données dans tous les formats disponibles en une seule fois"
-                               Foreground="#B8B8B8"
-                               FontSize="13"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"
-                               Margin="0,0,0,25"/>
+                               Style="{StaticResource ExportsCompleteDescriptionStyle}"/>
 
-                    <!-- 🔥 NOUVEAU : Affichage dynamique du total d'éléments -->
-                    <TextBlock Foreground="#AF66FF"
-                               FontSize="14"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,20">
+                    <!-- Affichage dynamique du total d'éléments -->
+                    <TextBlock Style="{StaticResource ExportsCompleteSummaryStyle}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}📊 {0} tâches • 🏃 {1} activités • 📅 {2} événements">
                                 <Binding Path="ListeTaches.Count"/>
@@ -388,14 +147,13 @@
                     </TextBlock>
 
                     <!-- Boutons alignés -->
-                    <StackPanel Orientation="Horizontal" 
-                                HorizontalAlignment="Center">
+                    <StackPanel Style="{StaticResource ExportsCompleteButtonsStyle}">
                         <Button Content="EXPORTER TOUT (.zip)"
-                                Style="{StaticResource BigButton}"
+                                Style="{StaticResource ExportsBigButtonStyle}"
                                 Click="ExportAll_Click"/>
 
                         <Button Content="PROGRAMMER EXPORT"
-                                Style="{StaticResource SecondaryButton}"
+                                Style="{StaticResource ExportsSecondaryButtonStyle}"
                                 Click="ScheduleExport_Click"/>
                     </StackPanel>
                 </StackPanel>

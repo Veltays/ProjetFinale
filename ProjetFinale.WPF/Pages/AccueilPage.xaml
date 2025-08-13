@@ -4,227 +4,29 @@
       Title="AccueilPage" 
       Background="#303030">
 
-    <Page.Resources>
-        <!-- 🆕 Style GLOBAL pour DatePickerTextBox - Fix du fond blanc -->
-        <Style TargetType="DatePickerTextBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DatePickerTextBox">
-                        <Grid>
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                        VerticalAlignment="Center"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="0"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Styles existants conservés -->
-        <Style x:Key="WelcomeCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Padding" Value="30"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ProfileCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="25"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="StatCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="QuickActionButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="{StaticResource KameronBold}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Height" Value="60"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="8"
-                                Padding="15,10">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#D393FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- 🆕 Style pour les TextBox éditables -->
-        <Style x:Key="EditableTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#404040"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                        Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="#D393FF"/>
-                                <Setter Property="Background" Value="#4A4A4A"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- 🆕 Style personnalisé pour DatePicker dans les objectifs -->
-        <Style x:Key="ObjectifDatePickerStyle" TargetType="DatePicker">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="Foreground" Value="#D393FF"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DatePicker">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Zone de texte pour la date -->
-                                <DatePickerTextBox x:Name="PART_TextBox"
-                                                   Grid.Column="0"
-                                                   Margin="{TemplateBinding Padding}"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   Background="Transparent"
-                                                   Foreground="{TemplateBinding Foreground}"
-                                                   BorderThickness="0"/>
-
-                                <!-- Bouton calendrier -->
-                                <Button x:Name="PART_Button"
-                                        Grid.Column="1"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Foreground="White"
-                                        FontSize="12"
-                                        Width="25"
-                                        Content="📅"/>
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="SaveButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#4CAF50"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="3">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"
-                                            Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#66BB6A"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Page.Resources>
-
     <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
         <StackPanel>
 
             <!-- Message de bienvenue -->
-            <Border Style="{StaticResource WelcomeCardStyle}">
+            <Border Style="{StaticResource AccueilWelcomeCardStyle}">
                 <StackPanel>
                     <TextBlock Text="🎯 TABLEAU DE BORD"
-                               Foreground="#D393FF"
-                               FontSize="28"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
+                               Style="{StaticResource AccueilMainTitleStyle}"/>
 
                     <TextBlock Text="Bienvenue dans votre espace fitness ! Suivez vos progrès et atteignez vos objectifs."
-                               Foreground="#B8B8B8"
-                               FontSize="14"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"/>
+                               Style="{StaticResource AccueilSubtitleStyle}"/>
                 </StackPanel>
             </Border>
 
             <!-- Section profil et objectifs -->
-            <Grid Margin="0,10">
+            <Grid Style="{StaticResource AccueilMainSectionStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Profil utilisateur ÉDITABLE -->
-                <Border Grid.Column="0" Style="{StaticResource ProfileCardStyle}">
+                <Border Grid.Column="0" Style="{StaticResource AccueilProfileCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -232,32 +34,19 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Photo de profil -->
-                        <Border Grid.Column="0"
-                                Background="#AF66FF"
-                                CornerRadius="50"
-                                Width="100"
-                                Height="100"
-                                Margin="0,0,25,0">
-                            <TextBlock Text="👤"
-                                      FontSize="40"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
+                        <Border Grid.Column="0" Style="{StaticResource AccueilProfilePictureStyle}">
+                            <TextBlock Style="{StaticResource AccueilProfileIconStyle}"/>
                         </Border>
 
                         <!-- Informations utilisateur ÉDITABLES -->
                         <StackPanel Grid.Column="1" VerticalAlignment="Top">
                             <!-- BINDING: Pseudo dynamique (non-éditable) -->
                             <TextBlock Text="{Binding Pseudo}"
-                                      Foreground="White"
-                                      FontSize="24"
-                                      FontWeight="Bold"
-                                      Margin="0,0,0,5"/>
+                                      Style="{StaticResource AccueilProfileNameStyle}"/>
 
                             <!-- BINDING: Date d'inscription formatée (non-éditable) -->
                             <TextBlock Text="{Binding DateInscription, StringFormat='INSCRIT LE {0:dd/MM/yyyy}'}"
-                                      Foreground="#B8B8B8"
-                                      FontSize="12"
-                                      Margin="0,0,0,20"/>
+                                      Style="{StaticResource AccueilProfileDateStyle}"/>
 
                             <!-- Stats utilisateur ÉDITABLES - Layout amélioré -->
                             <Grid>
@@ -274,11 +63,11 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- 🆕 POIDS ÉDITABLE -->
+                                <!-- POIDS ÉDITABLE -->
                                 <StackPanel Grid.Column="0" Grid.Row="0">
-                                    <TextBlock Text="POIDS :" Foreground="#D393FF" FontWeight="Bold" FontSize="11" Margin="0,0,0,5"/>
-                                    <Border Background="#404040" CornerRadius="5" BorderBrush="#AF66FF" BorderThickness="1">
-                                        <Grid Margin="8,5">
+                                    <TextBlock Text="POIDS :" Style="{StaticResource AccueilFieldLabelStyle}"/>
+                                    <Border Style="{StaticResource AccueilEditableFieldBorderStyle}">
+                                        <Grid Style="{StaticResource AccueilFieldGridStyle}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
@@ -286,22 +75,17 @@
                                             <TextBox x:Name="PoidsTextBox" 
                                                     Grid.Column="0"
                                                     Text="{Binding Poids, UpdateSourceTrigger=PropertyChanged}"
-                                                    Background="Transparent"
-                                                    Foreground="White"
-                                                    BorderThickness="0"
-                                                    FontWeight="Bold"
-                                                    VerticalContentAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="KG" Foreground="#B8B8B8" 
-                                                      VerticalAlignment="Center" FontSize="10" Margin="5,0,0,0"/>
+                                                    Style="{StaticResource AccueilEditableTextBoxStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="KG" Style="{StaticResource AccueilFieldUnitStyle}"/>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- 🆕 TAILLE ÉDITABLE -->
+                                <!-- TAILLE ÉDITABLE -->
                                 <StackPanel Grid.Column="2" Grid.Row="0">
-                                    <TextBlock Text="TAILLE :" Foreground="#D393FF" FontWeight="Bold" FontSize="11" Margin="0,0,0,5"/>
-                                    <Border Background="#404040" CornerRadius="5" BorderBrush="#AF66FF" BorderThickness="1">
-                                        <Grid Margin="8,5">
+                                    <TextBlock Text="TAILLE :" Style="{StaticResource AccueilFieldLabelStyle}"/>
+                                    <Border Style="{StaticResource AccueilEditableFieldBorderStyle}">
+                                        <Grid Style="{StaticResource AccueilFieldGridStyle}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
@@ -309,30 +93,25 @@
                                             <TextBox x:Name="TailleTextBox" 
                                                     Grid.Column="0"
                                                     Text="{Binding Taille, UpdateSourceTrigger=PropertyChanged}"
-                                                    Background="Transparent"
-                                                    Foreground="White"
-                                                    BorderThickness="0"
-                                                    FontWeight="Bold"
-                                                    VerticalContentAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="CM" Foreground="#B8B8B8" 
-                                                      VerticalAlignment="Center" FontSize="10" Margin="5,0,0,0"/>
+                                                    Style="{StaticResource AccueilEditableTextBoxStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="CM" Style="{StaticResource AccueilFieldUnitStyle}"/>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
                                 <!-- IMC CALCULÉ (non-éditable) -->
                                 <StackPanel Grid.Column="0" Grid.Row="2">
-                                    <TextBlock Text="IMC :" Foreground="#D393FF" FontWeight="Bold" FontSize="11" Margin="0,0,0,5"/>
-                                    <Border Background="#404040" CornerRadius="5" Padding="8,8">
-                                        <TextBlock Text="{Binding IMCFormate}" Foreground="#4CAF50" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="IMC :" Style="{StaticResource AccueilFieldLabelStyle}"/>
+                                    <Border Style="{StaticResource AccueilReadOnlyFieldBorderStyle}">
+                                        <TextBlock Text="{Binding IMCFormate}" Style="{StaticResource AccueilIMCValueStyle}"/>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- 🆕 ÂGE ÉDITABLE -->
+                                <!-- ÂGE ÉDITABLE -->
                                 <StackPanel Grid.Column="2" Grid.Row="2">
-                                    <TextBlock Text="ÂGE :" Foreground="#D393FF" FontWeight="Bold" FontSize="11" Margin="0,0,0,5"/>
-                                    <Border Background="#404040" CornerRadius="5" BorderBrush="#AF66FF" BorderThickness="1">
-                                        <Grid Margin="8,5">
+                                    <TextBlock Text="ÂGE :" Style="{StaticResource AccueilFieldLabelStyle}"/>
+                                    <Border Style="{StaticResource AccueilEditableFieldBorderStyle}">
+                                        <Grid Style="{StaticResource AccueilFieldGridStyle}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
@@ -340,44 +119,34 @@
                                             <TextBox x:Name="AgeTextBox" 
                                                     Grid.Column="0"
                                                     Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}"
-                                                    Background="Transparent"
-                                                    Foreground="White"
-                                                    BorderThickness="0"
-                                                    FontWeight="Bold"
-                                                    VerticalContentAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="ANS" Foreground="#B8B8B8" 
-                                                      VerticalAlignment="Center" FontSize="10" Margin="5,0,0,0"/>
+                                                    Style="{StaticResource AccueilEditableTextBoxStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="ANS" Style="{StaticResource AccueilFieldUnitStyle}"/>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- 🆕 BOUTON SAUVEGARDER PROFIL -->
+                                <!-- BOUTON SAUVEGARDER PROFIL -->
                                 <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3"
                                        Content="💾 SAUVEGARDER PROFIL" 
-                                       Style="{StaticResource SaveButtonStyle}"
-                                       Click="SauvegarderProfil_Click"
-                                       Height="35"/>
+                                       Style="{StaticResource AccueilSaveButtonStyle}"
+                                       Click="SauvegarderProfil_Click"/>
                             </Grid>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- Objectifs 2026 ÉDITABLES -->
-                <Border Grid.Column="1" Style="{StaticResource ProfileCardStyle}" Background="#AF66FF">
+                <Border Grid.Column="1" Style="{StaticResource AccueilObjectifsCardStyle}">
                     <StackPanel>
                         <!-- BINDING: Année d'objectif dynamique -->
                         <TextBlock Text="{Binding DateObjectifFormatee, StringFormat='🎯 OBJECTIF {0}'}"
-                                  Foreground="White"
-                                  FontSize="18"
-                                  FontWeight="Bold"
-                                  HorizontalAlignment="Center"
-                                  Margin="0,0,0,20"/>
+                                  Style="{StaticResource AccueilObjectifsTitleStyle}"/>
 
-                        <!-- 🆕 POIDS VISÉ ÉDITABLE -->
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="POIDS VISÉ :" Foreground="White" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <Border Background="#2A2A2A" CornerRadius="5" BorderBrush="#FFFFFF" BorderThickness="1">
-                                <Grid Margin="10,8">
+                        <!-- POIDS VISÉ ÉDITABLE -->
+                        <StackPanel Style="{StaticResource AccueilObjectifsFieldStyle}">
+                            <TextBlock Text="POIDS VISÉ :" Style="{StaticResource AccueilObjectifsLabelStyle}"/>
+                            <Border Style="{StaticResource AccueilObjectifsInputBorderStyle}">
+                                <Grid Style="{StaticResource AccueilObjectifsInputGridStyle}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
@@ -385,95 +154,77 @@
                                     <TextBox x:Name="ObjectifPoidsTextBox"
                                             Grid.Column="0"
                                             Text="{Binding ObjectifPoids, UpdateSourceTrigger=PropertyChanged}"
-                                            Background="Transparent"
-                                            Foreground="#D393FF"
-                                            BorderThickness="0"
-                                            FontWeight="Bold"
-                                            FontSize="14"
-                                            HorizontalAlignment="Center"
-                                            VerticalContentAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="KG" Foreground="White" 
-                                              VerticalAlignment="Center" FontWeight="Bold" Margin="8,0,0,0"/>
+                                            Style="{StaticResource AccueilObjectifsTextBoxStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="KG" Style="{StaticResource AccueilObjectifsUnitStyle}"/>
                                 </Grid>
                             </Border>
                         </StackPanel>
 
                         <!-- IMC OBJECTIF CALCULÉ (non-éditable) -->
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="IMC VISÉ :" Foreground="White" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <Border Background="#2A2A2A" CornerRadius="5" Padding="10,8">
-                                <TextBlock Text="{Binding IMCObjectifFormate}" Foreground="#4CAF50" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14"/>
+                        <StackPanel Style="{StaticResource AccueilObjectifsFieldStyle}">
+                            <TextBlock Text="IMC VISÉ :" Style="{StaticResource AccueilObjectifsLabelStyle}"/>
+                            <Border Style="{StaticResource AccueilObjectifsReadOnlyBorderStyle}">
+                                <TextBlock Text="{Binding IMCObjectifFormate}" Style="{StaticResource AccueilObjectifsIMCStyle}"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- 🆕 DATE OBJECTIF ÉDITABLE -->
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="DATE OBJECTIF :" Foreground="White" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <Border Background="#2A2A2A" CornerRadius="5" BorderBrush="#FFFFFF" BorderThickness="1" Padding="5">
+                        <!-- DATE OBJECTIF ÉDITABLE -->
+                        <StackPanel Style="{StaticResource AccueilObjectifsFieldStyle}">
+                            <TextBlock Text="DATE OBJECTIF :" Style="{StaticResource AccueilObjectifsLabelStyle}"/>
+                            <Border Style="{StaticResource AccueilObjectifsDateBorderStyle}">
                                 <DatePicker x:Name="DateObjectifPicker"
                                            SelectedDate="{Binding DateObjectif, UpdateSourceTrigger=PropertyChanged}"
-                                           Style="{StaticResource ObjectifDatePickerStyle}"
-                                           HorizontalAlignment="Stretch"/>
+                                           Style="{StaticResource AccueilObjectifsDatePickerStyle}"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- ANNÉES RESTANTES CALCULÉES (non-éditable) -->
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="TEMPS RESTANT :" Foreground="White" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <Border Background="#2A2A2A" CornerRadius="5" Padding="10,8">
-                                <TextBlock Text="{Binding AnneesRestantesFormate}" Foreground="#4CAF50" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14"/>
+                        <!-- TEMPS RESTANT CALCULÉ (non-éditable) -->
+                        <StackPanel Style="{StaticResource AccueilObjectifsFieldStyle}">
+                            <TextBlock Text="TEMPS RESTANT :" Style="{StaticResource AccueilObjectifsLabelStyle}"/>
+                            <Border Style="{StaticResource AccueilObjectifsReadOnlyBorderStyle}">
+                                <TextBlock Text="{Binding AnneesRestantesFormate}" Style="{StaticResource AccueilObjectifsTimeStyle}"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- 🆕 BOUTON SAUVEGARDER OBJECTIFS -->
+                        <!-- BOUTON SAUVEGARDER OBJECTIFS -->
                         <Button Content="💾 SAUVEGARDER OBJECTIFS" 
-                               Style="{StaticResource SaveButtonStyle}"
-                               Click="SauvegarderObjectifs_Click"
-                               Height="35"/>
+                               Style="{StaticResource AccueilSaveButtonStyle}"
+                               Click="SauvegarderObjectifs_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <!-- Actions rapides -->
-            <Border Style="{StaticResource StatCardStyle}" Margin="10,20">
+            <Border Style="{StaticResource AccueilActionsCardStyle}">
                 <StackPanel>
                     <TextBlock Text="⚡ ACTIONS RAPIDES"
-                               Foreground="#D393FF"
-                               FontSize="16"
-                               FontWeight="Bold"
-                               Margin="0,0,0,15"/>
+                               Style="{StaticResource AccueilSectionTitleStyle}"/>
 
                     <UniformGrid Rows="1" Columns="4">
                         <Button Content="🏃 NOUVELLE SÉANCE" 
-                                Style="{StaticResource QuickActionButtonStyle}"
+                                Style="{StaticResource AccueilQuickActionButtonStyle}"
                                 Click="NouvelleSeance_Click"/>
                         <Button Content="📊 VOIR PROGRÈS" 
-                                Style="{StaticResource QuickActionButtonStyle}"
+                                Style="{StaticResource AccueilQuickActionButtonStyle}"
                                 Click="VoirProgres_Click"/>
                         <Button Content="🎯 MES OBJECTIFS" 
-                                Style="{StaticResource QuickActionButtonStyle}"
+                                Style="{StaticResource AccueilQuickActionButtonStyle}"
                                 Click="MesObjectifs_Click"/>
                         <Button Content="📅 PLANNING" 
-                                Style="{StaticResource QuickActionButtonStyle}"
+                                Style="{StaticResource AccueilQuickActionButtonStyle}"
                                 Click="Planning_Click"/>
                     </UniformGrid>
                 </StackPanel>
             </Border>
 
             <!-- Section graphiques (placeholder) -->
-            <Border Style="{StaticResource StatCardStyle}" Margin="10,20">
+            <Border Style="{StaticResource AccueilProgressCardStyle}">
                 <StackPanel>
                     <TextBlock Text="📈 VOS PROGRÈS"
-                               Foreground="#D393FF"
-                               FontSize="16"
-                               FontWeight="Bold"
-                               Margin="0,0,0,15"/>
+                               Style="{StaticResource AccueilSectionTitleStyle}"/>
 
                     <TextBlock Text="Les graphiques de progression seront affichés ici..."
-                               Foreground="#B8B8B8"
-                               FontSize="14"
-                               TextAlignment="Center"
-                               Margin="0,20"/>
+                               Style="{StaticResource AccueilPlaceholderTextStyle}"/>
                 </StackPanel>
             </Border>
 

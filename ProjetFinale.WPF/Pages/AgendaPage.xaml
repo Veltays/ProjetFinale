@@ -2,180 +2,75 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Page.Resources>
-        <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FF2D2D2D" Offset="0"/>
-            <GradientStop Color="#FF1A1A1A" Offset="1"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="PurpleGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FF8B5CF6" Offset="0"/>
-            <GradientStop Color="#FFA855F7" Offset="0.5"/>
-            <GradientStop Color="#FFE879F9" Offset="1"/>
-        </LinearGradientBrush>
-
-        <Style x:Key="TimeSlotStyle" TargetType="Border">
-            <Setter Property="Background" Value="#3A3A3A"/>
-            <Setter Property="BorderBrush" Value="#4A4A4A"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Margin" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-
-        <Style x:Key="EventStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PurpleGradient}"/>
-            <Setter Property="CornerRadius" Value="5"/>
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-
-        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="TimeTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#D393FF"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5"/>
-        </Style>
-
-        <!-- ✅ NOUVEAU : Style pour le bouton d'export -->
-        <Style x:Key="ExportButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#FF28A745"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF218838"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Page.Resources>
-
-    <Grid Background="{StaticResource BackgroundGradient}">
+    <Grid Background="{StaticResource AgendaBackgroundGradientStyle}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- SIDEBAR -->
-        <Border Grid.Column="0" Background="#1E1E1E" CornerRadius="0,10,0,0">
-            <StackPanel Margin="20">
-                <TextBlock Text="📅 AGENDA" 
-                          Foreground="White" 
-                          FontFamily="Kameron" 
-                          FontSize="24" 
-                          FontWeight="Bold" 
-                          Margin="0,0,0,30"/>
+        <Border Grid.Column="0" Style="{StaticResource AgendaSidebarStyle}">
+            <StackPanel Style="{StaticResource AgendaSidebarContentStyle}">
+                <TextBlock Text="📅 AGENDA" Style="{StaticResource AgendaSidebarTitleStyle}"/>
 
                 <!-- Navigation semaine -->
-                <Border Background="#2E2E2E" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+                <Border Style="{StaticResource AgendaSidebarSectionStyle}">
                     <StackPanel>
-                        <TextBlock Text="Navigation" Style="{StaticResource HeaderTextStyle}" Margin="0,0,0,10"/>
+                        <TextBlock Text="Navigation" Style="{StaticResource AgendaSectionHeaderStyle}"/>
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                        <StackPanel Style="{StaticResource AgendaNavigationButtonsStyle}">
                             <Button x:Name="PreviousWeekButton" 
                                    Content="◀" 
-                                   Width="40" Height="30" 
-                                   Background="#8B5CF6" 
-                                   Foreground="White" 
-                                   BorderThickness="0" 
-                                   FontSize="16"
-                                   Margin="0,0,10,0"
+                                   Style="{StaticResource AgendaNavigationButtonStyle}"
                                    Click="PreviousWeek_Click"/>
 
                             <Button x:Name="NextWeekButton" 
                                    Content="▶" 
-                                   Width="40" Height="30" 
-                                   Background="#8B5CF6" 
-                                   Foreground="White" 
-                                   BorderThickness="0" 
-                                   FontSize="16"
+                                   Style="{StaticResource AgendaNavigationButtonStyle}"
                                    Click="NextWeek_Click"/>
                         </StackPanel>
 
                         <TextBlock x:Name="CurrentWeekLabel" 
                                   Text="16-22 Juin 2025" 
-                                  Foreground="#D393FF" 
-                                  FontFamily="Kameron" 
-                                  FontSize="14" 
-                                  HorizontalAlignment="Center"/>
+                                  Style="{StaticResource AgendaCurrentWeekLabelStyle}"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Actions rapides -->
-                <Border Background="#2E2E2E" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+                <Border Style="{StaticResource AgendaSidebarSectionStyle}">
                     <StackPanel>
-                        <TextBlock Text="Actions" Style="{StaticResource HeaderTextStyle}" Margin="0,0,0,15"/>
+                        <TextBlock Text="Actions" Style="{StaticResource AgendaSectionHeaderStyle}"/>
 
                         <Button x:Name="CreateEventButton" 
                                Content="➕ Nouvel Événement" 
-                               Background="{StaticResource PurpleGradient}" 
-                               Foreground="White" 
-                               FontFamily="Kameron" 
-                               FontSize="14" 
-                               Height="40" 
-                               BorderThickness="0" 
-                               Margin="0,0,0,10"
+                               Style="{StaticResource AgendaCreateEventButtonStyle}"
                                Click="CreateEvent_Click"/>
 
                         <Button x:Name="TodayButton" 
                                Content="📍 Aujourd'hui" 
-                               Background="#4A4A4A" 
-                               Foreground="White" 
-                               FontFamily="Kameron" 
-                               FontSize="14" 
-                               Height="35" 
-                               BorderThickness="0"
-                               Margin="0,0,0,10"
+                               Style="{StaticResource AgendaTodayButtonStyle}"
                                Click="GoToToday_Click"/>
 
-                        <!-- ✅ NOUVEAU : Bouton Export ICS -->
                         <Button x:Name="ExportIcsButton" 
                                Content="📥 Exporter ICS" 
-                               Style="{StaticResource ExportButtonStyle}"
+                               Style="{StaticResource AgendaExportButtonStyle}"
                                Click="ExportIcs_Click"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Statistiques de la semaine -->
-                <Border Background="#2E2E2E" CornerRadius="10" Padding="15">
+                <Border Style="{StaticResource AgendaSidebarSectionStyle}">
                     <StackPanel>
-                        <TextBlock Text="Cette semaine" Style="{StaticResource HeaderTextStyle}" Margin="0,0,0,15"/>
+                        <TextBlock Text="Cette semaine" Style="{StaticResource AgendaSectionHeaderStyle}"/>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                            <TextBlock Text="Événements :" Foreground="White" FontFamily="Kameron"/>
-                            <TextBlock x:Name="EventCountLabel" Text="0" Foreground="#D393FF" FontFamily="Kameron" Margin="5,0,0,0"/>
+                        <StackPanel Style="{StaticResource AgendaStatsRowStyle}">
+                            <TextBlock Text="Événements :" Style="{StaticResource AgendaStatsLabelStyle}"/>
+                            <TextBlock x:Name="EventCountLabel" Text="0" Style="{StaticResource AgendaStatsValueStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                            <TextBlock Text="Heures planifiées :" Foreground="White" FontFamily="Kameron"/>
-                            <TextBlock x:Name="PlannedHoursLabel" Text="0h" Foreground="#D393FF" FontFamily="Kameron" Margin="5,0,0,0"/>
+                        <StackPanel Style="{StaticResource AgendaStatsRowStyle}">
+                            <TextBlock Text="Heures planifiées :" Style="{StaticResource AgendaStatsLabelStyle}"/>
+                            <TextBlock x:Name="PlannedHoursLabel" Text="0h" Style="{StaticResource AgendaStatsValueStyle}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -183,18 +78,17 @@
         </Border>
 
         <!-- CONTENU PRINCIPAL -->
-        <Grid Grid.Column="1" Margin="20">
+        <Grid Grid.Column="1" Style="{StaticResource AgendaMainContentStyle}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <!-- Header avec titre de la semaine -->
-            <Border Grid.Row="0" Background="#2E2E2E" CornerRadius="10" Padding="20" Margin="0,0,0,20">
+            <Border Grid.Row="0" Style="{StaticResource AgendaWeekHeaderStyle}">
                 <TextBlock x:Name="WeekTitleLabel" 
                           Text="Semaine du 16 au 22 Juin 2025" 
-                          Style="{StaticResource HeaderTextStyle}" 
-                          FontSize="20"/>
+                          Style="{StaticResource AgendaWeekTitleStyle}"/>
             </Border>
 
             <!-- Vue calendrier -->
@@ -208,7 +102,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Header jours de la semaine -->
-                    <Grid Grid.Row="0" Background="#3A3A3A">
+                    <Grid Grid.Row="0" Style="{StaticResource AgendaDaysHeaderGridStyle}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <!-- Colonne heures -->
@@ -229,55 +123,55 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Empty corner -->
-                        <Border Grid.Column="0" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1"/>
+                        <Border Grid.Column="0" Style="{StaticResource AgendaCornerCellStyle}"/>
 
                         <!-- Jours de la semaine -->
-                        <Border Grid.Column="1" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1">
+                        <Border Grid.Column="1" Style="{StaticResource AgendaDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="LUNDI" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="MondayDate" Text="16" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="LUNDI" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="MondayDate" Text="16" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="2" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1">
+                        <Border Grid.Column="2" Style="{StaticResource AgendaDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="MARDI" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="TuesdayDate" Text="17" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="MARDI" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="TuesdayDate" Text="17" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="3" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1">
+                        <Border Grid.Column="3" Style="{StaticResource AgendaDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="MERCREDI" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="WednesdayDate" Text="18" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="MERCREDI" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="WednesdayDate" Text="18" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="4" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1">
+                        <Border Grid.Column="4" Style="{StaticResource AgendaDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="JEUDI" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="ThursdayDate" Text="19" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="JEUDI" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="ThursdayDate" Text="19" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="5" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1">
+                        <Border Grid.Column="5" Style="{StaticResource AgendaDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="VENDREDI" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="FridayDate" Text="20" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="VENDREDI" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="FridayDate" Text="20" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="6" BorderBrush="#4A4A4A" BorderThickness="0,0,1,1">
+                        <Border Grid.Column="6" Style="{StaticResource AgendaDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="SAMEDI" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="SaturdayDate" Text="21" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="SAMEDI" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="SaturdayDate" Text="21" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="7" BorderBrush="#4A4A4A" BorderThickness="0,0,0,1">
+                        <Border Grid.Column="7" Style="{StaticResource AgendaLastDayHeaderCellStyle}">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="DIMANCHE" Style="{StaticResource HeaderTextStyle}" FontSize="12"/>
-                                <TextBlock x:Name="SundayDate" Text="22" Style="{StaticResource HeaderTextStyle}" FontSize="18"/>
+                                <TextBlock Text="DIMANCHE" Style="{StaticResource AgendaDayNameStyle}"/>
+                                <TextBlock x:Name="SundayDate" Text="22" Style="{StaticResource AgendaDayDateStyle}"/>
                             </StackPanel>
                         </Border>
                     </Grid>

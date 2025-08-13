@@ -96,8 +96,9 @@ namespace ProjetFinale.WPF.Pages
                 var timeLabel = new TextBlock
                 {
                     Text = $"{hour:00}H",
-                    Style = (Style)FindResource("TimeTextStyle")
+                    Style = (Style)FindResource("AgendaTimeTextStyle")  // ✅ NOUVEAU NOM
                 };
+
                 Grid.SetRow(timeLabel, row);
                 Grid.SetColumn(timeLabel, 0);
                 TimeGrid.Children.Add(timeLabel);
@@ -107,8 +108,8 @@ namespace ProjetFinale.WPF.Pages
                 {
                     var timeSlot = new Border
                     {
-                        Style = (Style)FindResource("TimeSlotStyle"),
-                        Tag = $"{hour},{day}" // Format simple "heure,jour"
+                        Style = (Style)FindResource("AgendaTimeSlotStyle"),  // ✅ NOUVEAU NOM
+                        Tag = $"{hour},{day}"
                     };
 
                     timeSlot.MouseLeftButtonDown += TimeSlot_MouseLeftButtonDown;
@@ -180,7 +181,7 @@ namespace ProjetFinale.WPF.Pages
         {
             // Effacer les événements existants
             var eventsToRemove = TimeGrid.Children.OfType<Border>()
-                .Where(b => b.Style == (Style)FindResource("EventStyle"))
+                .Where(b => b.Style == (Style)FindResource("AgendaEventStyle"))  // ✅ NOUVEAU NOM
                 .ToList();
 
             foreach (var eventBorder in eventsToRemove)
@@ -222,7 +223,7 @@ namespace ProjetFinale.WPF.Pages
 
             var eventBorder = new Border
             {
-                Style = (Style)FindResource("EventStyle"),
+                Style = (Style)FindResource("AgendaEventStyle"),  // ✅ NOUVEAU NOM
                 Height = height,
                 VerticalAlignment = VerticalAlignment.Top,
                 Tag = evt

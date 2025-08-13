@@ -448,7 +448,7 @@ namespace ProjetFinale.Views
         {
             var border = new Border
             {
-                Style = (Style)FindResource("ExerciseCardStyle")
+                Style = (Style)FindResource("ExercicesCardStyle")  // ✅ NOUVEAU NOM
             };
 
             var grid = new Grid();
@@ -498,7 +498,7 @@ namespace ProjetFinale.Views
             var editButton = new Button
             {
                 Content = "MODIFIER",
-                Style = (Style)FindResource("PrimaryButtonStyle"),
+                Style = (Style)FindResource("ExercicesPrimaryButtonStyle"),  // ✅ NOUVEAU NOM
                 Margin = new Thickness(0, 0, 10, 0),
                 Tag = exercice
             };
@@ -507,14 +507,7 @@ namespace ProjetFinale.Views
             var deleteButton = new Button
             {
                 Content = "SUPPRIMER",
-                Background = new SolidColorBrush(Color.FromRgb(231, 76, 60)),
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0),
-                FontFamily = (FontFamily)FindResource("MainFont"),
-                FontSize = 12,
-                FontWeight = FontWeights.Bold,
-                Padding = new Thickness(15, 8, 15, 8),
-                Cursor = Cursors.Hand,
+                Style = (Style)FindResource("ExercicesDeleteButtonStyle"),  // ✅ PROPRE
                 Tag = exercice
             };
 

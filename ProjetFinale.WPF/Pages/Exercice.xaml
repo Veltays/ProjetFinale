@@ -3,274 +3,19 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Exercices" Background="#2a2a2a">
 
-    <Page.Resources>
-        <!-- Polices -->
-        <FontFamily x:Key="MainFont">Segoe UI</FontFamily>
-
-        <!-- Couleurs exactes comme TASK -->
-        <SolidColorBrush x:Key="BackgroundColor" Color="#2a2a2a"/>
-        <SolidColorBrush x:Key="SectionBackground" Color="#3a3a3a"/>
-        <SolidColorBrush x:Key="PurpleTitle" Color="#A569BD"/>
-        <SolidColorBrush x:Key="WhiteText" Color="White"/>
-        <SolidColorBrush x:Key="GrayText" Color="#CCCCCC"/>
-        <SolidColorBrush x:Key="InputBackground" Color="#2a2a2a"/>
-        <SolidColorBrush x:Key="InputBorder" Color="#A569BD"/>
-        <SolidColorBrush x:Key="AccentPurple" Color="#A569BD"/>
-        <SolidColorBrush x:Key="Green" Color="#4CAF50"/>
-        <SolidColorBrush x:Key="RedDelete" Color="#E74C3C"/>
-
-        <!-- Style titre principal -->
-        <Style x:Key="MainTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="28"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Margin" Value="0,0,0,30"/>
-        </Style>
-
-        <!-- Style titre de section violet -->
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{StaticResource PurpleTitle}"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-        </Style>
-
-        <!-- Style conteneur de section -->
-        <Style x:Key="SectionContainerStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SectionBackground}"/>
-            <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Padding" Value="30"/>
-            <Setter Property="Margin" Value="0,0,0,30"/>
-        </Style>
-
-        <!-- Style label de formulaire -->
-        <Style x:Key="FormLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
-
-        <!-- Style input avec padding minimal -->
-        <Style x:Key="FormInputStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource InputBackground}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Padding" Value="6,0,6,0"/>
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                        Margin="{TemplateBinding Padding}"
-                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="{StaticResource AccentPurple}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style dropdown avec fond sombre -->
-        <Style x:Key="FormComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="{StaticResource InputBackground}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Padding" Value="6,0,6,0"/>
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <Border Name="Border" 
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="8"/>
-                            <ContentPresenter Name="ContentSite"
-                                            Margin="{TemplateBinding Padding}"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Left"
-                                            Content="{TemplateBinding SelectionBoxItem}"
-                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
-                            <ToggleButton Name="ToggleButton"
-                                        Grid.Column="2"
-                                        Focusable="false"
-                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                        ClickMode="Press"
-                                        Background="Transparent"
-                                        BorderThickness="0"/>
-                            <Popup Name="Popup"
-                                   Placement="Bottom"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True" 
-                                   Focusable="False"
-                                   PopupAnimation="Slide">
-                                <Grid Name="DropDown"
-                                      SnapsToDevicePixels="True"                
-                                      MinWidth="{TemplateBinding ActualWidth}"
-                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder"
-                                            Background="{StaticResource InputBackground}"
-                                            BorderThickness="2"
-                                            BorderBrush="{StaticResource InputBorder}"
-                                            CornerRadius="8"/>
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                    </ScrollViewer>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource AccentPurple}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style pour les items de ComboBox -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="6,4,6,4"/>
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border Name="Border" 
-                                Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}"
-                                CornerRadius="4">
-                            <ContentPresenter/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource AccentPurple}"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource AccentPurple}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ✅ Style bouton principal MODIFIÉ - bouton plus grand -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource AccentPurple}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="30,12"/>
-            <!-- ✅ CHANGÉ de 20,8 à 30,12 pour un bouton plus grand -->
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="110"/>
-            <!-- ✅ AJOUTÉ : largeur minimum -->
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#9A4FB8"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- ✅ Style bouton vert AGRANDI -->
-        <Style x:Key="GreenButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource Green}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <!-- ✅ AUGMENTÉ de 12 à 14 -->
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="30,15"/>
-            <!-- ✅ AUGMENTÉ de 20,10 à 30,15 -->
-            <Setter Property="MinWidth" Value="140"/>
-            <!-- ✅ AJOUTÉ largeur minimum -->
-            <Setter Property="MinHeight" Value="45"/>
-            <!-- ✅ AJOUTÉ hauteur minimum -->
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#45A049"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Style carte d'exercice avec fond sombre -->
-        <Style x:Key="ExerciseCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SectionBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="15"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
-        </Style>
-    </Page.Resources>
-
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="40">
+            <StackPanel Style="{StaticResource ExercicesMainContainerStyle}">
 
                 <!-- Titre principal -->
-                <TextBlock Text="EXERCICES" Style="{StaticResource MainTitleStyle}"/>
+                <TextBlock Text="EXERCICES" Style="{StaticResource ExercicesMainTitleStyle}"/>
 
                 <!-- Section Ajouter un exercice -->
-                <Border Style="{StaticResource SectionContainerStyle}">
+                <Border Style="{StaticResource ExercicesSectionContainerStyle}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                            <TextBlock Text="✚" FontSize="16" Foreground="{StaticResource PurpleTitle}" 
-                                       VerticalAlignment="Top" Margin="0,0,10,0"/>
-                            <!-- ✅ CHANGÉ Center en Top -->
-                            <TextBlock Text="AJOUTER UN NOUVEL EXERCICE" Style="{StaticResource SectionTitleStyle}"/>
+                        <StackPanel Style="{StaticResource ExercicesSectionHeaderStyle}">
+                            <TextBlock Text="✚" Style="{StaticResource ExercicesSectionIconStyle}"/>
+                            <TextBlock Text="AJOUTER UN NOUVEL EXERCICE" Style="{StaticResource ExercicesSectionTitleStyle}"/>
                         </StackPanel>
 
                         <Grid>
@@ -291,14 +36,14 @@
 
                             <!-- Nom -->
                             <StackPanel Grid.Column="0" Grid.Row="0">
-                                <TextBlock Text="NOM DE L'EXERCICE" Style="{StaticResource FormLabelStyle}"/>
-                                <TextBox Name="ExerciseNameBox" Style="{StaticResource FormInputStyle}"/>
+                                <TextBlock Text="NOM DE L'EXERCICE" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                <TextBox Name="ExerciseNameBox" Style="{StaticResource ExercicesFormInputStyle}"/>
                             </StackPanel>
 
                             <!-- Type -->
                             <StackPanel Grid.Column="2" Grid.Row="0">
-                                <TextBlock Text="TYPE" Style="{StaticResource FormLabelStyle}"/>
-                                <ComboBox Name="TypeComboBox" Style="{StaticResource FormComboBoxStyle}"
+                                <TextBlock Text="TYPE" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                <ComboBox Name="TypeComboBox" Style="{StaticResource ExercicesFormComboBoxStyle}"
                                           SelectionChanged="TypeComboBox_SelectionChanged">
                                     <ComboBoxItem Content="Répétitions" Tag="repetitions"/>
                                     <ComboBoxItem Content="Durée" Tag="duration"/>
@@ -307,50 +52,46 @@
 
                             <!-- Répétitions -->
                             <StackPanel Name="RepetitionsGroup" Grid.Column="0" Grid.Row="2" Visibility="Collapsed">
-                                <TextBlock Text="RÉPÉTITIONS" Style="{StaticResource FormLabelStyle}"/>
-                                <TextBox Name="RepetitionsBox" Style="{StaticResource FormInputStyle}"/>
+                                <TextBlock Text="RÉPÉTITIONS" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                <TextBox Name="RepetitionsBox" Style="{StaticResource ExercicesFormInputStyle}"/>
                             </StackPanel>
 
                             <!-- Durée -->
                             <StackPanel Name="DurationGroup" Grid.Column="2" Grid.Row="2" Visibility="Collapsed">
-                                <TextBlock Text="DURÉE" Style="{StaticResource FormLabelStyle}"/>
-                                <TextBox Name="DurationBox" Style="{StaticResource FormInputStyle}"/>
+                                <TextBlock Text="DURÉE" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                <TextBox Name="DurationBox" Style="{StaticResource ExercicesFormInputStyle}"/>
                             </StackPanel>
 
                             <!-- Calories -->
                             <StackPanel Grid.Column="0" Grid.Row="4">
-                                <TextBlock Text="CALORIES BRÛLÉES" Style="{StaticResource FormLabelStyle}"/>
-                                <TextBox Name="CaloriesBox" Style="{StaticResource FormInputStyle}"/>
+                                <TextBlock Text="CALORIES BRÛLÉES" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                <TextBox Name="CaloriesBox" Style="{StaticResource ExercicesFormInputStyle}"/>
                             </StackPanel>
 
                             <!-- Description -->
                             <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6">
-                                <TextBlock Text="DESCRIPTION" Style="{StaticResource FormLabelStyle}"/>
-                                <TextBox Name="DescriptionBox" Style="{StaticResource FormInputStyle}" 
-                                         Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                <TextBlock Text="DESCRIPTION" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                <TextBox Name="DescriptionBox" Style="{StaticResource ExercicesFormTextAreaStyle}"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- Bouton d'ajout -->
-                        <Button Name="AddButton" Content="AJOUTER" Style="{StaticResource GreenButtonStyle}" 
-                                HorizontalAlignment="Right" Margin="0,20,0,0" Click="AddButton_Click"/>
+                        <Button Name="AddButton" Content="AJOUTER" Style="{StaticResource ExercicesGreenButtonStyle}" 
+                                Click="AddButton_Click"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Section Liste des exercices -->
-                <Border Style="{StaticResource SectionContainerStyle}">
+                <Border Style="{StaticResource ExercicesSectionContainerStyle}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                            <TextBlock Text="📋" FontSize="16" Foreground="{StaticResource PurpleTitle}" 
-                                       VerticalAlignment="Top" Margin="0,0,10,0"/>
-                            <!-- ✅ CHANGÉ Center en Top -->
-                            <TextBlock Text="MES EXERCICES" Style="{StaticResource SectionTitleStyle}"/>
+                        <StackPanel Style="{StaticResource ExercicesSectionHeaderStyle}">
+                            <TextBlock Text="📋" Style="{StaticResource ExercicesSectionIconStyle}"/>
+                            <TextBlock Text="MES EXERCICES" Style="{StaticResource ExercicesSectionTitleStyle}"/>
                         </StackPanel>
 
                         <!-- Barre de recherche -->
-                        <Grid Margin="0,0,0,20">
-                            <TextBox Name="SearchBox" Style="{StaticResource FormInputStyle}" 
-                                     Width="300" HorizontalAlignment="Left"
+                        <Grid Style="{StaticResource ExercicesSearchContainerStyle}">
+                            <TextBox Name="SearchBox" Style="{StaticResource ExercicesSearchBoxStyle}"
                                      Text="Rechercher un exercice..." 
                                      GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus"
                                      TextChanged="SearchBox_TextChanged"/>
@@ -364,10 +105,7 @@
                         <!-- Message si aucun exercice -->
                         <TextBlock Name="NoExercisesMessage" 
                                    Text="Aucun exercice créé pour le moment" 
-                                   Foreground="{StaticResource GrayText}"
-                                   FontStyle="Italic"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,20,0,0"/>
+                                   Style="{StaticResource ExercicesNoItemsMessageStyle}"/>
                     </StackPanel>
                 </Border>
 
