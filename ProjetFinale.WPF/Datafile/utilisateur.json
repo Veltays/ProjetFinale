@@ -104,7 +104,14 @@
       "HeureFormatee": "11:00 - 12:00"
     }
   ],
-  "ListeTaches": [],
+  "ListeTaches": [
+    {
+      "Description": "yhrtgrfdes",
+      "EstTerminee": false,
+      "Id": 0,
+      "Date": "2025-08-13T18:21:31.254244+02:00"
+    }
+  ],
   "IMC": 21.6,
   "AgeFormate": "21 ANS",
   "PoidsFormate": "70 KG",

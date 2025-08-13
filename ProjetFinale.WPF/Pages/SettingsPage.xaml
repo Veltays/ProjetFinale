@@ -4,276 +4,20 @@
       Title="Settings"
       Background="#303030">
 
-    <Page.Resources>
-
-        <!-- === STYLES GÉNÉRIQUES RÉUTILISABLES === -->
-
-        <!-- Carte de paramètre -->
-        <Style x:Key="SettingCard" TargetType="Border">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="25"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="3" Opacity="0.3"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Titre de section (violet) -->
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#D393FF"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-        </Style>
-
-        <!-- Label de paramètre (blanc, gras) -->
-        <Style x:Key="SettingLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <!-- Description de paramètre (gris, petit) -->
-        <Style x:Key="SettingDescription" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#B8B8B8"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,5,0,0"/>
-        </Style>
-
-        <!-- === STYLES SPÉCIALISÉS === -->
-
-        <!-- Toggle switch animé -->
-        <Style x:Key="ToggleSwitch" TargetType="CheckBox">
-            <Setter Property="Width" Value="60"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Border x:Name="SwitchBorder"
-                                Background="#4A4A4A"
-                                CornerRadius="15"
-                                Width="60"
-                                Height="30">
-                            <Border x:Name="SwitchThumb"
-                                    Background="White"
-                                    CornerRadius="12"
-                                    Width="24"
-                                    Height="24"
-                                    HorizontalAlignment="Left"
-                                    Margin="3,3,0,3">
-                                <Border.RenderTransform>
-                                    <TranslateTransform x:Name="ThumbMove"/>
-                                </Border.RenderTransform>
-                            </Border>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="SwitchBorder" Property="Background" Value="#AF66FF"/>
-                                <!-- Animation vers la droite -->
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="ThumbMove"
-                                                           Storyboard.TargetProperty="X"
-                                                           To="30"
-                                                           Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <!-- Animation vers la gauche -->
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="ThumbMove"
-                                                           Storyboard.TargetProperty="X"
-                                                           To="0"
-                                                           Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Bouton principal (violet) -->
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#AF66FF"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#D393FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Bouton danger (rouge) -->
-        <Style x:Key="DangerButton" TargetType="Button">
-            <Setter Property="Background" Value="#DC2626"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#B91C1C"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ComboBox stylée (violet) -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#AF66FF"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="MinWidth" Value="120"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="8,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <!-- Bouton principal cliquable sur toute la surface -->
-                            <ToggleButton x:Name="MainToggle"
-                                         Background="{TemplateBinding Background}"
-                                         BorderBrush="{TemplateBinding BorderBrush}"
-                                         BorderThickness="{TemplateBinding BorderThickness}"
-                                         IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                         ClickMode="Press">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="8">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Contenu sélectionné -->
-                                                <ContentPresenter Grid.Column="0"
-                                                                 Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
-                                                                 HorizontalAlignment="Left"
-                                                                 VerticalAlignment="Center"
-                                                                 Margin="12,0,0,0"
-                                                                 TextElement.Foreground="White"/>
-
-                                                <!-- Flèche dropdown -->
-                                                <TextBlock Grid.Column="1"
-                                                          Text="▼" 
-                                                          Foreground="#D393FF" 
-                                                          FontSize="12"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Margin="0,0,12,0"/>
-                                            </Grid>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="BorderBrush" Value="#D393FF"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-
-                            <!-- Liste déroulante -->
-                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   Placement="Bottom"
-                                   AllowsTransparency="True"
-                                   Focusable="False">
-                                <Border Background="#3A3A3A"
-                                        BorderBrush="#AF66FF"
-                                        BorderThickness="2"
-                                        CornerRadius="8"
-                                        MinWidth="{TemplateBinding ActualWidth}">
-                                    <ScrollViewer>
-                                        <ItemsPresenter/>
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Items de ComboBox avec hover -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" Value="#AF66FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-    </Page.Resources>
-
     <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
         <StackPanel MaxWidth="800">
 
-            <!-- Titre de la page -->
+            <!-- Titre -->
             <TextBlock Text="SETTINGS"
-                       Foreground="White"
-                       FontSize="32"
-                       FontWeight="Bold"
-                       Margin="0,0,0,30"/>
+                 Foreground="White"
+                 FontSize="32"
+                 FontWeight="Bold"
+                 Margin="0,0,0,30"/>
 
             <!-- UNITÉS DE MESURE -->
-            <Border Style="{StaticResource SettingCard}">
+            <Border Style="{StaticResource Settings.Card}">
                 <StackPanel>
-                    <TextBlock Text="UNITÉS DE MESURE" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="UNITÉS DE MESURE" Style="{StaticResource Settings.SectionTitle}"/>
 
                     <!-- Format Poids -->
                     <Grid Margin="0,0,0,20">
@@ -283,14 +27,16 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="FORMAT POIDS" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Choisissez l'unité d'affichage du poids" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="FORMAT POIDS" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Choisissez l'unité d'affichage du poids"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <ComboBox Grid.Column="1" 
-                                 x:Name="FormatPoidsComboBox"
-                                 SelectedIndex="0">
+                        <ComboBox Grid.Column="1"
+                      x:Name="FormatPoidsComboBox"
+                      Style="{StaticResource Settings.ComboBox}"
+                      ItemContainerStyle="{StaticResource Settings.ComboBoxItem}"
+                      SelectedIndex="0">
                             <ComboBoxItem Content="KG"/>
                             <ComboBoxItem Content="LBS"/>
                         </ComboBox>
@@ -304,14 +50,16 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="FORMAT HEURE" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Format d'affichage de l'heure (24h ou 12h)" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="FORMAT HEURE" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Format d'affichage de l'heure (24h ou 12h)"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <ComboBox Grid.Column="1" 
-                                 x:Name="FormatHeureComboBox"
-                                 SelectedIndex="0">
+                        <ComboBox Grid.Column="1"
+                      x:Name="FormatHeureComboBox"
+                      Style="{StaticResource Settings.ComboBox}"
+                      ItemContainerStyle="{StaticResource Settings.ComboBoxItem}"
+                      SelectedIndex="0">
                             <ComboBoxItem Content="24H"/>
                             <ComboBoxItem Content="12H"/>
                         </ComboBox>
@@ -320,9 +68,9 @@
             </Border>
 
             <!-- APPARENCE -->
-            <Border Style="{StaticResource SettingCard}">
+            <Border Style="{StaticResource Settings.Card}">
                 <StackPanel>
-                    <TextBlock Text="APPARENCE" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="APPARENCE" Style="{StaticResource Settings.SectionTitle}"/>
 
                     <!-- Mode sombre -->
                     <Grid Margin="0,0,0,20">
@@ -332,15 +80,15 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="MODE SOMBRE" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Activer le thème sombre (recommandé)" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="MODE SOMBRE" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Activer le thème sombre (recommandé)"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <CheckBox Grid.Column="1" 
-                                 x:Name="DarkModeToggle"
-                                 Style="{StaticResource ToggleSwitch}"
-                                 IsChecked="True"/>
+                        <CheckBox Grid.Column="1"
+                      x:Name="DarkModeToggle"
+                      Style="{StaticResource Settings.ToggleSwitch}"
+                      IsChecked="True"/>
                     </Grid>
 
                     <!-- Thème couleur -->
@@ -351,14 +99,16 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="THÈME COULEUR" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Couleur principale de l'interface" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="THÈME COULEUR" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Couleur principale de l'interface"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <ComboBox Grid.Column="1" 
-                                 x:Name="ThemeColorComboBox"
-                                 SelectedIndex="0">
+                        <ComboBox Grid.Column="1"
+                      x:Name="ThemeColorComboBox"
+                      Style="{StaticResource Settings.ComboBox}"
+                      ItemContainerStyle="{StaticResource Settings.ComboBoxItem}"
+                      SelectedIndex="0">
                             <ComboBoxItem Content="Violet"/>
                             <ComboBoxItem Content="Bleu"/>
                             <ComboBoxItem Content="Rose"/>
@@ -369,9 +119,9 @@
             </Border>
 
             <!-- NOTIFICATIONS -->
-            <Border Style="{StaticResource SettingCard}">
+            <Border Style="{StaticResource Settings.Card}">
                 <StackPanel>
-                    <TextBlock Text="NOTIFICATIONS" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="NOTIFICATIONS" Style="{StaticResource Settings.SectionTitle}"/>
 
                     <!-- Rappels d'entraînement -->
                     <Grid Margin="0,0,0,20">
@@ -381,15 +131,15 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="RAPPELS D'ENTRAÎNEMENT" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Recevoir des notifications pour les séances programmées" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="RAPPELS D'ENTRAÎNEMENT" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Recevoir des notifications pour les séances programmées"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <CheckBox Grid.Column="1" 
-                                 x:Name="WorkoutRemindersToggle"
-                                 Style="{StaticResource ToggleSwitch}"
-                                 IsChecked="True"/>
+                        <CheckBox Grid.Column="1"
+                      x:Name="WorkoutRemindersToggle"
+                      Style="{StaticResource Settings.ToggleSwitch}"
+                      IsChecked="True"/>
                     </Grid>
 
                     <!-- Rappels objectifs -->
@@ -400,25 +150,25 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="RAPPELS OBJECTIFS" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Notifications de progression vers vos objectifs" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="RAPPELS OBJECTIFS" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Notifications de progression vers vos objectifs"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <CheckBox Grid.Column="1" 
-                                 x:Name="GoalRemindersToggle"
-                                 Style="{StaticResource ToggleSwitch}"
-                                 IsChecked="False"/>
+                        <CheckBox Grid.Column="1"
+                      x:Name="GoalRemindersToggle"
+                      Style="{StaticResource Settings.ToggleSwitch}"
+                      IsChecked="False"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- GESTION DES DONNÉES -->
-            <Border Style="{StaticResource SettingCard}">
+            <Border Style="{StaticResource Settings.Card}">
                 <StackPanel>
-                    <TextBlock Text="GESTION DES DONNÉES" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="GESTION DES DONNÉES" Style="{StaticResource Settings.SectionTitle}"/>
 
-                    <!-- Sauvegarde automatique -->
+                    <!-- Sauvegarde auto -->
                     <Grid Margin="0,0,0,20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -426,15 +176,15 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="SAUVEGARDE AUTOMATIQUE" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Sauvegarder automatiquement vos données" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="SAUVEGARDE AUTOMATIQUE" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Sauvegarder automatiquement vos données"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <CheckBox Grid.Column="1" 
-                                 x:Name="AutoSaveToggle"
-                                 Style="{StaticResource ToggleSwitch}"
-                                 IsChecked="True"/>
+                        <CheckBox Grid.Column="1"
+                      x:Name="AutoSaveToggle"
+                      Style="{StaticResource Settings.ToggleSwitch}"
+                      IsChecked="True"/>
                     </Grid>
 
                     <!-- Fréquence de sauvegarde -->
@@ -445,14 +195,16 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="FRÉQUENCE DE SAUVEGARDE" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Intervalle de sauvegarde automatique" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="FRÉQUENCE DE SAUVEGARDE" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Intervalle de sauvegarde automatique"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <ComboBox Grid.Column="1" 
-                                 x:Name="SaveFrequencyComboBox"
-                                 SelectedIndex="1">
+                        <ComboBox Grid.Column="1"
+                      x:Name="SaveFrequencyComboBox"
+                      Style="{StaticResource Settings.ComboBox}"
+                      ItemContainerStyle="{StaticResource Settings.ComboBoxItem}"
+                      SelectedIndex="1">
                             <ComboBoxItem Content="1 min"/>
                             <ComboBoxItem Content="5 min"/>
                             <ComboBoxItem Content="15 min"/>
@@ -463,9 +215,9 @@
             </Border>
 
             <!-- COMPTE UTILISATEUR -->
-            <Border Style="{StaticResource SettingCard}">
+            <Border Style="{StaticResource Settings.Card}">
                 <StackPanel>
-                    <TextBlock Text="COMPTE UTILISATEUR" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="COMPTE UTILISATEUR" Style="{StaticResource Settings.SectionTitle}"/>
 
                     <!-- Modifier profil -->
                     <Grid Margin="0,0,0,25">
@@ -475,28 +227,26 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="MODIFIER PROFIL" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Mettre à jour vos informations personnelles" 
-                                      Style="{StaticResource SettingDescription}"/>
+                            <TextBlock Text="MODIFIER PROFIL" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Mettre à jour vos informations personnelles"
+                         Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
-                        <Button Grid.Column="1" 
-                               Content="MODIFIER"
-                               Style="{StaticResource PrimaryButton}"
-                               Width="120"
-                               x:Name="ModifierProfilButton"/>
+                        <Button Grid.Column="1"
+                    Content="MODIFIER"
+                    Style="{StaticResource Settings.Button.Primary}"
+                    Width="120"
+                    x:Name="ModifierProfilButton"/>
                     </Grid>
 
                     <!-- Zone de danger -->
-                    <Border Background="#330000"
-                            CornerRadius="8"
-                            Padding="20">
+                    <Border Background="#330000" CornerRadius="8" Padding="20">
                         <StackPanel>
                             <TextBlock Text="⚠️ ZONE DE DANGER"
-                                      Foreground="#FF6B6B"
-                                      FontSize="16"
-                                      FontWeight="Bold"
-                                      Margin="0,0,0,15"/>
+                         Foreground="#FF6B6B"
+                         FontSize="16"
+                         FontWeight="Bold"
+                         Margin="0,0,0,15"/>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -505,26 +255,27 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="SUPPRIMER LE COMPTE" 
-                                              Foreground="#FF6B6B"
-                                              FontSize="14"
-                                              FontWeight="Bold"/>
-                                    <TextBlock Text="Cette action est irréversible. Toutes vos données seront perdues." 
-                                              Foreground="#FFAAAA"
-                                              FontSize="12"
-                                              Margin="0,5,0,0"/>
+                                    <TextBlock Text="SUPPRIMER LE COMPTE"
+                             Foreground="#FF6B6B"
+                             FontSize="14"
+                             FontWeight="Bold"/>
+                                    <TextBlock Text="Cette action est irréversible. Toutes vos données seront perdues."
+                             Foreground="#FFAAAA"
+                             FontSize="12"
+                             Margin="0,5,0,0"/>
                                 </StackPanel>
 
-                                <Button Grid.Column="1" 
-                                       Content="SUPPRIMER"
-                                       Style="{StaticResource DangerButton}"
-                                       Width="120"
-                                       x:Name="DeleteAccountButton"/>
+                                <Button Grid.Column="1"
+                        Content="SUPPRIMER"
+                        Style="{StaticResource Settings.Button.Danger}"
+                        Width="120"
+                        x:Name="DeleteAccountButton"/>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Border>
+
         </StackPanel>
     </ScrollViewer>
 </Page>
