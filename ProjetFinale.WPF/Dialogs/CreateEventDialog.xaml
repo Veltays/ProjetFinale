@@ -8,200 +8,6 @@
         ResizeMode="NoResize"
         Background="#1A1A1A">
 
-    <Window.Resources>
-        <!-- Gradient brushes -->
-        <LinearGradientBrush x:Key="PurpleGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FF8B5CF6" Offset="0"/>
-            <GradientStop Color="#FFA855F7" Offset="0.5"/>
-            <GradientStop Color="#FFE879F9" Offset="1"/>
-        </LinearGradientBrush>
-
-        <!-- Style GLOBAL pour DatePickerTextBox -->
-        <Style TargetType="DatePickerTextBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DatePickerTextBox">
-                        <Grid>
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                        VerticalAlignment="Center"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="0"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style pour DatePicker -->
-        <Style x:Key="ModernDatePicker" TargetType="DatePicker">
-            <Setter Property="Background" Value="#3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#8B5CF6"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10"/>
-        </Style>
-
-        <!-- Style pour ComboBox -->
-        <Style x:Key="ModernComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="#3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#8B5CF6"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton x:Name="ToggleButton"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                        Grid.Column="2"
-                                        Focusable="false"
-                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                        ClickMode="Press">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="5">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="20"/>
-                                                </Grid.ColumnDefinitions>
-                                                <ContentPresenter Grid.Column="0" 
-                                                                Margin="8,0,0,0" 
-                                                                VerticalAlignment="Center"/>
-                                                <Path Grid.Column="1" 
-                                                    HorizontalAlignment="Center" 
-                                                    VerticalAlignment="Center" 
-                                                    Data="M 0 0 L 4 4 L 8 0 Z" 
-                                                    Fill="White"/>
-                                            </Grid>
-                                        </Border>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            <ContentPresenter x:Name="ContentSite"
-                                            IsHitTestVisible="False"
-                                            Content="{TemplateBinding SelectionBoxItem}"
-                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                            Margin="8,3,23,3"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Left">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-                            <Popup x:Name="Popup"
-                                 Placement="Bottom"
-                                 IsOpen="{TemplateBinding IsDropDownOpen}"
-                                 AllowsTransparency="True"
-                                 Focusable="False"
-                                 PopupAnimation="Slide">
-                                <Grid MinWidth="{TemplateBinding ActualWidth}"
-                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border Background="#2A2A2A"
-                                          BorderBrush="#8B5CF6"
-                                          BorderThickness="1"
-                                          CornerRadius="5">
-                                        <ScrollViewer>
-                                            <StackPanel IsItemsHost="True" 
-                                                      KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                        </ScrollViewer>
-                                    </Border>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style pour ComboBoxItem -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border Background="{TemplateBinding Background}"
-                              Padding="{TemplateBinding Padding}">
-                            <ContentPresenter/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" Value="#8B5CF6"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#8B5CF6"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style pour CheckBox -->
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
-
-        <!-- Style pour TextBox -->
-        <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="#3A3A3A"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#8B5CF6"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Height" Value="40"/>
-        </Style>
-
-        <!-- Style pour les labels -->
-        <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="Kameron"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
-        </Style>
-
-        <!-- Style pour les boutons de couleur -->
-        <Style x:Key="ColorButton" TargetType="Button">
-            <Setter Property="Width" Value="30"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
-
     <Grid Margin="30">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -210,25 +16,26 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <TextBlock Grid.Row="0" 
-                  Text="➕ Nouvel Événement" 
-                  Foreground="White" 
-                  FontFamily="Kameron" 
-                  FontSize="24" 
-                  FontWeight="Bold" 
-                  HorizontalAlignment="Center" 
-                  Margin="0,0,0,30"/>
+        <TextBlock Grid.Row="0"
+                   Text="➕ Nouvel Événement"
+                   Foreground="White"
+                   FontFamily="Kameron"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,30"/>
 
         <!-- Formulaire -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
+
                 <!-- Titre -->
                 <TextBlock Text="Titre *" Style="{StaticResource LabelStyle}"/>
-                <TextBox x:Name="TitreTextBox" 
-                        Style="{StaticResource ModernTextBox}" 
-                        Margin="0,0,0,20"/>
+                <TextBox x:Name="TitreTextBox"
+                         Style="{StaticResource ModernTextBox}"
+                         Margin="0,0,0,20"/>
 
-                <!-- Date et Heure -->
+                <!-- Date et durée -->
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -238,13 +45,14 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Date *" Style="{StaticResource LabelStyle}"/>
-                        <DatePicker x:Name="DatePicker" 
-                                   Style="{StaticResource ModernDatePicker}"/>
+                        <DatePicker x:Name="DatePicker"
+                                    Style="{StaticResource ModernDatePicker}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Durée" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox x:Name="DureeComboBox" Style="{StaticResource ModernComboBox}">
+                        <ComboBox x:Name="DureeComboBox"
+                                  Style="{StaticResource ModernComboBox}">
                             <ComboBoxItem Content="30 min"/>
                             <ComboBoxItem Content="1 heure" IsSelected="True"/>
                             <ComboBoxItem Content="1h30"/>
@@ -256,7 +64,7 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- Heures personnalisées (masquées par défaut) -->
+                <!-- Heures personnalisées -->
                 <Grid x:Name="CustomTimePanel" Visibility="Visible" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -266,20 +74,19 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Heure début *" Style="{StaticResource LabelStyle}"/>
-                        <TextBox x:Name="HeureDebutTextBox" 
-                Style="{StaticResource ModernTextBox}" 
-                Text="09:00"/>
+                        <TextBox x:Name="HeureDebutTextBox"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Text="09:00"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Heure fin *" Style="{StaticResource LabelStyle}"/>
-                        <TextBox x:Name="HeureFinTextBox" 
-                Style="{StaticResource ModernTextBox}" 
-                Text="10:00"/>
+                        <TextBox x:Name="HeureFinTextBox"
+                                 Style="{StaticResource ModernTextBox}"
+                                 Text="10:00"/>
                     </StackPanel>
                 </Grid>
-                
-                
+
                 <!-- Couleur -->
                 <TextBlock Text="Couleur" Style="{StaticResource LabelStyle}"/>
                 <WrapPanel x:Name="ColorPanel" Margin="0,0,0,20">
@@ -295,43 +102,38 @@
 
                 <!-- Activité liée -->
                 <TextBlock Text="Lier à une activité (optionnel)" Style="{StaticResource LabelStyle}"/>
-                <ComboBox x:Name="ActiviteComboBox" 
-                         Style="{StaticResource ModernComboBox}" 
-                         DisplayMemberPath="Titre"
-                         Margin="0,0,0,20"/>
+                <ComboBox x:Name="ActiviteComboBox"
+                          Style="{StaticResource ModernComboBox}"
+                          DisplayMemberPath="Titre"
+                          Margin="0,0,0,20"/>
 
                 <!-- Description -->
                 <TextBlock Text="Description" Style="{StaticResource LabelStyle}"/>
-                <TextBox x:Name="DescriptionTextBox" 
-                        Style="{StaticResource ModernTextBox}" 
-                        Height="80" 
-                        TextWrapping="Wrap" 
-                        AcceptsReturn="True" 
-                        VerticalScrollBarVisibility="Auto"
-                        Margin="0,0,0,20"/>
+                <TextBox x:Name="DescriptionTextBox"
+                         Style="{StaticResource ModernTextBox}"
+                         Height="80"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         Margin="0,0,0,20"/>
 
                 <!-- Suggestion d'objectif -->
-                <Border Background="#2E2E2E" 
-                       CornerRadius="5" 
-                       Padding="15" 
-                       Margin="0,0,0,20">
+                <Border Background="#2E2E2E" CornerRadius="5" Padding="15" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="💡 Suggestion" 
-                                  Foreground="#D393FF" 
-                                  FontFamily="Kameron" 
-                                  FontSize="14" 
-                                  FontWeight="Bold" 
-                                  Margin="0,0,0,10"/>
-                        <CheckBox x:Name="LierObjectifCheckBox" 
-                                 Content="Lier cet événement à un objectif existant" 
-                                 Foreground="White" 
-                                 FontFamily="Kameron"/>
-                        <ComboBox x:Name="ObjectifComboBox" 
-         Style="{StaticResource ModernComboBox}" 
-         DisplayMemberPath="Description"
-         Margin="0,10,0,0" 
-         Visibility="Collapsed"
-         Height="35"/>
+                        <TextBlock Text="💡 Suggestion"
+                                   Foreground="#D393FF"
+                                   FontFamily="Kameron"
+                                   FontSize="14"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,10"/>
+                        <CheckBox x:Name="LierObjectifCheckBox"
+                                  Content="Lier cet événement à un objectif existant"/>
+                        <ComboBox x:Name="ObjectifComboBox"
+                                  Style="{StaticResource ModernComboBox}"
+                                  DisplayMemberPath="Description"
+                                  Margin="0,10,0,0"
+                                  Visibility="Collapsed"
+                                  Height="35"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -345,25 +147,25 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" 
-                   Content="❌ Annuler" 
-                   Background="#4A4A4A" 
-                   Foreground="White" 
-                   FontFamily="Kameron" 
-                   FontSize="14" 
-                   Height="45" 
-                   BorderThickness="0" 
-                   Click="Cancel_Click"/>
+            <Button Grid.Column="0"
+                    Content="❌ Annuler"
+                    Background="#4A4A4A"
+                    Foreground="White"
+                    FontFamily="Kameron"
+                    FontSize="14"
+                    Height="45"
+                    BorderThickness="0"
+                    Click="Cancel_Click"/>
 
-            <Button Grid.Column="2" 
-                   Content="✅ Créer" 
-                   Background="{StaticResource PurpleGradient}" 
-                   Foreground="White" 
-                   FontFamily="Kameron" 
-                   FontSize="14" 
-                   Height="45" 
-                   BorderThickness="0" 
-                   Click="Create_Click"/>
+            <Button Grid.Column="2"
+                    Content="✅ Créer"
+                    Background="{StaticResource PurpleGradient}"
+                    Foreground="White"
+                    FontFamily="Kameron"
+                    FontSize="14"
+                    Height="45"
+                    BorderThickness="0"
+                    Click="Create_Click"/>
         </Grid>
     </Grid>
 </Window>

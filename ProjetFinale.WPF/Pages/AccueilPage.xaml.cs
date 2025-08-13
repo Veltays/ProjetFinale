@@ -1,6 +1,7 @@
 ﻿using ProjetFinale.Models;
 using ProjetFinale.Services;
 using ProjetFinale.Utils;
+using ProjetFinale.Views;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,6 +40,27 @@ namespace ProjetFinale.WPF
             ChargerUtilisateur();
         }
 
+        // === QUICK ACTIONS ===
+        private void NouvelleSeance_Click(object sender, RoutedEventArgs e)
+        {
+            (Application.Current.MainWindow as MainWindow)?.NavigateToExercices();
+        }
+
+        private void VoirProgres_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void MesObjectifs_Click(object sender, RoutedEventArgs e)
+        {
+            (Application.Current.MainWindow as MainWindow)?.NavigateToObjectifs();
+        }
+
+        private void Planning_Click(object sender, RoutedEventArgs e)
+        {
+            (Application.Current.MainWindow as MainWindow)?.NavigateToSchedule();
+        }
+
         // 🆕 SAUVEGARDE DU PROFIL (Poids, Taille, Âge)
         private void SauvegarderProfil_Click(object sender, RoutedEventArgs e)
         {
@@ -51,7 +73,6 @@ namespace ProjetFinale.WPF
                     return;
                 }
 
-                // Validation des champs numériques
                 if (!double.TryParse(PoidsTextBox.Text, out double nouveauPoids) || nouveauPoids <= 0)
                 {
                     MessageBox.Show("⚠️ Le poids doit être un nombre positif", "Erreur de validation",
@@ -73,15 +94,12 @@ namespace ProjetFinale.WPF
                     return;
                 }
 
-                // Mise à jour des propriétés (les bindings se mettront à jour automatiquement)
                 _utilisateur.Poids = nouveauPoids;
                 _utilisateur.Taille = nouvelleTaille;
                 _utilisateur.Age = nouvelAge;
 
-                // Sauvegarde dans le fichier JSON
                 JsonService.SauvegarderUtilisateur(_utilisateur);
 
-                // Message de confirmation
                 MessageBox.Show($"✅ Profil sauvegardé avec succès !\n\n" +
                                $"📊 Nouveau profil :\n" +
                                $"• Poids : {nouveauPoids} kg\n" +
@@ -114,7 +132,6 @@ namespace ProjetFinale.WPF
                     return;
                 }
 
-                // Validation du poids objectif
                 if (!double.TryParse(ObjectifPoidsTextBox.Text, out double nouveauObjectifPoids) || nouveauObjectifPoids <= 0)
                 {
                     MessageBox.Show("⚠️ Le poids objectif doit être un nombre positif", "Erreur de validation",
@@ -122,7 +139,6 @@ namespace ProjetFinale.WPF
                     return;
                 }
 
-                // Validation de la date objectif
                 if (!DateObjectifPicker.SelectedDate.HasValue)
                 {
                     MessageBox.Show("⚠️ Veuillez sélectionner une date objectif", "Erreur de validation",
@@ -132,7 +148,6 @@ namespace ProjetFinale.WPF
 
                 DateTime nouvelleDateObjectif = DateObjectifPicker.SelectedDate.Value;
 
-                // Vérifier que la date est dans le futur
                 if (nouvelleDateObjectif <= DateTime.Now)
                 {
                     MessageBox.Show("⚠️ La date objectif doit être dans le futur", "Erreur de validation",
@@ -140,18 +155,14 @@ namespace ProjetFinale.WPF
                     return;
                 }
 
-                // Mise à jour des propriétés
                 _utilisateur.ObjectifPoids = nouveauObjectifPoids;
                 _utilisateur.DateObjectif = nouvelleDateObjectif;
 
-                // Sauvegarde dans le fichier JSON
                 JsonService.SauvegarderUtilisateur(_utilisateur);
 
-                // Calcul IMC objectif pour l'affichage
                 double imcObjectif = nouveauObjectifPoids / Math.Pow(_utilisateur.Taille / 100.0, 2);
                 int anneesRestantes = nouvelleDateObjectif.Year - DateTime.Now.Year;
 
-                // Message de confirmation
                 MessageBox.Show($"🎯 Objectifs sauvegardés avec succès !\n\n" +
                                $"📊 Vos nouveaux objectifs :\n" +
                                $"• Poids visé : {nouveauObjectifPoids} kg\n" +
@@ -172,38 +183,12 @@ namespace ProjetFinale.WPF
             }
         }
 
-        // Méthodes existantes conservées
-        private void NouvelleSeance_Click(object sender, RoutedEventArgs e)
-        {
-            // Navigation vers la page de nouvelle séance
-            Console.WriteLine("🏃 Navigation vers nouvelle séance");
-        }
-
-        private void VoirProgres_Click(object sender, RoutedEventArgs e)
-        {
-            // Navigation vers la page des progrès
-            Console.WriteLine("📊 Navigation vers les progrès");
-        }
-
-        private void MesObjectifs_Click(object sender, RoutedEventArgs e)
-        {
-            // Navigation vers la page des objectifs
-            Console.WriteLine("🎯 Navigation vers les objectifs");
-        }
-
-        private void Planning_Click(object sender, RoutedEventArgs e)
-        {
-            // Navigation vers la page du planning
-            Console.WriteLine("📅 Navigation vers le planning");
-        }
-
         // Nettoyage des événements
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
             UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
 
-        // Destructeur pour s'assurer que l'événement est désabonné
         ~AccueilPage()
         {
             UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
