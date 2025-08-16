@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using ProjetFinale.Utils;
 
 namespace ProjetFinale.WPF
 {
@@ -22,9 +23,13 @@ namespace ProjetFinale.WPF
         {
             var settings = settingsManager.GetCurrentSettings();
 
+            // Units context
+            SettingsContext.Instance.WeightUnit = settings.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
+            SettingsContext.Instance.HeightUnit = settings.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
+
             // ComboBox
             FormatPoidsComboBox.SelectedIndex = settings.FormatPoids == "LBS" ? 1 : 0;
-            FormatHeureComboBox.SelectedIndex = settings.FormatHeure == "12H" ? 1 : 0;
+            FormatTailleComboBox.SelectedIndex = settings.FormatTaille == "INCH" ? 1 : 0; // <— NEW
             ThemeColorComboBox.SelectedIndex = ObtenirIndexTheme(settings.ThemeCouleur);
             SaveFrequencyComboBox.SelectedIndex = ObtenirIndexFrequence(settings.FrequenceSauvegarde);
 
@@ -40,7 +45,7 @@ namespace ProjetFinale.WPF
         {
             // ComboBox
             FormatPoidsComboBox.SelectionChanged += FormatPoids_Change;
-            FormatHeureComboBox.SelectionChanged += FormatHeure_Change;
+            FormatTailleComboBox.SelectionChanged += FormatTaille_Change; // <— NEW
             ThemeColorComboBox.SelectionChanged += ThemeCouleur_Change;
             SaveFrequencyComboBox.SelectionChanged += FrequenceSauvegarde_Change;
 
@@ -59,30 +64,35 @@ namespace ProjetFinale.WPF
             DeleteAccountButton.Click += SupprimerCompte_Click;
         }
 
+        private void FormatTaille_Change(object sender, SelectionChangedEventArgs e)
+        {
+            var item = FormatTailleComboBox.SelectedItem as ComboBoxItem;
+            var format = item?.Content?.ToString(); // "CM" ou "INCH"
+            if (string.IsNullOrEmpty(format)) return;
+
+            // Persist
+            settingsManager.UpdateFormatTaille(format);
+
+            // Propage à l'UI
+            SettingsContext.Instance.HeightUnit = (format == "INCH") ? HeightUnit.INCH : HeightUnit.CM;
+
+            AfficherMessage($"Format taille changé: {format}");
+        }
+
+
+
         // === ÉVÉNEMENTS COMBOBOX ===
 
         private void FormatPoids_Change(object sender, SelectionChangedEventArgs e)
         {
             var item = FormatPoidsComboBox.SelectedItem as ComboBoxItem;
-            var format = item?.Content.ToString();
+            var format = item?.Content?.ToString(); // "KG" ou "LBS"
+            if (string.IsNullOrEmpty(format)) return;
 
-            if (!string.IsNullOrEmpty(format))
-            {
-                settingsManager.UpdateFormatPoids(format);
-                AfficherMessage($"Format poids changé: {format}");
-            }
-        }
+            settingsManager.UpdateFormatPoids(format);
 
-        private void FormatHeure_Change(object sender, SelectionChangedEventArgs e)
-        {
-            var item = FormatHeureComboBox.SelectedItem as ComboBoxItem;
-            var format = item?.Content.ToString();
-
-            if (!string.IsNullOrEmpty(format))
-            {
-                settingsManager.UpdateFormatHeure(format);
-                AfficherMessage($"Format heure changé: {format}");
-            }
+            // ⬇️ propage le changement à toute l’UI
+            SettingsContext.Instance.WeightUnit = (format == "LBS") ? WeightUnit.LBS : WeightUnit.KG;
         }
 
         private void ThemeCouleur_Change(object sender, SelectionChangedEventArgs e)
@@ -189,7 +199,6 @@ namespace ProjetFinale.WPF
 
             // Appliquer la nouvelle couleur aux ComboBox
             FormatPoidsComboBox.BorderBrush = couleur;
-            FormatHeureComboBox.BorderBrush = couleur;
             ThemeColorComboBox.BorderBrush = couleur;
             SaveFrequencyComboBox.BorderBrush = couleur;
         }
@@ -248,5 +257,10 @@ namespace ProjetFinale.WPF
         {
             MessageBox.Show(message, "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
+
+
+
+
     }
 }

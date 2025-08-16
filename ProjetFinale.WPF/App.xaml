@@ -1,11 +1,18 @@
 ﻿<Application x:Class="ProjetFinale.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utils="clr-namespace:ProjetFinale.Utils;assembly=ProjetFinale.Utils"
+             xmlns:conv="clr-namespace:ProjetFinale.WPF.Converters">
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Assets/GlobalStyles.xaml"/>
+                <ResourceDictionary Source="Assets/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <utils:SettingsContext x:Key="SettingsCtx"/>
+            <conv:HeightConverter x:Key="HeightConverter"/>
+            <conv:WeightConverter x:Key="WeightConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

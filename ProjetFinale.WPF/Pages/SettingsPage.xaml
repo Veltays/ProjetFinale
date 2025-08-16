@@ -42,7 +42,6 @@
                         </ComboBox>
                     </Grid>
 
-                    <!-- Format Heure -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -50,18 +49,18 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="FORMAT HEURE" Style="{StaticResource Settings.Label}"/>
-                            <TextBlock Text="Format d'affichage de l'heure (24h ou 12h)"
-                         Style="{StaticResource Settings.Description}"/>
+                            <TextBlock Text="FORMAT TAILLE" Style="{StaticResource Settings.Label}"/>
+                            <TextBlock Text="Format d'affichage de la taille (cm ou inch)"
+               Style="{StaticResource Settings.Description}"/>
                         </StackPanel>
 
                         <ComboBox Grid.Column="1"
-                      x:Name="FormatHeureComboBox"
-                      Style="{StaticResource Settings.ComboBox}"
-                      ItemContainerStyle="{StaticResource Settings.ComboBoxItem}"
-                      SelectedIndex="0">
-                            <ComboBoxItem Content="24H"/>
-                            <ComboBoxItem Content="12H"/>
+            x:Name="FormatTailleComboBox"
+            Style="{StaticResource Settings.ComboBox}"
+            ItemContainerStyle="{StaticResource Settings.ComboBoxItem}"
+            SelectedIndex="0">
+                            <ComboBoxItem Content="CM"/>
+                            <ComboBoxItem Content="INCH"/>
                         </ComboBox>
                     </Grid>
                 </StackPanel>

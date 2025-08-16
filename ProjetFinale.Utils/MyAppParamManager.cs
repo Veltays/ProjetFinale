@@ -25,10 +25,10 @@ namespace ProjetFinale.WPF
             set => SetRegistryValue("FormatPoids", value);
         }
 
-        public string FormatHeure
+        public string FormatTaille
         {
-            get => GetRegistryValue("FormatHeure", "24H");
-            set => SetRegistryValue("FormatHeure", value);
+            get => GetRegistryValue("FormatTaille", "CM");
+            set => SetRegistryValue("FormatTaille", value);
         }
 
         public string ThemeCouleur
@@ -76,7 +76,7 @@ namespace ProjetFinale.WPF
             return new AppSettings
             {
                 FormatPoids = this.FormatPoids,
-                FormatHeure = this.FormatHeure,
+                FormatTaille = this.FormatTaille,
                 ThemeCouleur = this.ThemeCouleur,
                 FrequenceSauvegarde = this.FrequenceSauvegarde,
                 ModeSombre = this.ModeSombre,
@@ -98,15 +98,16 @@ namespace ProjetFinale.WPF
             }
         }
 
-        public void UpdateFormatHeure(string format)
+        public void UpdateFormatTaille(string format)  // "CM" ou "INCH"
         {
-            if (IsValidTimeFormat(format))
+            if (format == "CM" || format == "INCH")
             {
-                FormatHeure = format;
+                FormatTaille = format;
                 UpdateLastModified();
 
-                // Logique métier : appliquer le nouveau format d'heure dans l'app
-                ApplyTimeFormatToApp(format);
+                // TODO si tu veux convertir les tailles existantes:
+                // if (format == "INCH") DataService.ConvertHeightData("CM","INCH");
+                // else DataService.ConvertHeightData("INCH","CM");
             }
         }
 
@@ -190,7 +191,6 @@ namespace ProjetFinale.WPF
         public void ResetToDefaults()
         {
             FormatPoids = "KG";
-            FormatHeure = "24H";
             ThemeCouleur = "Violet";
             FrequenceSauvegarde = "5 min";
             ModeSombre = true;
@@ -271,7 +271,7 @@ namespace ProjetFinale.WPF
                 // Supprimer toutes les valeurs settings mais garder IsLogin
                 var settingsToDelete = new[]
                 {
-                    "FormatPoids", "FormatHeure", "ThemeCouleur", "FrequenceSauvegarde",
+                    "FormatPoids","FormatTaille", "ThemeCouleur", "FrequenceSauvegarde",
                     "ModeSombre", "RappelsEntrainement", "RappelsObjectifs", "SauvegardeAuto",
                     "DerniereModification"
                 };
@@ -307,10 +307,6 @@ namespace ProjetFinale.WPF
             return format == "KG" || format == "LBS";
         }
 
-        private bool IsValidTimeFormat(string format)
-        {
-            return format == "24H" || format == "12H";
-        }
 
         private bool IsValidTheme(string theme)
         {
@@ -344,13 +340,6 @@ namespace ProjetFinale.WPF
             }
         }
 
-        private void ApplyTimeFormatToApp(string format)
-        {
-            // Logique pour changer le format d'heure dans toute l'app
-            // Par exemple, mettre à jour les culture settings
-            // CultureManager.SetTimeFormat(format);
-        }
-
         private void ApplyThemeToApplication(string theme)
         {
             // Logique pour appliquer le thème à toute l'application
@@ -359,8 +348,7 @@ namespace ProjetFinale.WPF
 
         private void ApplyDarkModeToApplication(bool isDarkMode)
         {
-            // Logique pour appliquer le mode sombre
-            // ThemeManager.SetDarkMode(isDarkMode);
+             ThemeManager.ApplyTheme(isDarkMode);
         }
 
         private void ReconfigureAutoSaveTimer(string frequency)
@@ -446,17 +434,12 @@ namespace ProjetFinale.WPF
     public class AppSettings
     {
         public string FormatPoids { get; set; } = "KG";
-        public string FormatHeure { get; set; } = "24H";
+        public string FormatTaille { get; set; } = "CM";   // <— AJOUT
         public string ThemeCouleur { get; set; } = "Violet";
         public string FrequenceSauvegarde { get; set; } = "5 min";
         public bool ModeSombre { get; set; } = true;
         public bool RappelsEntrainement { get; set; } = true;
         public bool RappelsObjectifs { get; set; } = false;
         public bool SauvegardeAuto { get; set; } = true;
-
-        public AppSettings()
-        {
-            // Paramètres par défaut
-        }
     }
 }
