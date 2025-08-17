@@ -124,10 +124,10 @@ namespace ProjetFinale.WPF
 
         private void ModeSombre_Change(object sender, RoutedEventArgs e)
         {
-            bool active = DarkModeToggle.IsChecked == true;
-            settingsManager.UpdateDarkMode(active);
-            AfficherMessage($"Mode sombre: {(active ? "Activé" : "Désactivé")}");
+            bool active = DarkModeToggle.IsChecked == true;     // ON = sombre
+            settingsManager.UpdateDarkMode(active);             // persiste + applique
         }
+
 
         private void RappelsEntrainement_Change(object sender, RoutedEventArgs e)
         {

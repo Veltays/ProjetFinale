@@ -1,50 +1,40 @@
 ﻿using System;
-using System.Linq;
 using System.Windows;
 using ProjetFinale.Utils;
 
 namespace ProjetFinale.WPF
 {
-    /// <summary>
-    /// Pont UI : écoute ThemeManager (Utils) et applique les ResourceDictionaries WPF.
-    /// </summary>
     public static class WpfThemeBridge
     {
-        private const string DarkPath = "Assets/Theme.Dark.xaml";
-        private const string LightPath = "Assets/Theme.Light.xaml";
+        private static ResourceDictionary? _currentTheme;
+        private static readonly Uri DarkUri =
+            new Uri("pack://application:,,,/ProjetFinale.WPF;component/Assets/Themes/Theme.Dark.xaml");
+        private static readonly Uri LightUri =
+            new Uri("pack://application:,,,/ProjetFinale.WPF;component/Assets/Themes/Theme.Light.xaml");
 
         public static void InitializeAndApplyCurrent()
         {
-            // S'abonner aux changements
+            ThemeManager.ThemeChanged -= OnThemeChanged;
             ThemeManager.ThemeChanged += OnThemeChanged;
-
-            // Appliquer le thème courant au lancement
-            Apply(AppThemeFromBool(ThemeManager.CurrentTheme == AppTheme.Dark));
+            Apply(ThemeManager.CurrentTheme, ThemeManager.IsDark);
         }
 
-        private static void OnThemeChanged(AppTheme theme) => Apply(theme);
+        private static void OnThemeChanged(object? s, AppThemeChangedEventArgs e) =>
+            Apply(e.NewTheme, e.IsDark);
 
-        private static void Apply(AppTheme theme)
+        private static void Apply(AppTheme theme, bool isDark)
         {
             var app = Application.Current;
-            if (app is null) return;
+            if (app == null) return;
 
-            // Retirer anciens dicos de thème
-            var olds = app.Resources.MergedDictionaries
-                .Where(d => d.Source != null &&
-                            (d.Source.OriginalString.EndsWith("Theme.Dark.xaml", StringComparison.OrdinalIgnoreCase) ||
-                             d.Source.OriginalString.EndsWith("Theme.Light.xaml", StringComparison.OrdinalIgnoreCase)))
-                .ToList();
+            // swap du dictionnaire
+            if (_currentTheme != null) app.Resources.MergedDictionaries.Remove(_currentTheme);
+            _currentTheme = new ResourceDictionary { Source = isDark ? DarkUri : LightUri };
+            app.Resources.MergedDictionaries.Add(_currentTheme);
 
-            foreach (var d in olds)
-                app.Resources.MergedDictionaries.Remove(d);
-
-            // Ajouter le bon dico
-            var uri = new Uri(theme == AppTheme.Dark ? DarkPath : LightPath, UriKind.Relative);
-            var rd = new ResourceDictionary { Source = uri };
-            app.Resources.MergedDictionaries.Add(rd);
+            // (facultatif) exposer l’état
+            app.Resources["Theme.Name"] = theme.ToString();
+            app.Resources["Theme.IsDark"] = isDark;
         }
-
-        private static AppTheme AppThemeFromBool(bool dark) => dark ? AppTheme.Dark : AppTheme.Light;
     }
 }

@@ -1,37 +1,54 @@
-﻿using ProjetFinale.Services;
-using ProjetFinale.Utils;
-using ProjetFinale.Views;
-using ProjetFinale.WPF;
-using System.Windows;
+﻿using System.Windows;
+using ProjetFinale.Services;
+using ProjetFinale.Utils;   // SettingsContext, ThemeManager
+using ProjetFinale.Views;   // LoginWindow
+using ProjetFinale.WPF;     // WpfThemeBridge
 
 namespace ProjetFinale
 {
-    public partial class App : System.Windows.Application
+    public partial class App : Application
     {
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var paramManager = new SettingsManager();
+            // Optionnel: fermer l'app quand la fenêtre principale est fermée
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            // Unités au boot
+            // 1) Charger les préférences depuis le registre
+            var settings = new SettingsManager().GetCurrentSettings();
+
+            // 2) Propager aux SINGLETONS utilisés par le binding
             SettingsContext.Instance.WeightUnit =
-                paramManager.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
+                settings.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
+
             SettingsContext.Instance.HeightUnit =
-                paramManager.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
+                settings.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
 
-            // === Thème ===
-            ProjetFinale.WPF.WpfThemeBridge.InitializeAndApplyCurrent();          // écoute ThemeManager
-            ThemeManager.SetDarkMode(paramManager.ModeSombre);                     // déclenche l’application du dico
+            // 3) Thème (par défaut: sombre si aucune valeur enregistrée)
+            ThemeManager.ApplyTheme(settings.ThemeCouleur);     // Violet/Bleu/Rose/Vert (si tu l’utilises)
+            ThemeManager.SetDarkMode(settings.ModeSombre);      // true = Dark, false = Light
 
-            // le reste inchangé...
-            if (paramManager.IsLogin)
+            // 4) Brancher le pont WPF et appliquer immédiatement (charge le bon ResourceDictionary)
+            WpfThemeBridge.InitializeAndApplyCurrent();
+
+            // 5) Lancer l’UI
+            Window win;
+            if (new SettingsManager().IsLogin)
             {
                 var utilisateur = JsonService.ChargerUtilisateur();
-                if (utilisateur != null) { UserService.UtilisateurActif = utilisateur; new MainWindow().Show(); }
-                else { new LoginWindow().Show(); }
+                win = (utilisateur != null)
+                    ? new MainWindow()
+                    : new LoginWindow();
+                if (utilisateur != null) UserService.UtilisateurActif = utilisateur;
             }
-            else { new LoginWindow().Show(); }
+            else
+            {
+                win = new LoginWindow();
+            }
+
+            MainWindow = win;
+            win.Show();
         }
     }
 }

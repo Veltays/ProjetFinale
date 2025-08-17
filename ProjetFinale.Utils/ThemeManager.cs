@@ -2,22 +2,63 @@
 
 namespace ProjetFinale.Utils
 {
-    public enum AppTheme { Dark, Light }
+    public enum AppTheme { Violet, Bleu, Rose, Vert, Light, Dark }
+
+    public sealed class AppThemeChangedEventArgs : EventArgs
+    {
+        public AppTheme NewTheme { get; }
+        public bool IsDark { get; }
+        public AppThemeChangedEventArgs(AppTheme newTheme, bool isDark)
+        {
+            NewTheme = newTheme; IsDark = isDark;
+        }
+    }
 
     public static class ThemeManager
     {
-        public static AppTheme CurrentTheme { get; private set; } = AppTheme.Dark;
+        public static AppTheme CurrentTheme { get; private set; } = AppTheme.Violet;
+        public static bool IsDark { get; private set; } = true;
 
-        // Notifie l’UI qu’il faut appliquer un nouveau thème
-        public static event Action<AppTheme> ThemeChanged;
+        public static event EventHandler<AppThemeChangedEventArgs>? ThemeChanged;
 
-        public static void SetTheme(AppTheme theme)
+        public static void ApplyTheme(string theme)
+        {
+            if (string.IsNullOrWhiteSpace(theme)) return;
+
+            if (Enum.TryParse<AppTheme>(theme, true, out var parsed))
+            {
+                SetTheme(parsed);
+                return;
+            }
+
+            switch (theme.Trim().ToLowerInvariant())
+            {
+                case "violet": SetTheme(AppTheme.Violet); break;
+                case "bleu": SetTheme(AppTheme.Bleu); break;
+                case "rose": SetTheme(AppTheme.Rose); break;
+                case "vert": SetTheme(AppTheme.Vert); break;
+                case "light": SetTheme(AppTheme.Light); break;
+                case "dark": SetTheme(AppTheme.Dark); break;
+            }
+        }
+
+        public static void SetDarkMode(bool isDark)
+        {
+            if (IsDark == isDark) return;
+            IsDark = isDark;
+            RaiseThemeChanged();
+        }
+
+        private static void SetTheme(AppTheme theme)
         {
             if (CurrentTheme == theme) return;
             CurrentTheme = theme;
-            ThemeChanged?.Invoke(CurrentTheme);
+            RaiseThemeChanged();
         }
 
-        public static void SetDarkMode(bool isDark) => SetTheme(isDark ? AppTheme.Dark : AppTheme.Light);
+        private static void RaiseThemeChanged()
+        {
+            ThemeChanged?.Invoke(null, new AppThemeChangedEventArgs(CurrentTheme, IsDark));
+        }
     }
 }

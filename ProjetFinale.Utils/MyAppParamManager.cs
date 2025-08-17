@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.Win32;
+using ProjetFinale.Utils;
+
 
 namespace ProjetFinale.WPF
 {
@@ -237,13 +239,10 @@ namespace ProjetFinale.WPF
             {
                 using var key = Registry.CurrentUser.OpenSubKey(REGISTRY_PATH);
                 string value = key?.GetValue(valueName)?.ToString();
-                return string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+                return value == null ? defaultValue
+                                     : string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lecture registry bool {valueName} : {ex.Message}");
-                return defaultValue;
-            }
+            catch { return defaultValue; }
         }
 
         private void SetRegistryValue(string valueName, string value)
@@ -342,13 +341,12 @@ namespace ProjetFinale.WPF
 
         private void ApplyThemeToApplication(string theme)
         {
-            // Logique pour appliquer le thème à toute l'application
-            // ThemeManager.ApplyTheme(theme);
+            ThemeManager.ApplyTheme(theme);
         }
 
         private void ApplyDarkModeToApplication(bool isDarkMode)
         {
-             ThemeManager.ApplyTheme(isDarkMode);
+            ThemeManager.SetDarkMode(isDarkMode);
         }
 
         private void ReconfigureAutoSaveTimer(string frequency)
