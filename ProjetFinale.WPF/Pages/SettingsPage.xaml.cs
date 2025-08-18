@@ -18,101 +18,57 @@ namespace ProjetFinale.WPF
             ConfigurerEvenements();
         }
 
-        // Charger les paramètres depuis le registry et les afficher
         private void ChargerParametres()
         {
             var settings = settingsManager.GetCurrentSettings();
 
-            // Units context
             SettingsContext.Instance.WeightUnit = settings.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
             SettingsContext.Instance.HeightUnit = settings.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
 
-            // ComboBox
             FormatPoidsComboBox.SelectedIndex = settings.FormatPoids == "LBS" ? 1 : 0;
-            FormatTailleComboBox.SelectedIndex = settings.FormatTaille == "INCH" ? 1 : 0; // <— NEW
-            ThemeColorComboBox.SelectedIndex = ObtenirIndexTheme(settings.ThemeCouleur);
+            FormatTailleComboBox.SelectedIndex = settings.FormatTaille == "INCH" ? 1 : 0;
             SaveFrequencyComboBox.SelectedIndex = ObtenirIndexFrequence(settings.FrequenceSauvegarde);
 
-            // Toggles
             DarkModeToggle.IsChecked = settings.ModeSombre;
-            WorkoutRemindersToggle.IsChecked = settings.RappelsEntrainement;
-            GoalRemindersToggle.IsChecked = settings.RappelsObjectifs;
             AutoSaveToggle.IsChecked = settings.SauvegardeAuto;
         }
 
-        // Connecter tous les événements aux méthodes
         private void ConfigurerEvenements()
         {
-            // ComboBox
             FormatPoidsComboBox.SelectionChanged += FormatPoids_Change;
-            FormatTailleComboBox.SelectionChanged += FormatTaille_Change; // <— NEW
-            ThemeColorComboBox.SelectionChanged += ThemeCouleur_Change;
+            FormatTailleComboBox.SelectionChanged += FormatTaille_Change;
             SaveFrequencyComboBox.SelectionChanged += FrequenceSauvegarde_Change;
 
-            // Toggles
             DarkModeToggle.Checked += ModeSombre_Change;
             DarkModeToggle.Unchecked += ModeSombre_Change;
-            WorkoutRemindersToggle.Checked += RappelsEntrainement_Change;
-            WorkoutRemindersToggle.Unchecked += RappelsEntrainement_Change;
-            GoalRemindersToggle.Checked += RappelsObjectifs_Change;
-            GoalRemindersToggle.Unchecked += RappelsObjectifs_Change;
             AutoSaveToggle.Checked += SauvegardeAuto_Change;
             AutoSaveToggle.Unchecked += SauvegardeAuto_Change;
 
-            // Boutons
-            ModifierProfilButton.Click += ModifierProfil_Click;
-            DeleteAccountButton.Click += SupprimerCompte_Click;
+
         }
 
         private void FormatTaille_Change(object sender, SelectionChangedEventArgs e)
         {
-            var item = FormatTailleComboBox.SelectedItem as ComboBoxItem;
-            var format = item?.Content?.ToString(); // "CM" ou "INCH"
-            if (string.IsNullOrEmpty(format)) return;
+            var item = SaveAsString(FormatTailleComboBox.SelectedItem);
+            if (string.IsNullOrEmpty(item)) return;
 
-            // Persist
-            settingsManager.UpdateFormatTaille(format);
-
-            // Propage à l'UI
-            SettingsContext.Instance.HeightUnit = (format == "INCH") ? HeightUnit.INCH : HeightUnit.CM;
-
-            AfficherMessage($"Format taille changé: {format}");
+            settingsManager.UpdateFormatTaille(item);
+            SettingsContext.Instance.HeightUnit = (item == "INCH") ? HeightUnit.INCH : HeightUnit.CM;
+            AfficherMessage($"Format taille changé: {item}");
         }
-
-
-
-        // === ÉVÉNEMENTS COMBOBOX ===
 
         private void FormatPoids_Change(object sender, SelectionChangedEventArgs e)
         {
-            var item = FormatPoidsComboBox.SelectedItem as ComboBoxItem;
-            var format = item?.Content?.ToString(); // "KG" ou "LBS"
+            var format = SaveAsString(FormatPoidsComboBox.SelectedItem);
             if (string.IsNullOrEmpty(format)) return;
 
             settingsManager.UpdateFormatPoids(format);
-
-            // ⬇️ propage le changement à toute l’UI
             SettingsContext.Instance.WeightUnit = (format == "LBS") ? WeightUnit.LBS : WeightUnit.KG;
-        }
-
-        private void ThemeCouleur_Change(object sender, SelectionChangedEventArgs e)
-        {
-            var item = ThemeColorComboBox.SelectedItem as ComboBoxItem;
-            var theme = item?.Content.ToString();
-
-            if (!string.IsNullOrEmpty(theme))
-            {
-                settingsManager.UpdateTheme(theme);
-                ChangerCouleurTheme(theme); // Appliquer le nouveau thème visuel
-                AfficherMessage($"Thème changé: {theme}");
-            }
         }
 
         private void FrequenceSauvegarde_Change(object sender, SelectionChangedEventArgs e)
         {
-            var item = SaveFrequencyComboBox.SelectedItem as ComboBoxItem;
-            var frequence = item?.Content.ToString();
-
+            var frequence = SaveAsString(SaveFrequencyComboBox.SelectedItem);
             if (!string.IsNullOrEmpty(frequence))
             {
                 settingsManager.UpdateSaveFrequency(frequence);
@@ -120,27 +76,10 @@ namespace ProjetFinale.WPF
             }
         }
 
-        // === ÉVÉNEMENTS TOGGLES ===
-
         private void ModeSombre_Change(object sender, RoutedEventArgs e)
         {
-            bool active = DarkModeToggle.IsChecked == true;     // ON = sombre
-            settingsManager.UpdateDarkMode(active);             // persiste + applique
-        }
-
-
-        private void RappelsEntrainement_Change(object sender, RoutedEventArgs e)
-        {
-            bool active = WorkoutRemindersToggle.IsChecked == true;
-            settingsManager.UpdateWorkoutReminders(active);
-            AfficherMessage($"Rappels entraînement: {(active ? "Activés" : "Désactivés")}");
-        }
-
-        private void RappelsObjectifs_Change(object sender, RoutedEventArgs e)
-        {
-            bool active = GoalRemindersToggle.IsChecked == true;
-            settingsManager.UpdateGoalReminders(active);
-            AfficherMessage($"Rappels objectifs: {(active ? "Activés" : "Désactivés")}");
+            bool active = DarkModeToggle.IsChecked == true;
+            settingsManager.UpdateDarkMode(active);
         }
 
         private void SauvegardeAuto_Change(object sender, RoutedEventArgs e)
@@ -150,86 +89,30 @@ namespace ProjetFinale.WPF
             AfficherMessage($"Sauvegarde auto: {(active ? "Activée" : "Désactivée")}");
         }
 
-        // === ÉVÉNEMENTS BOUTONS ===
-
         private void ModifierProfil_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Naviguer vers la page de profil
             AfficherMessage("Redirection vers modification profil...");
         }
 
         private void SupprimerCompte_Click(object sender, RoutedEventArgs e)
         {
-            // Demander confirmation 2 fois (c'est dangereux !)
             if (DemanderConfirmationSuppression())
             {
                 settingsManager.DeleteAccount();
                 AfficherMessage("Compte supprimé !");
-
-                // TODO: Retourner à l'écran de connexion
-                // Application.Current.Shutdown();
             }
         }
 
-        // === MÉTHODES UTILES ===
-
-        // Changer la couleur des bordures selon le thème choisi
-        private void ChangerCouleurTheme(string theme)
+        
+        private int ObtenirIndexFrequence(string frequence) => frequence switch
         {
-            SolidColorBrush couleur;
+            "1 min" => 0,
+            "5 min" => 1,
+            "15 min" => 2,
+            "30 min" => 3,
+            _ => 1
+        };
 
-            switch (theme.ToLower())
-            {
-                case "violet":
-                    couleur = new SolidColorBrush(Color.FromRgb(175, 102, 255));
-                    break;
-                case "bleu":
-                    couleur = new SolidColorBrush(Color.FromRgb(59, 130, 246));
-                    break;
-                case "rose":
-                    couleur = new SolidColorBrush(Color.FromRgb(244, 114, 182));
-                    break;
-                case "vert":
-                    couleur = new SolidColorBrush(Color.FromRgb(34, 197, 94));
-                    break;
-                default:
-                    couleur = new SolidColorBrush(Color.FromRgb(175, 102, 255));
-                    break;
-            }
-
-            // Appliquer la nouvelle couleur aux ComboBox
-            FormatPoidsComboBox.BorderBrush = couleur;
-            ThemeColorComboBox.BorderBrush = couleur;
-            SaveFrequencyComboBox.BorderBrush = couleur;
-        }
-
-        // Convertir le nom du thème en index pour la ComboBox
-        private int ObtenirIndexTheme(string theme)
-        {
-            return theme.ToLower() switch
-            {
-                "violet" => 0,
-                "bleu" => 1,
-                "rose" => 2,
-                "vert" => 3,
-                _ => 0 // Par défaut violet
-            };
-        }
-
-        // Convertir la fréquence en index pour la ComboBox
-        private int ObtenirIndexFrequence(string frequence)
-        {
-            return frequence switch
-            {
-                "1 min" => 0,
-                "5 min" => 1,
-                "15 min" => 2,
-                "30 min" => 3,
-                _ => 1 // Par défaut 5 min
-            };
-        }
-
-        // Demander confirmation pour la suppression du compte
         private bool DemanderConfirmationSuppression()
         {
             var result1 = MessageBox.Show(
@@ -248,19 +131,19 @@ namespace ProjetFinale.WPF
 
                 return result2 == MessageBoxResult.Yes;
             }
-
             return false;
         }
 
-        // Afficher un message à l'utilisateur
         private void AfficherMessage(string message)
         {
             MessageBox.Show(message, "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-
-
-
-
+        private static string SaveAsString(object comboItem)
+        {
+            if (comboItem is ComboBoxItem cbi)
+                return cbi.Content?.ToString() ?? string.Empty;
+            return comboItem?.ToString() ?? string.Empty;
+        }
     }
 }

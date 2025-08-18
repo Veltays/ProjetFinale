@@ -92,8 +92,14 @@
             </Border>
 
             <!-- Vue calendrier -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
-                <Grid x:Name="CalendarGrid">
+            <ScrollViewer 
+                Grid.Row="1" 
+                VerticalScrollBarVisibility="Auto" 
+                HorizontalScrollBarVisibility="Hidden"
+                Background="{DynamicResource Brush.AgendaBackground}">
+
+                <Grid x:Name="CalendarGrid" Background="{DynamicResource Brush.AgendaBackground}">
+
                     <Grid.RowDefinitions>
                         <!-- Header avec jours de la semaine -->
                         <RowDefinition Height="50"/>

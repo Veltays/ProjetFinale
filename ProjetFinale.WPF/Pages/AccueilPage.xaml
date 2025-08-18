@@ -5,7 +5,10 @@
       Title="AccueilPage"
       Background="{DynamicResource App.Background}"
       Foreground="{DynamicResource App.Foreground}">
-
+    <Page.Resources>
+        <ResourceDictionary>
+        </ResourceDictionary>
+    </Page.Resources>
     <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
         <StackPanel>
 
@@ -158,9 +161,9 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="ObjectifPoidsTextBox"
-                                     Grid.Column="0"
-                                     Text="{Binding Poids, Converter={StaticResource WeightConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource AccueilEditableTextBoxStyle}"/>
+         Grid.Column="0"
+         Text="{Binding ObjectifPoids, Converter={StaticResource WeightConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+         Style="{StaticResource AccueilEditableTextBoxStyle}"/>
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding Source={x:Static utils:SettingsContext.Instance}, Path=WeightUnit}"
                                                Style="{StaticResource AccueilObjectifsUnitStyle}"/>
@@ -182,7 +185,7 @@
                             <Border Style="{StaticResource AccueilObjectifsDateBorderStyle}">
                                 <DatePicker x:Name="DateObjectifPicker"
                                             SelectedDate="{Binding DateObjectif, UpdateSourceTrigger=PropertyChanged}"
-                                            Style="{StaticResource AccueilObjectifsDatePickerStyle}"/>
+                                            />
                             </Border>
                         </StackPanel>
 

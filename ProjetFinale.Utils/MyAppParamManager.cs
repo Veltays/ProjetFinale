@@ -2,7 +2,6 @@
 using Microsoft.Win32;
 using ProjetFinale.Utils;
 
-
 namespace ProjetFinale.WPF
 {
     /// <summary>
@@ -95,7 +94,6 @@ namespace ProjetFinale.WPF
                 FormatPoids = format;
                 UpdateLastModified();
 
-                // Logique métier : convertir les données existantes si nécessaire
                 ConvertExistingWeightData(format);
             }
         }
@@ -107,9 +105,7 @@ namespace ProjetFinale.WPF
                 FormatTaille = format;
                 UpdateLastModified();
 
-                // TODO si tu veux convertir les tailles existantes:
-                // if (format == "INCH") DataService.ConvertHeightData("CM","INCH");
-                // else DataService.ConvertHeightData("INCH","CM");
+                // TODO conversions éventuelles
             }
         }
 
@@ -119,8 +115,6 @@ namespace ProjetFinale.WPF
             {
                 ThemeCouleur = theme;
                 UpdateLastModified();
-
-                // Logique métier : appliquer le thème à l'application
                 ApplyThemeToApplication(theme);
             }
         }
@@ -132,7 +126,7 @@ namespace ProjetFinale.WPF
                 FrequenceSauvegarde = frequency;
                 UpdateLastModified();
 
-                // Logique métier : reconfigurer l'auto-save timer
+                // Reconfigurer le timer d'auto-save
                 ReconfigureAutoSaveTimer(frequency);
             }
         }
@@ -141,8 +135,6 @@ namespace ProjetFinale.WPF
         {
             ModeSombre = isDarkMode;
             UpdateLastModified();
-
-            // Logique métier : appliquer le mode sombre
             ApplyDarkModeToApplication(isDarkMode);
         }
 
@@ -150,8 +142,6 @@ namespace ProjetFinale.WPF
         {
             RappelsEntrainement = isEnabled;
             UpdateLastModified();
-
-            // Logique métier : configurer les notifications d'entraînement
             ConfigureWorkoutNotifications(isEnabled);
         }
 
@@ -159,8 +149,6 @@ namespace ProjetFinale.WPF
         {
             RappelsObjectifs = isEnabled;
             UpdateLastModified();
-
-            // Logique métier : configurer les notifications d'objectifs
             ConfigureGoalNotifications(isEnabled);
         }
 
@@ -169,7 +157,7 @@ namespace ProjetFinale.WPF
             SauvegardeAuto = isEnabled;
             UpdateLastModified();
 
-            // Logique métier : activer/désactiver l'auto-save
+            // Activer/Désactiver l'auto-save
             ConfigureAutoSave(isEnabled);
         }
 
@@ -177,11 +165,8 @@ namespace ProjetFinale.WPF
         {
             try
             {
-                // Logique métier : supprimer toutes les données utilisateur
                 DeleteAllUserData();
                 DeleteAllSettings();
-
-                // Log de l'action
                 LogAccountDeletion();
             }
             catch (Exception ex)
@@ -211,7 +196,6 @@ namespace ProjetFinale.WPF
             try
             {
                 using var key = Registry.CurrentUser.CreateSubKey(REGISTRY_PATH);
-                // Key is created if it doesn't exist
             }
             catch (Exception ex)
             {
@@ -267,7 +251,6 @@ namespace ProjetFinale.WPF
         {
             try
             {
-                // Supprimer toutes les valeurs settings mais garder IsLogin
                 var settingsToDelete = new[]
                 {
                     "FormatPoids","FormatTaille", "ThemeCouleur", "FrequenceSauvegarde",
@@ -280,14 +263,8 @@ namespace ProjetFinale.WPF
                 {
                     foreach (var setting in settingsToDelete)
                     {
-                        try
-                        {
-                            key.DeleteValue(setting, false); // false = no exception if not found
-                        }
-                        catch
-                        {
-                            // Ignore individual deletion errors
-                        }
+                        try { key.DeleteValue(setting, false); }
+                        catch { /* ignore */ }
                     }
                 }
             }
@@ -301,11 +278,7 @@ namespace ProjetFinale.WPF
 
         #region Private Methods - Validation
 
-        private bool IsValidWeightFormat(string format)
-        {
-            return format == "KG" || format == "LBS";
-        }
-
+        private bool IsValidWeightFormat(string format) => format == "KG" || format == "LBS";
 
         private bool IsValidTheme(string theme)
         {
@@ -325,87 +298,48 @@ namespace ProjetFinale.WPF
 
         private void ConvertExistingWeightData(string newFormat)
         {
-            // Logique pour convertir toutes les données de poids existantes
-            if (newFormat == "LBS")
-            {
-                // Convertir de KG vers LBS (multiplier par 2.20462)
-                // Ici tu appellerais ton service de données pour convertir
-                // DataService.ConvertWeightData("KG", "LBS");
-            }
-            else if (newFormat == "KG")
-            {
-                // Convertir de LBS vers KG (diviser par 2.20462)
-                // DataService.ConvertWeightData("LBS", "KG");
-            }
+            // TODO: Conversion de données existantes si nécessaire
         }
 
-        private void ApplyThemeToApplication(string theme)
-        {
-            ThemeManager.ApplyTheme(theme);
-        }
+        private void ApplyThemeToApplication(string theme) => ThemeManager.ApplyTheme(theme);
 
-        private void ApplyDarkModeToApplication(bool isDarkMode)
-        {
-            ThemeManager.SetDarkMode(isDarkMode);
-        }
+        private void ApplyDarkModeToApplication(bool isDarkMode) => ThemeManager.SetDarkMode(isDarkMode);
 
         private void ReconfigureAutoSaveTimer(string frequency)
         {
-            // Logique pour reconfigurer le timer d'auto-save
-            var intervalMinutes = frequency switch
-            {
-                "1 min" => 1,
-                "5 min" => 5,
-                "15 min" => 15,
-                "30 min" => 30,
-                _ => 5
-            };
-
-            // AutoSaveService.SetInterval(intervalMinutes);
+            var minutes = Utils.AutoSaveService.MapFrequencyToMinutes(frequency);
+            AutoSaveService.Instance.SetInterval(minutes);
         }
 
         private void ConfigureWorkoutNotifications(bool isEnabled)
         {
-            // Logique pour configurer les notifications d'entraînement
-            // NotificationService.EnableWorkoutReminders(isEnabled);
+            // TODO notifications entraînement
         }
 
         private void ConfigureGoalNotifications(bool isEnabled)
         {
-            // Logique pour configurer les notifications d'objectifs
-            // NotificationService.EnableGoalReminders(isEnabled);
+            // TODO notifications objectifs
         }
 
         private void ConfigureAutoSave(bool isEnabled)
         {
-            // Logique pour activer/désactiver l'auto-save
-            // AutoSaveService.Enable(isEnabled);
+            AutoSaveService.Instance.Enable(isEnabled);
         }
 
         private void DeleteAllUserData()
         {
-            // Logique pour supprimer toutes les données utilisateur
-            // Tu peux appeler tes autres services ici
-            // UserDataService.DeleteAllData();
-            // FileService.DeleteUserFiles();
+            // TODO suppression données utilisateur
         }
 
         private void LogAccountDeletion()
         {
-            // Log de la suppression du compte pour audit
             var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Account deleted";
             try
             {
-                // Tu peux logger dans le registry ou un fichier
                 SetRegistryValue("LastAccountDeletion", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             }
-            catch
-            {
-                // Ignore les erreurs de log
-            }
+            catch { }
         }
-
-
 
         public bool IsLogin
         {
@@ -422,7 +356,6 @@ namespace ProjetFinale.WPF
             }
         }
 
-
         #endregion
     }
 
@@ -432,7 +365,7 @@ namespace ProjetFinale.WPF
     public class AppSettings
     {
         public string FormatPoids { get; set; } = "KG";
-        public string FormatTaille { get; set; } = "CM";   // <— AJOUT
+        public string FormatTaille { get; set; } = "CM";
         public string ThemeCouleur { get; set; } = "Violet";
         public string FrequenceSauvegarde { get; set; } = "5 min";
         public bool ModeSombre { get; set; } = true;

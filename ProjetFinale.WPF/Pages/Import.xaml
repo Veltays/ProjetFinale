@@ -1,8 +1,9 @@
 ﻿<Page x:Class="ProjetFinale.WPF.ImportPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="ImportPage" 
-      Background="#303030">
+      Title="ImportPage"
+      Background="{DynamicResource App.Background}"
+      Foreground="{DynamicResource App.Foreground}">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid Style="{StaticResource ImportMainContainerStyle}">
@@ -11,7 +12,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- En-tête de la page -->
+            <!-- En-tête -->
             <StackPanel Grid.Row="0" Style="{StaticResource ImportHeaderStyle}">
                 <TextBlock Text="IMPORTS" Style="{StaticResource ImportMainTitleStyle}"/>
                 <TextBlock Text="Importez vos données depuis différents formats" Style="{StaticResource ImportSubtitleStyle}"/>
@@ -25,21 +26,19 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Section formats d'import -->
-                <TextBlock Grid.Row="0" 
+                <!-- Titre section -->
+                <TextBlock Grid.Row="0"
                            Text="FORMATS D'IMPORT DISPONIBLES"
                            Style="{StaticResource ImportSectionTitleStyle}"/>
 
-                <!-- Cartes des formats -->
+                <!-- Cartes -->
                 <UniformGrid Grid.Row="1" Columns="3" Style="{StaticResource ImportCardsGridStyle}">
 
-                    <!-- Import CSV -->
+                    <!-- 📊 CSV -->
                     <Border Style="{StaticResource ImportCardStyle}">
                         <StackPanel>
-                            <!-- Icône CSV -->
                             <Border Style="{StaticResource ImportIconGreenStyle}">
                                 <Canvas Style="{StaticResource ImportIconCanvasStyle}">
-                                    <!-- Icône fichier CSV -->
                                     <Rectangle Style="{StaticResource ImportCSVFileRectStyle}"/>
                                     <Polygon Style="{StaticResource ImportCSVCornerStyle}"/>
                                     <Line Style="{StaticResource ImportCSVLine1Style}"/>
@@ -47,48 +46,40 @@
                                     <Line Style="{StaticResource ImportCSVLine3Style}"/>
                                 </Canvas>
                             </Border>
-
                             <TextBlock Text="CSV (.csv)" Style="{StaticResource ImportCardTitleStyle}"/>
                             <TextBlock Text="Importez vos données depuis des fichiers CSV compatibles avec Excel, Google Sheets et autres tableurs."
                                        Style="{StaticResource ImportCardDescriptionStyle}"/>
                             <TextBlock Text="TAILLE MAX: ~5 MB" Style="{StaticResource ImportCardSizeGreenStyle}"/>
-
-                            <Button Content="IMPORTER CSV" 
+                            <Button Content="IMPORTER CSV"
                                     Style="{StaticResource ImportButtonStyle}"
                                     Click="ImportCSV_Click"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Import JSON -->
+                    <!-- 📋 JSON -->
                     <Border Style="{StaticResource ImportCardStyle}">
                         <StackPanel>
-                            <!-- Icône JSON -->
                             <Border Style="{StaticResource ImportIconOrangeStyle}">
                                 <Canvas Style="{StaticResource ImportIconCanvasStyle}">
-                                    <!-- Icône JSON -->
                                     <Path Style="{StaticResource ImportJSONBrace1Style}"/>
                                     <Path Style="{StaticResource ImportJSONBrace2Style}"/>
                                 </Canvas>
                             </Border>
-
                             <TextBlock Text="JSON (.json)" Style="{StaticResource ImportCardTitleStyle}"/>
                             <TextBlock Text="Format universel pour l'intégration avec d'autres applications ou pour les développeurs."
                                        Style="{StaticResource ImportCardDescriptionStyle}"/>
                             <TextBlock Text="TAILLE MAX: ~2 MB" Style="{StaticResource ImportCardSizeOrangeStyle}"/>
-
-                            <Button Content="IMPORTER JSON" 
+                            <Button Content="IMPORTER JSON"
                                     Style="{StaticResource ImportButtonStyle}"
                                     Click="ImportJSON_Click"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Import Excel -->
+                    <!-- 💾 Excel -->
                     <Border Style="{StaticResource ImportCardStyle}">
                         <StackPanel>
-                            <!-- Icône Excel -->
                             <Border Style="{StaticResource ImportIconBlueStyle}">
                                 <Canvas Style="{StaticResource ImportIconCanvasStyle}">
-                                    <!-- Icône Excel/Spreadsheet -->
                                     <Rectangle Style="{StaticResource ImportExcelMainRectStyle}"/>
                                     <Line Style="{StaticResource ImportExcelHLine1Style}"/>
                                     <Line Style="{StaticResource ImportExcelHLine2Style}"/>
@@ -96,24 +87,21 @@
                                     <Line Style="{StaticResource ImportExcelVLine2Style}"/>
                                 </Canvas>
                             </Border>
-
                             <TextBlock Text="EXCEL (.xlsx)" Style="{StaticResource ImportCardTitleStyle}"/>
                             <TextBlock Text="Importez directement depuis vos fichiers Excel avec support des feuilles multiples."
                                        Style="{StaticResource ImportCardDescriptionStyle}"/>
                             <TextBlock Text="TAILLE MAX: ~10 MB" Style="{StaticResource ImportCardSizeBlueStyle}"/>
-
-                            <Button Content="IMPORTER EXCEL" 
+                            <Button Content="IMPORTER EXCEL"
                                     Style="{StaticResource ImportButtonStyle}"
                                     Click="ImportExcel_Click"/>
                         </StackPanel>
                     </Border>
                 </UniformGrid>
 
-                <!-- Section historique -->
+                <!-- 🕘 Historique -->
                 <Border Grid.Row="2" Style="{StaticResource ImportHistoryCardStyle}">
                     <StackPanel>
                         <TextBlock Text="HISTORIQUE D'IMPORT" Style="{StaticResource ImportHistoryTitleStyle}"/>
-
                         <Grid x:Name="HistoryGrid">
                             <TextBlock Text="Aucun import effectué pour le moment"
                                        Style="{StaticResource ImportHistoryEmptyStyle}"/>

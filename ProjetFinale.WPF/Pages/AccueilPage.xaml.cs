@@ -10,188 +10,91 @@ namespace ProjetFinale.WPF
 {
     public partial class AccueilPage : Page
     {
-        private Utilisateur _utilisateur;
+        private Utilisateur _user;
 
         public AccueilPage()
         {
             InitializeComponent();
-
-            // S'abonner aux changements d'utilisateur
-            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
-            ChargerUtilisateur();
+            UserService.UtilisateurActifChanged += OnUserChanged;
+            LoadUser();
         }
 
-        private void ChargerUtilisateur()
+        private void LoadUser()
         {
-            _utilisateur = UserService.UtilisateurActif;
-            if (_utilisateur != null)
-            {
-                this.DataContext = _utilisateur;
-                Console.WriteLine($"✅ Utilisateur chargé : {_utilisateur.Pseudo}");
-            }
-            else
-            {
-                Console.WriteLine("⚠️ Aucun utilisateur actif trouvé");
-            }
+            _user = UserService.UtilisateurActif;
+            DataContext = _user;
         }
 
-        private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
+        private void OnUserChanged(Utilisateur? _)
         {
-            ChargerUtilisateur();
+            LoadUser();
         }
 
-        // === QUICK ACTIONS ===
+        // Actions rapides
         private void NouvelleSeance_Click(object sender, RoutedEventArgs e)
         {
-            (Application.Current.MainWindow as MainWindow)?.NavigateToExercices();
+                                     // fenetre de WPF
+            //(MaFenetre)Application.Current.MainWindow).FunctionNavigation();
+            ((MainWindow)Application.Current.MainWindow).NavigateToExercices();
         }
 
         private void VoirProgres_Click(object sender, RoutedEventArgs e)
         {
-            
+            // page statistique pas crée
         }
 
         private void MesObjectifs_Click(object sender, RoutedEventArgs e)
         {
-            (Application.Current.MainWindow as MainWindow)?.NavigateToObjectifs();
+            ((MainWindow)Application.Current.MainWindow).NavigateToObjectifs();
         }
 
         private void Planning_Click(object sender, RoutedEventArgs e)
         {
-            (Application.Current.MainWindow as MainWindow)?.NavigateToSchedule();
+            ((MainWindow)Application.Current.MainWindow).NavigateToSchedule();
         }
 
-        // 🆕 SAUVEGARDE DU PROFIL (Poids, Taille, Âge)
+        // Profil (poids, taille, âge)
         private void SauvegarderProfil_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (_utilisateur == null)
-                {
-                    MessageBox.Show("❌ Aucun utilisateur actif", "Erreur",
-                                   MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+            if (_user == null) return;
 
-                if (!double.TryParse(PoidsTextBox.Text, out double nouveauPoids) || nouveauPoids <= 0)
-                {
-                    MessageBox.Show("⚠️ Le poids doit être un nombre positif", "Erreur de validation",
-                                   MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            double poids = double.Parse(PoidsTextBox.Text);
+            double taille = double.Parse(TailleTextBox.Text);
+            int age = int.Parse(AgeTextBox.Text);
 
-                if (!double.TryParse(TailleTextBox.Text, out double nouvelleTaille) || nouvelleTaille <= 0)
-                {
-                    MessageBox.Show("⚠️ La taille doit être un nombre positif", "Erreur de validation",
-                                   MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            _user.Poids = poids;
+            _user.Taille = taille;
+            _user.Age = age;
 
-                if (!int.TryParse(AgeTextBox.Text, out int nouvelAge) || nouvelAge <= 0 || nouvelAge > 150)
-                {
-                    MessageBox.Show("⚠️ L'âge doit être entre 1 et 150 ans", "Erreur de validation",
-                                   MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            JsonService.SauvegarderUtilisateur(_user);
 
-                _utilisateur.Poids = nouveauPoids;
-                _utilisateur.Taille = nouvelleTaille;
-                _utilisateur.Age = nouvelAge;
-
-                JsonService.SauvegarderUtilisateur(_utilisateur);
-
-                MessageBox.Show($"✅ Profil sauvegardé avec succès !\n\n" +
-                               $"📊 Nouveau profil :\n" +
-                               $"• Poids : {nouveauPoids} kg\n" +
-                               $"• Taille : {nouvelleTaille} cm\n" +
-                               $"• Âge : {nouvelAge} ans\n" +
-                               $"• IMC : {_utilisateur.IMC:F1}",
-                               "Profil sauvegardé",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Information);
-
-                Console.WriteLine($"💾 Profil sauvegardé - Poids: {nouveauPoids}kg, Taille: {nouvelleTaille}cm, Âge: {nouvelAge}ans");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"❌ Erreur lors de la sauvegarde du profil :\n{ex.Message}",
-                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                Console.WriteLine($"❌ Erreur sauvegarde profil : {ex.Message}");
-            }
+            MessageBox.Show($"Profil sauvegardé.\nIMC: {_user.IMC:F1}", "OK",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        // 🆕 SAUVEGARDE DES OBJECTIFS (Poids visé, Date objectif)
+        // Objectifs (poids visé, date)
         private void SauvegarderObjectifs_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (_utilisateur == null)
-                {
-                    MessageBox.Show("❌ Aucun utilisateur actif", "Erreur",
-                                   MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+            if (_user == null) return;
 
-                if (!double.TryParse(ObjectifPoidsTextBox.Text, out double nouveauObjectifPoids) || nouveauObjectifPoids <= 0)
-                {
-                    MessageBox.Show("⚠️ Le poids objectif doit être un nombre positif", "Erreur de validation",
-                                   MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            double poidsVise = double.Parse(ObjectifPoidsTextBox.Text);
+            DateTime dateVisee = DateObjectifPicker.SelectedDate.Value;
 
-                if (!DateObjectifPicker.SelectedDate.HasValue)
-                {
-                    MessageBox.Show("⚠️ Veuillez sélectionner une date objectif", "Erreur de validation",
-                                   MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            _user.ObjectifPoids = poidsVise;
+            _user.DateObjectif = dateVisee;
 
-                DateTime nouvelleDateObjectif = DateObjectifPicker.SelectedDate.Value;
+            JsonService.SauvegarderUtilisateur(_user);
 
-                if (nouvelleDateObjectif <= DateTime.Now)
-                {
-                    MessageBox.Show("⚠️ La date objectif doit être dans le futur", "Erreur de validation",
-                                   MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            double imcVise = poidsVise / Math.Pow(_user.Taille / 100.0, 2);
 
-                _utilisateur.ObjectifPoids = nouveauObjectifPoids;
-                _utilisateur.DateObjectif = nouvelleDateObjectif;
-
-                JsonService.SauvegarderUtilisateur(_utilisateur);
-
-                double imcObjectif = nouveauObjectifPoids / Math.Pow(_utilisateur.Taille / 100.0, 2);
-                int anneesRestantes = nouvelleDateObjectif.Year - DateTime.Now.Year;
-
-                MessageBox.Show($"🎯 Objectifs sauvegardés avec succès !\n\n" +
-                               $"📊 Vos nouveaux objectifs :\n" +
-                               $"• Poids visé : {nouveauObjectifPoids} kg\n" +
-                               $"• IMC visé : {imcObjectif:F1}\n" +
-                               $"• Date limite : {nouvelleDateObjectif:dd/MM/yyyy}\n" +
-                               $"• Temps restant : {Math.Max(0, anneesRestantes)} ans",
-                               "Objectifs sauvegardés",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Information);
-
-                Console.WriteLine($"🎯 Objectifs sauvegardés - Poids: {nouveauObjectifPoids}kg, Date: {nouvelleDateObjectif:dd/MM/yyyy}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"❌ Erreur lors de la sauvegarde des objectifs :\n{ex.Message}",
-                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                Console.WriteLine($"❌ Erreur sauvegarde objectifs : {ex.Message}");
-            }
+            MessageBox.Show(
+                $"Objectifs sauvegardés.\nPoids: {poidsVise} kg\nIMC: {imcVise:F1}\nDate: {dateVisee:dd/MM/yyyy}",
+                "OK", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        // Nettoyage des événements
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
-        }
-
-        ~AccueilPage()
-        {
-            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
+            UserService.UtilisateurActifChanged -= OnUserChanged;
         }
     }
 }
