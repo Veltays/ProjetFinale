@@ -13,7 +13,8 @@
                        FontSize="32"
                        FontWeight="Bold"
                        Margin="0,0,0,30"
-                       Foreground="{StaticResource Settings.Brush.TextPrimary}"/>
+                       Foreground="{DynamicResource Text.Primary}"/>
+
 
             <!-- UNITÉS DE MESURE -->
             <Border Style="{StaticResource Settings.Card}">

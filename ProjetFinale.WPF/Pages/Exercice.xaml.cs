@@ -307,7 +307,7 @@ namespace ProjetFinale.Views
             var duree = new TextBlock
             {
                 Text = $"⏱️ {exercice.Duree.TotalMinutes:F0} min",
-                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(204, 204, 204)),
+                Foreground = (Brush)FindResource("Text.Muted"),
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 12
             };
@@ -317,7 +317,7 @@ namespace ProjetFinale.Views
             var calories = new TextBlock
             {
                 Text = $"🔥 {exercice.CaloriesBrulees:F0} cal",
-                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(204, 204, 204)),
+                Foreground = (Brush)FindResource("Text.Muted"),
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 12
             };
