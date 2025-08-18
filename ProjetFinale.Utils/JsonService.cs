@@ -66,9 +66,6 @@ namespace ProjetFinale.Utils
 
                     if (utilisateur.ListeActivites == null)
                         utilisateur.ListeActivites = new List<Activite>();
-
-                    if (utilisateur.ListeStatistiques == null)
-                        utilisateur.ListeStatistiques = new List<Statistique>();
                 }
 
                 Console.WriteLine(utilisateur != null ? $"✅ Utilisateur chargé : {utilisateur.Pseudo}" : "⚠️ Utilisateur null.");

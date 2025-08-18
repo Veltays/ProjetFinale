@@ -8,47 +8,64 @@ namespace ProjetFinale
 {
     public partial class App : Application
     {
+        private SettingsManager _settingsManager = null!;
+        private dynamic _settings = null!; // type retourné par GetCurrentSettings()
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            // Optionnel: fermer l'app quand la fenêtre principale est fermée
             ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            // 1) Charger les préférences depuis le registre
-            var settings = new SettingsManager().GetCurrentSettings();
+            InitSettings();
+            ApplyUnitsToContext();
+            ApplyTheme();
+            ApplyWpfResources();
 
-            // 2) Propager aux SINGLETONS utilisés par le binding
+            var window = CreateStartupWindow();
+            MainWindow = window;
+            window.Show();
+        }
+
+        // ---------- Steps ----------
+
+        private void InitSettings()
+        {
+            _settingsManager = new SettingsManager();
+            _settings = _settingsManager.GetCurrentSettings();
+        }
+
+        private void ApplyUnitsToContext()
+        {
             SettingsContext.Instance.WeightUnit =
-                settings.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
+                _settings.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
 
             SettingsContext.Instance.HeightUnit =
-                settings.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
+                _settings.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
+        }
 
-            // 3) Thème (par défaut: sombre si aucune valeur enregistrée)
-            ThemeManager.ApplyTheme(settings.ThemeCouleur);     // Violet/Bleu/Rose/Vert (si tu l’utilises)
-            ThemeManager.SetDarkMode(settings.ModeSombre);      // true = Dark, false = Light
+        private void ApplyTheme()
+        {
+            ThemeManager.ApplyTheme(_settings.ThemeCouleur); // Violet/Bleu/Rose/Vert
+            ThemeManager.SetDarkMode(_settings.ModeSombre);  // true = Dark
+        }
 
-            // 4) Brancher le pont WPF et appliquer immédiatement (charge le bon ResourceDictionary)
+        private void ApplyWpfResources()
+        {
             WpfThemeBridge.InitializeAndApplyCurrent();
+        }
 
-            // 5) Lancer l’UI
-            Window win;
-            if (new SettingsManager().IsLogin)
+        private Window CreateStartupWindow()
+        {
+            if (_settingsManager.IsLogin)
             {
-                var utilisateur = JsonService.ChargerUtilisateur();
-                win = (utilisateur != null)
-                    ? new MainWindow()
-                    : new LoginWindow();
-                if (utilisateur != null) UserService.UtilisateurActif = utilisateur;
+                var user = JsonService.ChargerUtilisateur();
+                if (user != null)
+                {
+                    UserService.UtilisateurActif = user;
+                    return new MainWindow();
+                }
             }
-            else
-            {
-                win = new LoginWindow();
-            }
-
-            MainWindow = win;
-            win.Show();
+            return new LoginWindow();
         }
     }
 }

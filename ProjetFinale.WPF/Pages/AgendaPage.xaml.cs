@@ -16,15 +16,15 @@ namespace ProjetFinale.WPF.Pages
 {
     public partial class AgendaPage : Page
     {
-        // ====== Constantes (évite la magie des nombres) ======
-        private const int START_HOUR = 8;     // heure visible de début
-        private const int END_HOUR = 22;      // heure visible de fin (exclue pour le clamp)
+        // ====== Constantes ======
+        private const int START_HOUR = 8;     // heure visible de début (incluse)
+        private const int END_HOUR = 22;      // heure visible de fin (exclue pour l'affichage d'événements)
         private const int ROW_HEIGHT_PX = 60; // 60 px = 1 heure => 1 minute = 1 px
 
         // ====== État ======
         private DateTime _currentWeekStart;
-        private ObservableCollection<Agenda> _events;
-        private Utilisateur _utilisateur;
+        private ObservableCollection<Agenda> _events = new();
+        private Utilisateur _utilisateur = new();
 
         public AgendaPage()
         {
@@ -32,11 +32,9 @@ namespace ProjetFinale.WPF.Pages
 
             _currentWeekStart = GetStartOfWeek(DateTime.Now);
 
+            // Sécurise l'accès utilisateur/agenda (source de vérité = UserService)
             _utilisateur = UserService.UtilisateurActif ?? new Utilisateur();
-
-            // 🔗 même instance pour que tout reste synchronisé
-            _utilisateur.ListeAgenda ??= new System.Collections.ObjectModel.ObservableCollection<Agenda>();
-            _events = _utilisateur.ListeAgenda;
+            _events = _utilisateur.ListeAgenda ?? new ObservableCollection<Agenda>();
 
             InitializeCalendar();
             UpdateWeekDisplay();
@@ -52,12 +50,12 @@ namespace ProjetFinale.WPF.Pages
             TimeGrid.RowDefinitions.Clear();
             TimeGrid.ColumnDefinitions.Clear();
 
-            // Col 0 = libellés heures, puis 7 jours
+            // Col 0 = libellés heures, puis 7 colonnes pour les jours
             TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             for (int i = 0; i < 7; i++)
                 TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Lignes : 8h..22h (15 lignes car 22-8)
+            // Lignes horaires : de 8H à 22H (libellés inclus)
             for (int hour = START_HOUR; hour <= END_HOUR; hour++)
                 TimeGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT_PX) });
 
@@ -116,21 +114,19 @@ namespace ProjetFinale.WPF.Pages
                 Owner = Window.GetWindow(this)
             };
 
-            if (dialog.ShowDialog() != true || dialog.CreatedEvent is not Agenda newEvent) return;
-
-            // Refus si conflit
-            if (AgendaService.VerifierConflitHoraire(newEvent, _events.ToList()))
+            if (dialog.ShowDialog() == true && dialog.CreatedEvent is Agenda newEvent)
             {
-                MessageBox.Show("Conflit horaire détecté !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                // Refus si conflit
+                if (AgendaService.VerifierConflitHoraire(newEvent, _events.ToList()))
+                {
+                    MessageBox.Show("Conflit horaire détecté !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Ajout + persistance (source de vérité = AgendaService -> Utilisateur)
+                AgendaService.AjouterEvenement(newEvent);
+                RefreshCalendar();
             }
-
-            // Ajout en mémoire + persistance
-            _events.Add(newEvent);
-            _utilisateur?.ListeAgenda?.Add(newEvent);
-            AgendaService.AjouterEvenement(newEvent);
-
-            RefreshCalendar(); // rafraîchit l’affichage et met à jour les stats
         }
 
         private void Event_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -150,12 +146,12 @@ namespace ProjetFinale.WPF.Pages
 
             if (dialog.IsDeleted)
             {
-                _events.Remove(evt);
-                _utilisateur?.ListeAgenda?.Remove(evt);
+                // Suppression centralisée (pas de manipulation directe de _events/ListeAgenda)
                 AgendaService.SupprimerEvenement(evt);
             }
             else
             {
+                // Modification centralisée
                 AgendaService.ModifierEvenement(evt);
             }
 
@@ -186,9 +182,10 @@ namespace ProjetFinale.WPF.Pages
         private IEnumerable<Agenda> GetWeekEvents()
         {
             var weekEnd = _currentWeekStart.AddDays(7);
-            return _events.Where(e => e.Date >= _currentWeekStart && e.Date < weekEnd)
-                          .OrderBy(e => e.Date)
-                          .ThenBy(e => e.HeureDebut);
+            return _events
+                .Where(e => e.Date >= _currentWeekStart && e.Date < weekEnd)
+                .OrderBy(e => e.Date)
+                .ThenBy(e => e.HeureDebut);
         }
 
         private void DisplayEvent(Agenda evt)
@@ -206,7 +203,7 @@ namespace ProjetFinale.WPF.Pages
             // Entièrement en dehors -> on n'affiche pas
             if (evt.HeureFin <= visibleStart || evt.HeureDebut >= visibleEnd) return;
 
-            // On "clampe" pour rester dans la fenêtre visible
+            // Clamp pour rester dans la fenêtre visible
             var start = evt.HeureDebut < visibleStart ? visibleStart : evt.HeureDebut;
             var end = evt.HeureFin > visibleEnd ? visibleEnd : evt.HeureFin;
 
@@ -214,17 +211,17 @@ namespace ProjetFinale.WPF.Pages
             int row = start.Hours - START_HOUR;
             if (row < 0 || row > (END_HOUR - START_HOUR)) return; // garde-fou
 
-            // Décalage vertical en px (1 min = 1 px, car 60 px = 60 min)
+            // Décalage vertical (1 px = 1 min, car 60 px = 60 min)
             int minuteOffset = start.Minutes;
 
-            // Hauteur en px (durée)
+            // Durée visible (en minutes)
             double durationMinutes = (end - start).TotalMinutes;
             if (durationMinutes <= 0) return;
 
-            // Nombre de lignes à "span" (pour couvrir la durée sur plusieurs heures si besoin)
+            // Nombre de lignes "spannées" (pour couvrir plusieurs heures à l'affichage)
             int rowSpan = Math.Max(1, (int)Math.Ceiling((minuteOffset + durationMinutes) / 60.0));
 
-            // Contenu visuel de l'event
+            // Contenu visuel
             var content = new StackPanel();
             content.Children.Add(new TextBlock
             {
@@ -259,9 +256,10 @@ namespace ProjetFinale.WPF.Pages
                 Height = durationMinutes,                       // 1 px = 1 min
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(2, minuteOffset, 2, 0),  // décalage dans la 1re case horaire
-                Tag = evt,                                      // IMPORTANT: utilisé pour le cleanup + click
-                Child = content
-            };
+                Tag = evt,                                      // pour cleanup + click
+                Child = content,
+                Background = (SolidColorBrush)(new BrushConverter().ConvertFromString(evt.Couleur ?? "#AF66FF"))
+        };
             border.MouseLeftButtonDown += Event_MouseLeftButtonDown;
 
             Grid.SetRow(border, row);
@@ -330,9 +328,9 @@ namespace ProjetFinale.WPF.Pages
         // ====================
         private void CreateEvent_Click(object sender, RoutedEventArgs e)
         {
-            // Slot par défaut = prochaine heure "ronde" (ou 9h si on dépasse 22h)
+            // Slot par défaut = prochaine heure "ronde" (ou START_HOUR si on dépasse la plage visible)
             int nextHour = DateTime.Now.Hour + 1;
-            if (nextHour > END_HOUR) nextHour = 9;
+            if (nextHour > END_HOUR) nextHour = START_HOUR;
             ShowCreateEventDialog(DateTime.Today, new TimeSpan(nextHour, 0, 0));
         }
 
@@ -428,3 +426,5 @@ namespace ProjetFinale.WPF.Pages
         }
     }
 }
+
+

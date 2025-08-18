@@ -15,75 +15,174 @@
                 <!-- Section Ajouter un exercice -->
                 <Border Style="{StaticResource ExercicesSectionContainerStyle}">
                     <StackPanel>
+
+                        <!-- Header -->
                         <StackPanel Style="{StaticResource ExercicesSectionHeaderStyle}">
                             <TextBlock Text="✚" Style="{StaticResource ExercicesSectionIconStyle}"/>
                             <TextBlock Text="AJOUTER UN NOUVEL EXERCICE" Style="{StaticResource ExercicesSectionTitleStyle}"/>
                         </StackPanel>
 
-                        <Grid>
+                        <!-- Formulaire -->
+                        <Grid Grid.IsSharedSizeScope="True">
+                            <!-- 2 colonnes égales + 24px d’écart -->
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
+
+                            <!-- 4 lignes de champs + 16px d’écart -->
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="15"/>
+                                <RowDefinition Height="16"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="15"/>
+                                <RowDefinition Height="16"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="15"/>
+                                <RowDefinition Height="16"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Nom -->
-                            <StackPanel Grid.Column="0" Grid.Row="0">
-                                <TextBlock Text="NOM DE L'EXERCICE" Style="{StaticResource ExercicesFormLabelStyle}"/>
-                                <TextBox Name="ExerciseNameBox" Style="{StaticResource ExercicesFormInputStyle}"/>
-                            </StackPanel>
+                            <Grid Grid.Column="0" Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="NOM DE L'EXERCICE" Style="{StaticResource ExercicesFormLabelStyle}" />
+                                <TextBox Name="ExerciseNameBox"
+                                         Grid.Row="1" Margin="0,6,0,0"
+                                         Style="{StaticResource ExercicesFormInputStyle}"
+                                         HorizontalAlignment="Stretch"/>
+                            </Grid>
 
                             <!-- Type -->
-                            <StackPanel Grid.Column="2" Grid.Row="0">
-                                <TextBlock Text="TYPE" Style="{StaticResource ExercicesFormLabelStyle}"/>
+                            <Grid Grid.Column="2" Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="TYPE" Style="{StaticResource ExercicesFormLabelStyle}" />
                                 <ComboBox Name="TypeComboBox"
+                                          Grid.Row="1" Margin="0,6,0,0"
                                           Style="{StaticResource ExercicesFormComboBoxStyle}"
+                                          HorizontalAlignment="Stretch"
                                           SelectionChanged="TypeComboBox_SelectionChanged">
                                     <ComboBoxItem Content="Répétitions" Tag="repetitions"/>
                                     <ComboBoxItem Content="Durée" Tag="duration"/>
                                 </ComboBox>
-                            </StackPanel>
+                            </Grid>
 
                             <!-- Répétitions -->
-                            <StackPanel Name="RepetitionsGroup" Grid.Column="0" Grid.Row="2" Visibility="Collapsed">
-                                <TextBlock Text="RÉPÉTITIONS" Style="{StaticResource ExercicesFormLabelStyle}"/>
-                                <TextBox Name="RepetitionsBox" Style="{StaticResource ExercicesFormInputStyle}"/>
-                            </StackPanel>
+                            <Grid Name="RepetitionsGroup" Grid.Column="0" Grid.Row="2" Visibility="Collapsed">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="RÉPÉTITIONS" Style="{StaticResource ExercicesFormLabelStyle}" />
+                                <TextBox Name="RepetitionsBox"
+                                         Grid.Row="1" Margin="0,6,0,0"
+                                         Style="{StaticResource ExercicesFormInputStyle}"
+                                         HorizontalAlignment="Stretch"/>
+                            </Grid>
 
                             <!-- Durée -->
-                            <StackPanel Name="DurationGroup" Grid.Column="2" Grid.Row="2" Visibility="Collapsed">
-                                <TextBlock Text="DURÉE" Style="{StaticResource ExercicesFormLabelStyle}"/>
-                                <TextBox Name="DurationBox" Style="{StaticResource ExercicesFormInputStyle}"/>
-                            </StackPanel>
+                            <Grid Name="DurationGroup" Grid.Column="2" Grid.Row="2" Visibility="Collapsed">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="DURÉE" Style="{StaticResource ExercicesFormLabelStyle}" />
+                                <TextBox Name="DurationBox"
+                                         Grid.Row="1" Margin="0,6,0,0"
+                                         Style="{StaticResource ExercicesFormInputStyle}"
+                                         HorizontalAlignment="Stretch"/>
+                            </Grid>
 
                             <!-- Calories -->
-                            <StackPanel Grid.Column="0" Grid.Row="4">
-                                <TextBlock Text="CALORIES BRÛLÉES" Style="{StaticResource ExercicesFormLabelStyle}"/>
-                                <TextBox Name="CaloriesBox" Style="{StaticResource ExercicesFormInputStyle}"/>
-                            </StackPanel>
+                            <Grid Grid.Column="0" Grid.Row="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="CALORIES BRÛLÉES" Style="{StaticResource ExercicesFormLabelStyle}" />
+                                <TextBox Name="CaloriesBox"
+                                         Grid.Row="1" Margin="0,6,0,0"
+                                         Style="{StaticResource ExercicesFormInputStyle}"
+                                         HorizontalAlignment="Stretch"/>
+                            </Grid>
 
-                            <!-- Description -->
-                            <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6">
-                                <TextBlock Text="DESCRIPTION" Style="{StaticResource ExercicesFormLabelStyle}"/>
-                                <TextBox Name="DescriptionBox" Style="{StaticResource ExercicesFormTextAreaStyle}"/>
+                            <!-- Description (sur 2 colonnes) -->
+                            <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="DESCRIPTION" Style="{StaticResource ExercicesFormLabelStyle}" />
+                                <TextBox Name="DescriptionBox"
+                                         Grid.Row="1" Margin="0,6,0,0"
+                                         Style="{StaticResource ExercicesFormTextAreaStyle}"
+                                         HorizontalAlignment="Stretch"/>
+                            </Grid>
+                        </Grid>
+
+                        <!-- Image (optionnel) -->
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="IMAGE (OPTIONNEL)"
+                                       Style="{StaticResource ExercicesFormLabelStyle}"
+                                       VerticalAlignment="Center"/>
+
+                            <StackPanel Grid.Column="2" Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button x:Name="BtnPickImage"
+                                            Grid.Column="0"
+                                            Content="AJOUTER UNE IMAGE"
+                                            Style="{StaticResource ExercicesGreenButtonStyle}"
+                                            Click="BtnPickImage_Click"/>
+                                    <TextBlock x:Name="TxtImageName"
+                                               Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               Text="Aucune image sélectionnée"
+                                               Style="{StaticResource ExercicesFormLabelStyle}"/>
+                                </Grid>
+
+                                <Image x:Name="PreviewImage"
+                                       Margin="0,8,0,0"
+                                       Height="150"
+                                       Stretch="UniformToFill"
+                                       Visibility="Collapsed"
+                                       SnapsToDevicePixels="True"/>
                             </StackPanel>
                         </Grid>
 
-                        <!-- Bouton d'ajout -->
-                        <Button Name="AddButton"
-                                Content="AJOUTER"
-                                Style="{StaticResource ExercicesGreenButtonStyle}"
-                                Click="AddButton_Click"/>
+                        <!-- Bouton d'ajout aligné à droite -->
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Name="AddButton"
+                                    Grid.Column="1"
+                                    Content="AJOUTER"
+                                    Style="{StaticResource ExercicesGreenButtonStyle}"
+                                    MinWidth="120"
+                                    HorizontalAlignment="Right"
+                                    Click="AddButton_Click"/>
+                        </Grid>
+
                     </StackPanel>
+                    <!-- ⚠️ cette fermeture manquait -->
                 </Border>
 
                 <!-- Section Liste des exercices -->
@@ -104,11 +203,8 @@
                                      TextChanged="SearchBox_TextChanged"/>
                         </Grid>
 
-                        <!-- Liste -->
-                        <StackPanel Name="ExercisesListPanel">
-                            <!-- Items dynamiques -->
-                        </StackPanel>
-
+                        <!-- Liste (items créés côté code) -->
+                        <StackPanel Name="ExercisesListPanel"/>
                         <!-- Aucun exercice -->
                         <TextBlock Name="NoExercisesMessage"
                                    Text="Aucun exercice créé pour le moment"

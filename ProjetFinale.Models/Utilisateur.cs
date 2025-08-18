@@ -21,7 +21,6 @@ namespace ProjetFinale.Models
         private DateTime _dateInscription;
         private DateTime _dateObjectif;
         private List<Activite> _listeActivites = new();
-        private List<Statistique> _listeStatistiques = new();
 
         // ✅ CORRIGÉ : ObservableCollection pour l'agenda ET les tâches
         private ObservableCollection<Agenda> _listeAgenda = new ObservableCollection<Agenda>();
@@ -132,11 +131,6 @@ namespace ProjetFinale.Models
             set { _listeActivites = value; OnPropertyChanged(); }
         }
 
-        public List<Statistique> ListeStatistiques
-        {
-            get => _listeStatistiques;
-            set { _listeStatistiques = value; OnPropertyChanged(); }
-        }
 
         // ✅ CORRIGÉ : ObservableCollection au lieu de List
         public ObservableCollection<Agenda> ListeAgenda

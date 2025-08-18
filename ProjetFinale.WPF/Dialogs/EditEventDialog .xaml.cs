@@ -14,143 +14,135 @@ namespace ProjetFinale.WPF.Pages
     public partial class EditEventDialog : Window
     {
         public bool IsDeleted { get; private set; }
-        private readonly Agenda _event;
-        private string _selectedColor;
-        private readonly List<Activite> _availableActivites;
 
-        public EditEventDialog(Agenda eventToEdit, List<Activite> activites = null)
+        private readonly Agenda _evt;
+        private readonly List<Activite> _activites;
+        private string _selectedColor;
+        private Button? _selectedColorBtn;
+
+        public EditEventDialog(Agenda eventToEdit, List<Activite>? activites = null)
         {
             InitializeComponent();
 
-            _event = eventToEdit;
-            _availableActivites = activites ?? new List<Activite>();
-            _selectedColor = _event.Couleur;
+            _evt = eventToEdit;
+            _activites = activites ?? new List<Activite>();
+            _selectedColor = _evt.Couleur;
 
-            LoadEventData();
-            SetupEventHandlers();
+            InitForm();
+            WireEvents();
         }
 
-        private void LoadEventData()
+        // ---- Init ----
+        private void InitForm()
         {
-            // Titre
-            TitreTextBox.Text = _event.Titre;
+            // Texte & date
+            TitreTextBox.Text = _evt.Titre;
+            DatePicker.SelectedDate = _evt.Date;
 
-            // Date
-            DatePicker.SelectedDate = _event.Date;
-
-            // Heures (sans durée)
-            HeureDebutTextBox.Text = _event.HeureDebut.ToString(@"hh\:mm");
-            HeureFinTextBox.Text = _event.HeureFin.ToString(@"hh\:mm");
-
-            // Couleur
-            SetSelectedColor(_event.Couleur);
+            // Heures
+            HeureDebutTextBox.Text = _evt.HeureDebut.ToString(@"hh\:mm");
+            HeureFinTextBox.Text = _evt.HeureFin.ToString(@"hh\:mm");
 
             // Description
-            DescriptionTextBox.Text = _event.Description ?? string.Empty;
+            DescriptionTextBox.Text = _evt.Description ?? string.Empty;
+
+            // Couleur (sélection visuelle)
+            SelectColorButton(_selectedColor);
 
             // Activités
-            LoadActivites();
-
-            // Focus
-            TitreTextBox.Focus();
-        }
-
-        private void LoadActivites()
-        {
             ActiviteComboBox.Items.Clear();
             ActiviteComboBox.Items.Add("Aucune activité");
+            foreach (var a in _activites) ActiviteComboBox.Items.Add(a);
 
-            foreach (var activite in _availableActivites)
-                ActiviteComboBox.Items.Add(activite);
-
-            // Sélectionner l'activité actuelle
-            if (_event.Activite != null)
+            if (_evt.Activite != null)
             {
-                var current = _availableActivites.FirstOrDefault(a => a.Titre == _event.Activite.Titre);
+                var current = _activites.FirstOrDefault(a => a.Titre == _evt.Activite.Titre);
                 ActiviteComboBox.SelectedItem = current ?? ActiviteComboBox.Items[0];
             }
             else
             {
                 ActiviteComboBox.SelectedIndex = 0;
             }
+
+            TitreTextBox.Focus();
         }
 
-        private void SetSelectedColor(string color)
+        private void WireEvents()
         {
-            foreach (Button colorBtn in ColorPanel.Children.OfType<Button>())
+            LierObjectifCheckBox.Checked += LierObjectif_Changed;
+            LierObjectifCheckBox.Unchecked += LierObjectif_Changed;
+        }
+
+        // ---- Objectifs ----
+        private void LierObjectif_Changed(object sender, RoutedEventArgs e)
+        {
+            bool visible = LierObjectifCheckBox.IsChecked == true;
+            ObjectifComboBox.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+
+            if (!visible)
             {
-                colorBtn.BorderBrush = Brushes.Transparent;
-                if ((colorBtn.Tag?.ToString() ?? "") == (color ?? ""))
-                    colorBtn.BorderBrush = Brushes.White;
+                ObjectifComboBox.SelectedIndex = -1;
+                return;
             }
-        }
-
-        private void SetupEventHandlers()
-        {
-            LierObjectifCheckBox.Checked += LierObjectifCheckBox_Checked;
-            LierObjectifCheckBox.Unchecked += LierObjectifCheckBox_Unchecked;
-        }
-
-        private void LierObjectifCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            ObjectifComboBox.Visibility = Visibility.Visible;
 
             ObjectifComboBox.Items.Clear();
             ObjectifComboBox.Items.Add("Aucun objectif");
 
-            var utilisateur = UserService.UtilisateurActif ?? JsonService.ChargerUtilisateur();
-            if (utilisateur != null) UserService.UtilisateurActif = utilisateur;
+            var user = UserService.UtilisateurActif ?? JsonService.ChargerUtilisateur();
+            if (user != null) UserService.UtilisateurActif = user;
 
-            if (utilisateur?.ListeTaches != null)
-            {
-                foreach (var tache in utilisateur.ListeTaches)
-                    ObjectifComboBox.Items.Add(tache);
-            }
+            if (user?.ListeTaches?.Count > 0)
+                foreach (var t in user.ListeTaches) ObjectifComboBox.Items.Add(t);
+            else
+                ObjectifComboBox.Items.Add("(Aucune tâche disponible)");
 
             ObjectifComboBox.SelectedIndex = 0;
         }
 
-        private void LierObjectifCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            ObjectifComboBox.Visibility = Visibility.Collapsed;
-            ObjectifComboBox.SelectedIndex = -1;
-        }
-
+        // ---- Couleurs ----
         private void ColorButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (Button colorBtn in ColorPanel.Children.OfType<Button>())
-                colorBtn.BorderBrush = Brushes.Transparent;
+            if (sender is not Button btn) return;
 
-            if (sender is Button b)
+            if (_selectedColorBtn != null) _selectedColorBtn.BorderBrush = Brushes.Transparent;
+            btn.BorderBrush = Brushes.White;
+            _selectedColorBtn = btn;
+
+            _selectedColor = btn.Tag?.ToString() ?? _selectedColor;
+        }
+
+        private void SelectColorButton(string colorHex)
+        {
+            foreach (var b in ColorPanel.Children.OfType<Button>())
             {
-                b.BorderBrush = Brushes.White;
-                _selectedColor = b.Tag?.ToString() ?? _selectedColor;
+                var isMatch = (b.Tag?.ToString() ?? "") == (colorHex ?? "");
+                b.BorderBrush = isMatch ? Brushes.White : Brushes.Transparent;
+                if (isMatch) _selectedColorBtn = b;
             }
         }
 
+        // ---- Actions ----
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (!ValidateForm()) return;
-
-            UpdateEventFromForm();
+            ApplyFormToEvent();
             DialogResult = true;
             Close();
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                $"Êtes-vous sûr de vouloir supprimer l'événement '{_event.Titre}' ?",
+            var confirm = MessageBox.Show(
+                $"Êtes-vous sûr de vouloir supprimer l'événement '{_evt.Titre}' ?",
                 "Confirmer la suppression",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
-            if (result == MessageBoxResult.Yes)
-            {
-                IsDeleted = true;
-                DialogResult = true;
-                Close();
-            }
+            if (confirm != MessageBoxResult.Yes) return;
+
+            IsDeleted = true;
+            DialogResult = true;
+            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -159,9 +151,9 @@ namespace ProjetFinale.WPF.Pages
             Close();
         }
 
+        // ---- Validation ----
         private bool ValidateForm()
         {
-            // Titre
             if (string.IsNullOrWhiteSpace(TitreTextBox.Text))
             {
                 MessageBox.Show("Le titre est obligatoire !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -169,34 +161,28 @@ namespace ProjetFinale.WPF.Pages
                 return false;
             }
 
-            // Date
             if (!DatePicker.SelectedDate.HasValue)
             {
                 MessageBox.Show("La date est obligatoire !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
-            // Heures (sans durée)
             if (!TryParseTime(HeureDebutTextBox.Text, out var start))
             {
                 MessageBox.Show("Heure de début invalide (utilisez HH:MM).", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
-            // Si fin vide → +1h
             TimeSpan end;
             if (string.IsNullOrWhiteSpace(HeureFinTextBox.Text))
             {
                 end = start.Add(TimeSpan.FromHours(1));
                 HeureFinTextBox.Text = end.ToString(@"hh\:mm");
             }
-            else
+            else if (!TryParseTime(HeureFinTextBox.Text, out end))
             {
-                if (!TryParseTime(HeureFinTextBox.Text, out end))
-                {
-                    MessageBox.Show("Heure de fin invalide (utilisez HH:MM).", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return false;
-                }
+                MessageBox.Show("Heure de fin invalide (utilisez HH:MM).", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
             }
 
             if (end <= start)
@@ -208,38 +194,30 @@ namespace ProjetFinale.WPF.Pages
             return true;
         }
 
-        private void UpdateEventFromForm()
+        // ---- Apply ----
+        private void ApplyFormToEvent()
         {
-            // Parse sûrs (ValidateForm a déjà checké)
             TryParseTime(HeureDebutTextBox.Text, out var startTime);
             TryParseTime(HeureFinTextBox.Text, out var endTime);
 
-            // Activité
-            var selectedActivite = ActiviteComboBox.SelectedItem as Activite;
-
-            // Mise à jour
-            _event.Titre = TitreTextBox.Text.Trim();
-            _event.Date = DatePicker.SelectedDate!.Value;
-            _event.HeureDebut = startTime;
-            _event.HeureFin = endTime;
-            _event.Couleur = _selectedColor;
-            _event.Description = DescriptionTextBox.Text.Trim();
-            _event.Activite = selectedActivite;
+            _evt.Titre = TitreTextBox.Text.Trim();
+            _evt.Date = DatePicker.SelectedDate!.Value;
+            _evt.HeureDebut = startTime;
+            _evt.HeureFin = endTime;
+            _evt.Couleur = _selectedColor;
+            _evt.Description = DescriptionTextBox.Text.Trim();
+            _evt.Activite = ActiviteComboBox.SelectedItem as Activite;
         }
 
         /// <summary>
-        /// Tolère "8", "8h", "8:00", "08:00", "8.30" → TimeSpan.
+        /// Tolère "8", "8h", "8:00", "08:00", "8.30".
         /// </summary>
         private static bool TryParseTime(string input, out TimeSpan result)
         {
             result = default;
             if (string.IsNullOrWhiteSpace(input)) return false;
 
-            var t = input.Trim()
-                         .ToLowerInvariant()
-                         .Replace("h", ":")
-                         .Replace(".", ":");
-
+            var t = input.Trim().ToLowerInvariant().Replace("h", ":").Replace(".", ":");
             if (!t.Contains(":")) t += ":00";
 
             return TimeSpan.TryParseExact(

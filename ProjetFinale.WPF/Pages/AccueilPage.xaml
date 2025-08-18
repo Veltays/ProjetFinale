@@ -183,9 +183,14 @@
                         <StackPanel Style="{StaticResource AccueilObjectifsFieldStyle}">
                             <TextBlock Text="DATE OBJECTIF :" Style="{StaticResource AccueilObjectifsLabelStyle}"/>
                             <Border Style="{StaticResource AccueilObjectifsDateBorderStyle}">
-                                <DatePicker x:Name="DateObjectifPicker"
-                                            SelectedDate="{Binding DateObjectif, UpdateSourceTrigger=PropertyChanged}"
-                                            />
+                                        <DatePicker x:Name="DateObjectifPicker"
+                        Style="{StaticResource AccueilDatePickerStyle}"
+                        SelectedDate="{Binding DateObjectif, UpdateSourceTrigger=PropertyChanged}">
+                                            <DatePicker.Resources>
+                                                <Style TargetType="{x:Type DatePickerTextBox}"
+                           BasedOn="{StaticResource AccueilDatePickerTextBoxStyle}" />
+                                            </DatePicker.Resources>
+                                        </DatePicker>
                             </Border>
                         </StackPanel>
 

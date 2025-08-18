@@ -7,33 +7,30 @@ namespace ProjetFinale.WPF.Converters
 {
     public class HeightConverter : IValueConverter
     {
-        private const double CmPerInch = 2.54;          // 1 in = 2.54 cm
-        private const double InchPerCm = 1.0 / 2.54;    // 1 cm = 0.3937 in
+        private const double CM_PER_INCH = 2.54;
+        private const double INCH_PER_CM = 1.0 / CM_PER_INCH;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return "";
-            double cm;
-            try { cm = System.Convert.ToDouble(value, CultureInfo.InvariantCulture); }
-            catch { return ""; }
+            if (value is not double cm) return value;
 
-            return SettingsContext.Instance.HeightUnit == HeightUnit.INCH
-                ? (cm * InchPerCm).ToString("0.##", CultureInfo.InvariantCulture)
-                : cm.ToString("0.##", CultureInfo.InvariantCulture); // CM
+            bool useInch = SettingsContext.Instance.HeightUnit == HeightUnit.INCH;
+            double display = useInch ? cm * INCH_PER_CM : cm;
+            int decimals = useInch ? 2 : 1;
+
+            return Math.Round(display, decimals).ToString(culture);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var s = value?.ToString();
-            if (string.IsNullOrWhiteSpace(s)) return 0d;
+            if (string.IsNullOrWhiteSpace(s)) return Binding.DoNothing;
 
-            double entered;
-            try { entered = System.Convert.ToDouble(s, CultureInfo.InvariantCulture); }
-            catch { return 0d; }
+            if (!double.TryParse(s, NumberStyles.Any, culture, out var input))
+                return Binding.DoNothing;
 
-            return SettingsContext.Instance.HeightUnit == HeightUnit.INCH
-                ? entered * CmPerInch        // inches -> cm (stockage)
-                : entered;                    // déjà en cm
+            bool useInch = SettingsContext.Instance.HeightUnit == HeightUnit.INCH;
+            return useInch ? input * CM_PER_INCH : input; // toujours stocké en cm
         }
     }
 }

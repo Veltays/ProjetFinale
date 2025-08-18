@@ -13,308 +13,204 @@ namespace ProjetFinale.WPF
 {
     public partial class ImportPage : Page
     {
+        // Limites (octets)
+        private const long MAX_JSON_BYTES = 2L * 1024 * 1024;
+        private const long MAX_CSV_BYTES = 5L * 1024 * 1024;
+        private const long MAX_XLS_BYTES = 10L * 1024 * 1024;
+
+        // Couleurs UI (garde le même rendu)
+        private static readonly SolidColorBrush AccentBrush = new(Color.FromArgb(255, 175, 102, 255));
+        private static readonly SolidColorBrush MutedTextBrush = new(Color.FromArgb(255, 204, 204, 204));
+
         public ImportPage()
         {
             InitializeComponent();
         }
 
+        // === Handlers boutons ===
         private void ImportCSV_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                Title = "Sélectionner un fichier CSV",
-                Filter = "Fichiers CSV (*.csv)|*.csv|Tous les fichiers (*.*)|*.*",
-                DefaultExt = "csv"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    // Vérifier la taille du fichier (5 MB max)
-                    var fileInfo = new FileInfo(openFileDialog.FileName);
-                    if (fileInfo.Length > 5 * 1024 * 1024)
-                    {
-                        MessageBox.Show("Le fichier est trop volumineux. Taille maximum : 5 MB",
-                                       "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-                    // Traitement de l'import CSV
-                    ProcessImport("CSV", openFileDialog.FileName, fileInfo.Length);
-
-                    MessageBox.Show($"Import CSV réussi !\nFichier : {Path.GetFileName(openFileDialog.FileName)}\nTaille : {FormatFileSize(fileInfo.Length)}",
-                                   "Import terminé", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Erreur lors de l'import CSV :\n{ex.Message}",
-                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
+            => OpenAndProcess("Sélectionner un fichier CSV", "Fichiers CSV (*.csv)|*.csv|Tous les fichiers (*.*)|*.*", "csv", "CSV", MAX_CSV_BYTES);
 
         private void ImportJSON_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                Title = "Sélectionner un fichier JSON",
-                Filter = "Fichiers JSON (*.json)|*.json|Tous les fichiers (*.*)|*.*",
-                DefaultExt = "json"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    // Vérifier la taille du fichier (2 MB max)
-                    var fileInfo = new FileInfo(openFileDialog.FileName);
-                    if (fileInfo.Length > 2 * 1024 * 1024)
-                    {
-                        MessageBox.Show("Le fichier est trop volumineux. Taille maximum : 2 MB",
-                                       "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-                    // Traitement de l'import JSON
-                    ProcessImport("JSON", openFileDialog.FileName, fileInfo.Length);
-
-                    MessageBox.Show($"Import JSON réussi !\nFichier : {Path.GetFileName(openFileDialog.FileName)}\nTaille : {FormatFileSize(fileInfo.Length)}",
-                                   "Import terminé", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Erreur lors de l'import JSON :\n{ex.Message}",
-                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
+            => OpenAndProcess("Sélectionner un fichier JSON", "Fichiers JSON (*.json)|*.json|Tous les fichiers (*.*)|*.*", "json", "JSON", MAX_JSON_BYTES);
 
         private void ImportExcel_Click(object sender, RoutedEventArgs e)
+            => OpenAndProcess("Sélectionner un fichier Excel", "Fichiers Excel (*.xlsx;*.xls)|*.xlsx;*.xls|Tous les fichiers (*.*)|*.*", "xlsx", "EXCEL", MAX_XLS_BYTES);
+
+        // === Orchestration commune ===
+        private void OpenAndProcess(string title, string filter, string defaultExt, string format, long maxBytes)
         {
-            var openFileDialog = new OpenFileDialog
+            var dlg = new OpenFileDialog { Title = title, Filter = filter, DefaultExt = defaultExt };
+            if (dlg.ShowDialog() != true) return;
+
+            var file = new FileInfo(dlg.FileName);
+            if (file.Length > maxBytes)
             {
-                Title = "Sélectionner un fichier Excel",
-                Filter = "Fichiers Excel (*.xlsx;*.xls)|*.xlsx;*.xls|Tous les fichiers (*.*)|*.*",
-                DefaultExt = "xlsx"
-            };
+                MessageBox.Show(
+                    $"Le fichier est trop volumineux.\nTaille max : {FormatFileSize(maxBytes)}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            if (openFileDialog.ShowDialog() == true)
+            try
             {
-                try
-                {
-                    // Vérifier la taille du fichier (10 MB max)
-                    var fileInfo = new FileInfo(openFileDialog.FileName);
-                    if (fileInfo.Length > 10 * 1024 * 1024)
-                    {
-                        MessageBox.Show("Le fichier est trop volumineux. Taille maximum : 10 MB",
-                                       "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-                    // Traitement de l'import Excel
-                    ProcessImport("EXCEL", openFileDialog.FileName, fileInfo.Length);
-
-                    MessageBox.Show($"Import Excel réussi !\nFichier : {Path.GetFileName(openFileDialog.FileName)}\nTaille : {FormatFileSize(fileInfo.Length)}",
-                                   "Import terminé", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Erreur lors de l'import Excel :\n{ex.Message}",
-                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                ProcessImport(format, file.FullName, file.Length);
+                MessageBox.Show(
+                    $"Import {format} réussi !\nFichier : {file.Name}\nTaille : {FormatFileSize(file.Length)}",
+                    "Import terminé", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'import {format} :\n{ex.Message}",
+                    "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void ProcessImport(string format, string filePath, long fileSize)
         {
-            try
-            {
-                // Ajouter à l'historique
-                AddToHistory(format, Path.GetFileName(filePath), fileSize, DateTime.Now);
+            AddToHistory(format, Path.GetFileName(filePath), fileSize, DateTime.Now);
 
-                // Logique spécifique par format
-                switch (format)
-                {
-                    case "JSON":
-                        ImportJsonFile(filePath);
-                        break;
-                    case "CSV":
-                        // TODO: Implémenter l'import CSV
-                        MessageBox.Show("Import CSV pas encore implémenté", "Info",
-                                      MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
-                    case "EXCEL":
-                        // TODO: Implémenter l'import Excel
-                        MessageBox.Show("Import Excel pas encore implémenté", "Info",
-                                      MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
-                }
-            }
-            catch (Exception ex)
+            switch (format)
             {
-                MessageBox.Show($"Erreur lors de l'import {format} :\n{ex.Message}",
-                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                case "JSON":
+                    ImportJsonFile(filePath);
+                    break;
+
+                case "CSV":
+                    MessageBox.Show("Import CSV pas encore implémenté", "Info",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+
+                case "EXCEL":
+                    MessageBox.Show("Import Excel pas encore implémenté", "Info",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
             }
         }
 
+        // === JSON ===
         private void ImportJsonFile(string filePath)
         {
-            try
-            {
-                Console.WriteLine($"🔄 Début import JSON : {filePath}");
+            Console.WriteLine($"🔄 Début import JSON : {filePath}");
 
-                // Lire le fichier JSON
-                var json = File.ReadAllText(filePath);
-                var utilisateurImporte = JsonSerializer.Deserialize<Utilisateur>(json);
+            var json = File.ReadAllText(filePath);
+            var utilisateur = JsonSerializer.Deserialize<Utilisateur>(json)
+                ?? throw new Exception("Impossible de désérialiser le fichier JSON");
 
-                if (utilisateurImporte != null)
-                {
-                    Console.WriteLine($"✅ Utilisateur désérialisé : {utilisateurImporte.Pseudo}, Age: {utilisateurImporte.Age}");
+            Console.WriteLine($"✅ Utilisateur désérialisé : {utilisateur.Pseudo}, Age: {utilisateur.Age}");
 
-                    // ⚠️ ÉCRASEMENT COMPLET des données Account
-                    JsonService.SauvegarderUtilisateur(utilisateurImporte);
-                    Console.WriteLine("💾 Utilisateur sauvegardé dans le fichier JSON");
+            // Remplace les données locales
+            JsonService.SauvegarderUtilisateur(utilisateur);
+            UserService.UtilisateurActif = utilisateur;
 
-                    // Mettre à jour l'utilisateur actif
-                    UserService.UtilisateurActif = utilisateurImporte;
-                    Console.WriteLine("🔄 UtilisateurActif mis à jour");
+            Console.WriteLine("💾 Utilisateur sauvegardé + UtilisateurActif mis à jour");
 
-                    // 🔥 NOUVEAU : Rafraîchir automatiquement la page Account
-                    RafraichirPageAccount();
+            RefreshAccueilPage();
 
-                    // Message de succès avec détails
-                    MessageBox.Show($"✅ Données utilisateur importées et remplacées !\n\n" +
-                                   $"👤 Utilisateur : {utilisateurImporte.Pseudo}\n" +
-                                   $"📅 Âge : {utilisateurImporte.Age} ans\n" +
-                                   $"⚖️ Poids : {utilisateurImporte.Poids} kg\n" +
-                                   $"📏 Taille : {utilisateurImporte.Taille} cm\n\n" +
-                                   $"➡️ Allez sur la page Account pour voir les changements !",
-                                   "Import réussi", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    throw new Exception("Impossible de désérialiser le fichier JSON");
-                }
-            }
-            catch (JsonException jsonEx)
-            {
-                throw new Exception($"Format JSON invalide : {jsonEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erreur lors de l'import : {ex.Message}");
-            }
+            MessageBox.Show(
+                $"✅ Données utilisateur importées et remplacées !\n\n" +
+                $"👤 Utilisateur : {utilisateur.Pseudo}\n" +
+                $"📅 Âge : {utilisateur.Age} ans\n" +
+                $"⚖️ Poids : {utilisateur.Poids} kg\n" +
+                $"📏 Taille : {utilisateur.Taille} cm\n\n" +
+                $"➡️ Allez sur la page Account pour voir les changements !",
+                "Import réussi", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        // 🚀 NOUVELLE MÉTHODE : Rafraîchir la page Account
-        private void RafraichirPageAccount()
+        // Navigue pour forcer un rafraîchissement visuel
+        private void RefreshAccueilPage()
         {
             try
             {
-                var mainWindow = Application.Current.MainWindow as Views.MainWindow;
-                if (mainWindow != null)
+                if (Application.Current.MainWindow is Views.MainWindow main)
                 {
-                    // Naviguer vers la page Account pour forcer le rafraîchissement
-                    mainWindow.NavigateToAccueil();
-                    Console.WriteLine("🔄 Page Account rafraîchie automatiquement");
+                    main.NavigateToAccueil();
+                    Console.WriteLine("🔄 Page Account/Accueil rafraîchie");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"⚠️ Erreur lors du rafraîchissement : {ex.Message}");
-                // L'erreur n'est pas critique, on continue
             }
         }
 
-        private void AddToHistory(string format, string fileName, long fileSize, DateTime importDate)
+        // === Historique UI ===
+        private void AddToHistory(string format, string fileName, long fileSize, DateTime importedAt)
         {
-            // Créer un nouvel élément d'historique
-            var historyItem = new Border
+            var item = new Border
             {
                 Background = Brushes.Transparent,
-                BorderBrush = new SolidColorBrush(Color.FromArgb(255, 175, 102, 255)),
+                BorderBrush = AccentBrush,
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
                 Margin = new Thickness(0, 5, 0, 5),
-                //Padding = new Thickness(15, 10)
             };
 
-            var stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
 
-            // Icône format
-            var formatIcon = new TextBlock
+            var icon = new TextBlock
             {
                 Text = GetFormatIcon(format),
                 FontSize = 16,
-                Foreground = new SolidColorBrush(Color.FromArgb(255, 175, 102, 255)),
+                Foreground = AccentBrush,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 15, 0)
             };
 
-            // Info fichier
-            var fileInfo = new StackPanel();
-            var fileNameText = new TextBlock
+            var info = new StackPanel();
+            info.Children.Add(new TextBlock
             {
                 Text = fileName,
                 Foreground = Brushes.White,
                 FontWeight = FontWeights.Bold,
                 FontSize = 14
-            };
-            var detailsText = new TextBlock
+            });
+            info.Children.Add(new TextBlock
             {
-                Text = $"{format} • {FormatFileSize(fileSize)} • {importDate:dd/MM/yyyy HH:mm}",
-                Foreground = new SolidColorBrush(Color.FromArgb(255, 204, 204, 204)),
+                Text = $"{format} • {FormatFileSize(fileSize)} • {importedAt:dd/MM/yyyy HH:mm}",
+                Foreground = MutedTextBrush,
                 FontSize = 12
-            };
+            });
 
-            fileInfo.Children.Add(fileNameText);
-            fileInfo.Children.Add(detailsText);
+            row.Children.Add(icon);
+            row.Children.Add(info);
+            item.Child = row;
 
-            stackPanel.Children.Add(formatIcon);
-            stackPanel.Children.Add(fileInfo);
-            historyItem.Child = stackPanel;
-
-            // Ajouter au début de l'historique
+            // Ajoute en haut, garde 5 éléments max
             if (HistoryGrid.Children.Count == 1 && HistoryGrid.Children[0] is TextBlock)
             {
-                // Remplacer le message "Aucun import"
                 HistoryGrid.Children.Clear();
-                var historyStack = new StackPanel();
-                historyStack.Children.Add(historyItem);
-                HistoryGrid.Children.Add(historyStack);
+                var stack = new StackPanel();
+                stack.Children.Add(item);
+                HistoryGrid.Children.Add(stack);
+                return;
             }
-            else if (HistoryGrid.Children[0] is StackPanel existingStack)
-            {
-                existingStack.Children.Insert(0, historyItem);
 
-                // Garder seulement les 5 derniers imports
-                if (existingStack.Children.Count > 5)
-                {
-                    existingStack.Children.RemoveAt(existingStack.Children.Count - 1);
-                }
+            if (HistoryGrid.Children.Count > 0 && HistoryGrid.Children[0] is StackPanel s)
+            {
+                s.Children.Insert(0, item);
+                if (s.Children.Count > 5) s.Children.RemoveAt(s.Children.Count - 1);
             }
         }
 
-        private string GetFormatIcon(string format)
+        // === Utils ===
+        private static string GetFormatIcon(string format) => format switch
         {
-            return format switch
-            {
-                "CSV" => "📊",
-                "JSON" => "📄",
-                "EXCEL" => "📈",
-                _ => "📁"
-            };
-        }
+            "CSV" => "📊",
+            "JSON" => "📄",
+            "EXCEL" => "📈",
+            _ => "📁"
+        };
 
-        private string FormatFileSize(long bytes)
+        private static string FormatFileSize(long bytes)
         {
-            if (bytes < 1024)
-                return $"{bytes} B";
-            else if (bytes < 1024 * 1024)
-                return $"{bytes / 1024:F1} KB";
-            else
-                return $"{bytes / (1024 * 1024):F1} MB";
+            if (bytes < 1024) return $"{bytes} B";
+
+            double kb = bytes / 1024d;
+            if (kb < 1024) return $"{kb:F1} KB";
+
+            double mb = kb / 1024d;
+            return $"{mb:F1} MB";
         }
     }
 }

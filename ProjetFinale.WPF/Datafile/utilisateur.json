@@ -3,123 +3,112 @@
   "Nom": "Gran",
   "Prenom": "Yassine",
   "Email": "granyassine774@gmail.com",
-  "Age": 21,
+  "Age": 22,
   "MDPHash": "Yassine77!",
   "Poids": 70,
   "Taille": 190,
-  "ObjectifPoids": 800,
+  "ObjectifPoids": 90,
   "DateInscription": "2025-08-10T21:40:05.5275712+02:00",
   "DateObjectif": "2025-12-20T00:00:00",
   "ListeActivites": [
     {
-      "Titre": "D\u00E9velopp\u00E9 couch\u00E9",
-      "Duree": "00:45:00",
-      "CaloriesBrulees": 180,
-      "ImagePath": "/Images/developpe_couche.png",
-      "Id": 0,
-      "Date": "0001-01-01T00:00:00"
-    },
-    {
-      "Titre": "Course \u00E0 pied",
-      "Duree": "00:30:00",
-      "CaloriesBrulees": 300,
-      "ImagePath": "/Images/course.png",
-      "Id": 0,
-      "Date": "0001-01-01T00:00:00"
-    },
-    {
-      "Titre": "Squats",
-      "Duree": "00:20:00",
-      "CaloriesBrulees": 120,
-      "ImagePath": "/Images/squats.png",
-      "Id": 0,
-      "Date": "0001-01-01T00:00:00"
-    },
-    {
-      "Titre": "gbfvdcsxq",
+      "Titre": "Muscle",
       "Duree": "00:15:00",
-      "CaloriesBrulees": 0,
-      "ImagePath": "/Images/default_exercise.png",
+      "CaloriesBrulees": 120,
+      "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\80ce39cafcf24a299cf6470a6e788d32.png",
+      "Id": 0,
+      "Date": "0001-01-01T00:00:00"
+    },
+    {
+      "Titre": "Caca",
+      "Duree": "02:00:00",
+      "CaloriesBrulees": 5181,
+      "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\dd41bcb3e13c456dbdb95aae014b0068.png",
       "Id": 0,
       "Date": "0001-01-01T00:00:00"
     }
   ],
-  "ListeStatistiques": [],
   "ListeAgenda": [
     {
-      "Titre": "lokiju,nhbg",
-      "HeureDebut": "12.00:00:00",
-      "HeureFin": "13.00:00:00",
-      "Date": "2025-08-10T00:00:00",
+      "Titre": "YAss",
+      "HeureDebut": "17:00:00",
+      "HeureFin": "20:00:00",
+      "Date": "2025-08-18T00:00:00+02:00",
       "Activite": {
-        "Titre": "Squats",
-        "Duree": "00:20:00",
-        "CaloriesBrulees": 120,
-        "ImagePath": "/Images/squats.png",
+        "Titre": "D\u00E9velopp\u00E9 couch\u00E9",
+        "Duree": "00:45:00",
+        "CaloriesBrulees": 180,
+        "ImagePath": "/Images/developpe_couche.png",
         "Id": 0,
         "Date": "0001-01-01T00:00:00"
       },
-      "Couleur": "#6366F1",
-      "Description": "mlkj,nhbgv",
-      "Duree": "1.00:00:00",
-      "DureeFormatee": "24,0h",
-      "HeureFormatee": "00:00 - 00:00"
-    },
-    {
-      "Titre": "pmlokiujyhtg",
-      "HeureDebut": "17.00:00:00",
-      "HeureFin": "18.00:00:00",
-      "Date": "2025-08-10T00:00:00",
-      "Activite": {
-        "Titre": "Course \u00E0 pied",
-        "Duree": "00:30:00",
-        "CaloriesBrulees": 300,
-        "ImagePath": "/Images/course.png",
-        "Id": 0,
-        "Date": "0001-01-01T00:00:00"
-      },
-      "Couleur": "#8B5CF6",
-      "Description": "",
-      "Duree": "1.00:00:00",
-      "DureeFormatee": "24,0h",
-      "HeureFormatee": "00:00 - 00:00"
-    },
-    {
-      "Titre": "v cxw",
-      "HeureDebut": "21:00:00",
-      "HeureFin": "1.00:00:00",
-      "Date": "2025-08-13T00:00:00",
-      "Activite": {
-        "Titre": "Course \u00E0 pied",
-        "Duree": "00:30:00",
-        "CaloriesBrulees": 300,
-        "ImagePath": "/Images/course.png",
-        "Id": 0,
-        "Date": "0001-01-01T00:00:00"
-      },
-      "Couleur": "#8B5CF6",
-      "Description": "m!:l;,",
+      "Couleur": "#22C55E",
+      "Description": "llll",
       "Duree": "03:00:00",
       "DureeFormatee": "3,0h",
-      "HeureFormatee": "21:00 - 00:00"
+      "HeureFormatee": "17:00 - 20:00"
+    },
+    {
+      "Titre": "C#",
+      "HeureDebut": "13:00:00",
+      "HeureFin": "22:00:00",
+      "Date": "2025-08-20T00:00:00",
+      "Activite": {
+        "Titre": "Muscle",
+        "Duree": "00:15:00",
+        "CaloriesBrulees": 120,
+        "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\80ce39cafcf24a299cf6470a6e788d32.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      },
+      "Couleur": "#EF4444",
+      "Description": "",
+      "Duree": "09:00:00",
+      "DureeFormatee": "9,0h",
+      "HeureFormatee": "13:00 - 22:00"
+    },
+    {
+      "Titre": "Pipi",
+      "HeureDebut": "12:00:00",
+      "HeureFin": "14:00:00",
+      "Date": "2025-08-23T00:00:00",
+      "Activite": {
+        "Titre": "Muscle",
+        "Duree": "00:15:00",
+        "CaloriesBrulees": 120,
+        "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\80ce39cafcf24a299cf6470a6e788d32.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      },
+      "Couleur": "#22C55E",
+      "Description": "Faire Caca",
+      "Duree": "02:00:00",
+      "DureeFormatee": "2,0h",
+      "HeureFormatee": "12:00 - 14:00"
     }
   ],
   "ListeTaches": [
     {
-      "Description": "yhrtgrfdes",
+      "Description": "Faire Caca",
       "EstTerminee": false,
       "Id": 0,
-      "Date": "2025-08-13T18:21:31.254244+02:00"
+      "Date": "2025-08-18T20:57:04.8556696+02:00"
+    },
+    {
+      "Description": "Faire Pipi",
+      "EstTerminee": true,
+      "Id": 0,
+      "Date": "2025-08-18T21:21:42.3193664+02:00"
     }
   ],
   "IMC": 19.4,
-  "AgeFormate": "21 ANS",
+  "AgeFormate": "22 ANS",
   "PoidsFormate": "70 KG",
   "TailleFormatee": "190 CM",
   "IMCFormate": "19,4",
-  "ObjectifPoidsFormate": "800 KG",
+  "ObjectifPoidsFormate": "90 KG",
   "DateObjectifFormatee": "2025",
-  "IMCObjectifFormate": "221,6 IMC",
+  "IMCObjectifFormate": "24,9 IMC",
   "AnneesRestantesFormate": "0 ANS",
   "MotDePasse": "Yassine77!"
 }

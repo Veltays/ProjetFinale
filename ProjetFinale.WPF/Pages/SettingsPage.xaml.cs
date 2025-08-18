@@ -1,110 +1,114 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using ProjetFinale.Utils;
 
 namespace ProjetFinale.WPF
 {
     public partial class SettingsPage : Page
     {
-        private SettingsManager settingsManager;
+        private readonly SettingsManager _settings;
 
         public SettingsPage()
         {
             InitializeComponent();
-            settingsManager = new SettingsManager();
+            _settings = new SettingsManager();
 
-            ChargerParametres();
-            ConfigurerEvenements();
+            AppliquerParametresAuxUI();
+            BrancherEvenements();
         }
 
-        private void ChargerParametres()
+        // ---- INIT ----
+        private void AppliquerParametresAuxUI()
         {
-            var settings = settingsManager.GetCurrentSettings();
+            var s = _settings.GetCurrentSettings();
 
-            SettingsContext.Instance.WeightUnit = settings.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
-            SettingsContext.Instance.HeightUnit = settings.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
+            // Contexte global (unités)
+            SettingsContext.Instance.WeightUnit = s.FormatPoids == "LBS" ? WeightUnit.LBS : WeightUnit.KG;
+            SettingsContext.Instance.HeightUnit = s.FormatTaille == "INCH" ? HeightUnit.INCH : HeightUnit.CM;
 
-            FormatPoidsComboBox.SelectedIndex = settings.FormatPoids == "LBS" ? 1 : 0;
-            FormatTailleComboBox.SelectedIndex = settings.FormatTaille == "INCH" ? 1 : 0;
-            SaveFrequencyComboBox.SelectedIndex = ObtenirIndexFrequence(settings.FrequenceSauvegarde);
+            // UI
+            FormatPoidsComboBox.SelectedIndex = (s.FormatPoids == "LBS") ? 1 : 0;
+            FormatTailleComboBox.SelectedIndex = (s.FormatTaille == "INCH") ? 1 : 0;
+            SaveFrequencyComboBox.SelectedIndex = IndexFrequence(s.FrequenceSauvegarde);
 
-            DarkModeToggle.IsChecked = settings.ModeSombre;
-            AutoSaveToggle.IsChecked = settings.SauvegardeAuto;
+            DarkModeToggle.IsChecked = s.ModeSombre;
+            AutoSaveToggle.IsChecked = s.SauvegardeAuto;
         }
 
-        private void ConfigurerEvenements()
+        private void BrancherEvenements()
         {
-            FormatPoidsComboBox.SelectionChanged += FormatPoids_Change;
-            FormatTailleComboBox.SelectionChanged += FormatTaille_Change;
-            SaveFrequencyComboBox.SelectionChanged += FrequenceSauvegarde_Change;
+            // Une seule méthode pour les 3 ComboBox
+            FormatPoidsComboBox.SelectionChanged += Combo_SelectionChanged;
+            FormatTailleComboBox.SelectionChanged += Combo_SelectionChanged;
+            SaveFrequencyComboBox.SelectionChanged += Combo_SelectionChanged;
 
-            DarkModeToggle.Checked += ModeSombre_Change;
-            DarkModeToggle.Unchecked += ModeSombre_Change;
-            AutoSaveToggle.Checked += SauvegardeAuto_Change;
-            AutoSaveToggle.Unchecked += SauvegardeAuto_Change;
-
-
+            // Une seule méthode pour les 2 toggles
+            DarkModeToggle.Checked += Toggle_Changed;
+            DarkModeToggle.Unchecked += Toggle_Changed;
+            AutoSaveToggle.Checked += Toggle_Changed;
+            AutoSaveToggle.Unchecked += Toggle_Changed;
         }
 
-        private void FormatTaille_Change(object sender, SelectionChangedEventArgs e)
+        // ---- HANDLERS ----
+        private void Combo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var item = SaveAsString(FormatTailleComboBox.SelectedItem);
-            if (string.IsNullOrEmpty(item)) return;
+            if (sender == null || e.AddedItems.Count == 0) return;
+            var value = ContentAsString(e.AddedItems[0]);
+            if (string.IsNullOrWhiteSpace(value)) return;
 
-            settingsManager.UpdateFormatTaille(item);
-            SettingsContext.Instance.HeightUnit = (item == "INCH") ? HeightUnit.INCH : HeightUnit.CM;
-            AfficherMessage($"Format taille changé: {item}");
-        }
-
-        private void FormatPoids_Change(object sender, SelectionChangedEventArgs e)
-        {
-            var format = SaveAsString(FormatPoidsComboBox.SelectedItem);
-            if (string.IsNullOrEmpty(format)) return;
-
-            settingsManager.UpdateFormatPoids(format);
-            SettingsContext.Instance.WeightUnit = (format == "LBS") ? WeightUnit.LBS : WeightUnit.KG;
-        }
-
-        private void FrequenceSauvegarde_Change(object sender, SelectionChangedEventArgs e)
-        {
-            var frequence = SaveAsString(SaveFrequencyComboBox.SelectedItem);
-            if (!string.IsNullOrEmpty(frequence))
+            if (sender == FormatPoidsComboBox)
             {
-                settingsManager.UpdateSaveFrequency(frequence);
-                AfficherMessage($"Fréquence sauvegarde: {frequence}");
+                _settings.UpdateFormatPoids(value);
+                SettingsContext.Instance.WeightUnit = (value == "LBS") ? WeightUnit.LBS : WeightUnit.KG;
+                return;
+            }
+
+            if (sender == FormatTailleComboBox)
+            {
+                _settings.UpdateFormatTaille(value);
+                SettingsContext.Instance.HeightUnit = (value == "INCH") ? HeightUnit.INCH : HeightUnit.CM;
+                Afficher("Format taille changé: " + value);
+                return;
+            }
+
+            if (sender == SaveFrequencyComboBox)
+            {
+                _settings.UpdateSaveFrequency(value);
+                Afficher("Fréquence sauvegarde: " + value);
             }
         }
 
-        private void ModeSombre_Change(object sender, RoutedEventArgs e)
+        private void Toggle_Changed(object sender, RoutedEventArgs e)
         {
-            bool active = DarkModeToggle.IsChecked == true;
-            settingsManager.UpdateDarkMode(active);
+            if (sender == DarkModeToggle)
+            {
+                _settings.UpdateDarkMode(DarkModeToggle.IsChecked == true);
+                return;
+            }
+
+            if (sender == AutoSaveToggle)
+            {
+                bool active = AutoSaveToggle.IsChecked == true;
+                _settings.UpdateAutoSave(active);
+                Afficher($"Sauvegarde auto: {(active ? "Activée" : "Désactivée")}");
+            }
         }
 
-        private void SauvegardeAuto_Change(object sender, RoutedEventArgs e)
-        {
-            bool active = AutoSaveToggle.IsChecked == true;
-            settingsManager.UpdateAutoSave(active);
-            AfficherMessage($"Sauvegarde auto: {(active ? "Activée" : "Désactivée")}");
-        }
-
+        // ---- BOUTONS ----
         private void ModifierProfil_Click(object sender, RoutedEventArgs e)
         {
-            AfficherMessage("Redirection vers modification profil...");
+            Afficher("Redirection vers modification profil...");
         }
 
         private void SupprimerCompte_Click(object sender, RoutedEventArgs e)
         {
-            if (DemanderConfirmationSuppression())
-            {
-                settingsManager.DeleteAccount();
-                AfficherMessage("Compte supprimé !");
-            }
+            if (!ConfirmerSuppression()) return;
+            _settings.DeleteAccount();
+            Afficher("Compte supprimé !");
         }
 
-        
-        private int ObtenirIndexFrequence(string frequence) => frequence switch
+        // ---- HELPERS ----
+        private static int IndexFrequence(string f) => f switch
         {
             "1 min" => 0,
             "5 min" => 1,
@@ -113,37 +117,29 @@ namespace ProjetFinale.WPF
             _ => 1
         };
 
-        private bool DemanderConfirmationSuppression()
+        private static string ContentAsString(object? item) =>
+            item is ComboBoxItem { Content: not null } c ? c.Content.ToString()! : item?.ToString() ?? string.Empty;
+
+        private static bool ConfirmerSuppression()
         {
-            var result1 = MessageBox.Show(
+            var r1 = MessageBox.Show(
                 "ATTENTION ! Voulez-vous vraiment supprimer votre compte ?\n\nToutes vos données seront perdues !",
                 "⚠️ Suppression du compte",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
-            if (result1 == MessageBoxResult.Yes)
-            {
-                var result2 = MessageBox.Show(
-                    "DERNIÈRE CHANCE !\n\nÊtes-vous VRAIMENT sûr de vouloir supprimer définitivement votre compte ?",
-                    "⚠️ Confirmation finale",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Stop);
+            if (r1 != MessageBoxResult.Yes) return false;
 
-                return result2 == MessageBoxResult.Yes;
-            }
-            return false;
+            var r2 = MessageBox.Show(
+                "DERNIÈRE CHANCE !\n\nÊtes-vous VRAIMENT sûr de vouloir supprimer définitivement votre compte ?",
+                "⚠️ Confirmation finale",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Stop);
+
+            return r2 == MessageBoxResult.Yes;
         }
 
-        private void AfficherMessage(string message)
-        {
-            MessageBox.Show(message, "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private static string SaveAsString(object comboItem)
-        {
-            if (comboItem is ComboBoxItem cbi)
-                return cbi.Content?.ToString() ?? string.Empty;
-            return comboItem?.ToString() ?? string.Empty;
-        }
+        private static void Afficher(string msg) =>
+            MessageBox.Show(msg, "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

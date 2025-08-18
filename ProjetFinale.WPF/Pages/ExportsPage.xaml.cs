@@ -45,7 +45,6 @@ namespace ProjetFinale.WPF
                 Console.WriteLine($"   - {_utilisateur.ListeTaches.Count} tâches");
                 Console.WriteLine($"   - {_utilisateur.ListeActivites.Count} activités");
                 Console.WriteLine($"   - {_utilisateur.ListeAgenda.Count} événements agenda");
-                Console.WriteLine($"   - {_utilisateur.ListeStatistiques.Count} statistiques");
             }
             else
             {
@@ -192,7 +191,7 @@ namespace ProjetFinale.WPF
                 var totalTaches = _utilisateur.ListeTaches.Count;
                 var totalActivites = _utilisateur.ListeActivites.Count;
                 var totalAgenda = _utilisateur.ListeAgenda.Count;
-                var totalStats = _utilisateur.ListeStatistiques.Count;
+              
 
                 MessageBox.Show($"✅ Export complet réussi !\n\n" +
                                $"📂 Emplacement : {folder}\n" +
@@ -200,7 +199,6 @@ namespace ProjetFinale.WPF
                                $"   • {totalTaches} tâches\n" +
                                $"   • {totalActivites} activités\n" +
                                $"   • {totalAgenda} événements agenda\n" +
-                               $"   • {totalStats} statistiques\n\n" +
                                $"📁 Formats créés : JSON, XML, CSV, TXT",
                                "Export terminé", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -300,11 +298,6 @@ namespace ProjetFinale.WPF
                 sb.AppendLine($"{a.HeureDebut},{a.HeureFin},{a.Date:yyyy-MM-dd},{a.Activite?.Titre}");
             sb.AppendLine();
 
-            sb.AppendLine("==== Statistiques ====");
-            sb.AppendLine("TypeStat,Valeur,Unite");
-            foreach (var s in _utilisateur.ListeStatistiques)
-                sb.AppendLine($"{s.Type},{s.Valeur},{s.Unite}");
-
             File.WriteAllText(path, sb.ToString());
         }
 
@@ -340,9 +333,6 @@ namespace ProjetFinale.WPF
                 sb.AppendLine($"- {ag.Date:dd/MM/yyyy} : {ag.HeureDebut}-{ag.HeureFin} ({ag.Activite?.Titre})");
             sb.AppendLine();
 
-            sb.AppendLine("=== STATISTIQUES ===");
-            foreach (var s in _utilisateur.ListeStatistiques)
-                sb.AppendLine($"- {s.Type} : {s.Valeur} {s.Unite}");
 
             File.WriteAllText(path, sb.ToString());
         }

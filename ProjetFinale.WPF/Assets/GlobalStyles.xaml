@@ -12,7 +12,8 @@
     <Color x:Key="Color.Surface.Border">#404040</Color>
 
     <Color x:Key="Color.Control.Background">#FFFFFF</Color>
-    <Color x:Key="Color.Control.Foreground">#FFFFFF</Color>
+    <Color x:Key="Color.Control.Foreground">#000000</Color>
+    
     <Color x:Key="Color.Control.Border">#AF66FF</Color>
 
     <Color x:Key="Color.Text.Primary">#FFFFFF</Color>
@@ -1202,12 +1203,35 @@
     </Style>
 
     <Style x:Key="AccueilEditableTextBoxStyle" TargetType="TextBox">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value= "{DynamicResource App.Foreground}"/>
+        <Setter Property="Background" Value="{DynamicResource Control.Background}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Control.Foreground}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
+
+    <!-- DatePicker (cadre) -->
+    <Style x:Key="AccueilDatePickerStyle" TargetType="DatePicker">
+        <Setter Property="Foreground" Value="{DynamicResource Control.Foreground}"/>
+        <Setter Property="Background" Value="{DynamicResource Control.Background}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Control.Border}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Height" Value="30"/>
+    </Style>
+
+    <!-- Texte interne du DatePicker -->
+    <Style x:Key="AccueilDatePickerTextBoxStyle" TargetType="{x:Type DatePickerTextBox}"
+       BasedOn="{StaticResource AccueilEditableTextBoxStyle}">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <!-- optionnel si tu veux centrer horizontalement -->
+        <Setter Property="Height" Value="30"/>
+        <!-- même hauteur que TextBox poids/taille -->
+    </Style>
+
 
     <Style x:Key="AccueilFieldUnitStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
@@ -1694,7 +1718,9 @@
 
     <Style x:Key="ExercicesFormInputStyle" TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource ExercicesInputBackground}"/>
-        <Setter Property="Foreground" Value= "{DynamicResource App.Foreground}"/>
+        <!-- AVANT : App.Foreground (blanc en dark) -->
+        <!-- APRÈS : brush dédiée aux contrôles -->
+        <Setter Property="Foreground" Value="{DynamicResource Control.Foreground}"/>
         <Setter Property="BorderBrush" Value="{StaticResource ExercicesInputBorder}"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Padding" Value="6,0,6,0"/>
@@ -1706,12 +1732,12 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                        <ScrollViewer x:Name="PART_ContentHost" 
-                                    Margin="{TemplateBinding Padding}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="8">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                  Margin="{TemplateBinding Padding}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsFocused" Value="True">
@@ -1723,16 +1749,46 @@
         </Setter>
     </Style>
 
+
     <Style x:Key="ExercicesFormTextAreaStyle" TargetType="TextBox" BasedOn="{StaticResource ExercicesFormInputStyle}">
         <Setter Property="Height" Value="60"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="AcceptsReturn" Value="True"/>
     </Style>
-
+    <Style x:Key="ExercicesComboBoxItemStyle" TargetType="ComboBoxItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Control.Foreground}"/>
+        <Setter Property="Padding" Value="6,4,6,4"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Border"
+                        Background="{TemplateBinding Background}"
+                        Padding="{TemplateBinding Padding}"
+                        CornerRadius="4">
+                        <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource Accent.PrimaryLight}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ExercicesAccentPurple}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <!-- Style ComboBox -->
     <Style x:Key="ExercicesFormComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="Background" Value="{StaticResource ExercicesInputBackground}"/>
-        <Setter Property="Foreground" Value= "{DynamicResource App.Foreground}"/>
+        <Setter Property="Background" Value="{DynamicResource Control.Background}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Control.Foreground}"/>
         <Setter Property="BorderBrush" Value="{StaticResource ExercicesInputBorder}"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Padding" Value="6,0,6,0"/>
@@ -1749,13 +1805,15 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="8"/>
-                        <ContentPresenter Name="ContentSite"
-                                        Margin="{TemplateBinding Padding}"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Left"
-                                        Content="{TemplateBinding SelectionBoxItem}"
-                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                        ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+                        <ContentPresenter
+                                x:Name="ContentSite"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                TextElement.Foreground="{TemplateBinding Foreground}"/>
                         <ToggleButton Name="ToggleButton"
                                     Grid.Column="2"
                                     Focusable="false"
@@ -1792,37 +1850,10 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource ExercicesComboBoxItemStyle}"/>
     </Style>
 
-    <!-- Style global pour les ComboBoxItem (pour cette page) -->
-    <Style x:Key="ExercicesComboBoxItemStyle" TargetType="ComboBoxItem">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value= "{DynamicResource App.Foreground}"/>
-        <Setter Property="Padding" Value="6,4,6,4"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
-        <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ComboBoxItem">
-                    <Border Name="Border" 
-                            Background="{TemplateBinding Background}"
-                            Padding="{TemplateBinding Padding}"
-                            CornerRadius="4">
-                        <ContentPresenter/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ExercicesAccentPurple}"/>
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ExercicesAccentPurple}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
+   
     <!-- Styles des boutons -->
     <Style x:Key="ExercicesPrimaryButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource ExercicesAccentPurple}"/>

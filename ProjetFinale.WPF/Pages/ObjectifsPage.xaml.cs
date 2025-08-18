@@ -15,74 +15,67 @@ namespace ProjetFinale.WPF
         public ObjectifPage()
         {
             InitializeComponent();
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
             InitialiserUtilisateur();
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
 
         private void InitialiserUtilisateur()
         {
-            // Essayer d'abord l'utilisateur actif
+            // 1) Prend l’utilisateur actif si présent
             _utilisateur = UserService.UtilisateurActif;
-            Console.WriteLine($"🔍 UtilisateurActif : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
 
-            // Si pas d'utilisateur actif, charger depuis le fichier
+            // 2) Sinon, charge depuis le disque et définis comme actif
             if (_utilisateur == null)
             {
                 _utilisateur = JsonService.ChargerUtilisateur();
-                Console.WriteLine($"🔍 ChargerUtilisateur : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
-
                 if (_utilisateur != null)
-                {
                     UserService.UtilisateurActif = _utilisateur;
-                }
             }
 
-            // 🔥 DÉFINIR LE DATACONTEXT - C'est la magie du data binding !
+            // 3) Bind ou avertis
             if (_utilisateur != null)
             {
-                this.DataContext = _utilisateur;
-                Console.WriteLine($"✅ DataContext défini pour ObjectifsPage : {_utilisateur.Pseudo}");
-                Console.WriteLine($"   Nombre de tâches : {_utilisateur.ListeTaches.Count}");
-                Console.WriteLine($"   ListeTaches est null ? {(_utilisateur.ListeTaches == null)}");
+                DataContext = _utilisateur;
             }
             else
             {
-                Console.WriteLine("⚠️ Aucun utilisateur trouvé pour ObjectifsPage");
-                MessageBox.Show("Aucun utilisateur trouvé ! Assurez-vous d'être connecté.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(
+                    "Aucun utilisateur trouvé. Connectez-vous d’abord.",
+                    "Information",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
             }
-
-            // 🆕 S'abonner aux changements d'utilisateur
-            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
         }
 
-        // 🆕 Méthode appelée quand l'utilisateur change (après import par exemple)
         private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
         {
             _utilisateur = nouvelUtilisateur;
-            this.DataContext = nouvelUtilisateur;
-
-            if (nouvelUtilisateur != null)
-            {
-                Console.WriteLine($"🔄 ObjectifsPage - Utilisateur changé : {nouvelUtilisateur.Pseudo}");
-                Console.WriteLine($"   Nouvelles tâches : {nouvelUtilisateur.ListeTaches.Count}");
-            }
+            DataContext = nouvelUtilisateur;
         }
 
-        // === GESTION DES ÉVÉNEMENTS (simplifiés) ===
+        // === UI handlers ===
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (NouvelleTacheTextBox.Text == "ENTREZ UNE TACHE....")
-            {
-                NouvelleTacheTextBox.Text = "";
-            }
+                NouvelleTacheTextBox.Text = string.Empty;
         }
 
         private void NouvelleTacheTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
-            {
-                AjouterTacheDepuisChamp();
-            }
+            if (e.Key == Key.Enter) AjouterTacheDepuisChamp();
         }
 
         private void AjouterTacheButton_Click(object sender, RoutedEventArgs e)
@@ -92,123 +85,89 @@ namespace ProjetFinale.WPF
 
         private void AjouterTacheDepuisChamp()
         {
-            string texte = NouvelleTacheTextBox.Text.Trim();
+            var texte = NouvelleTacheTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(texte) || texte == "ENTREZ UNE TACHE....")
+                return;
 
-            Console.WriteLine($"🔍 Debug - Texte saisi : '{texte}'");
-            Console.WriteLine($"🔍 Debug - Utilisateur : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
-
-            if (!string.IsNullOrWhiteSpace(texte) && texte != "ENTREZ UNE TACHE....")
-            {
-                Console.WriteLine($"✅ Validation OK - Ajout de la tâche");
-                AjouterTache(texte);
-                NouvelleTacheTextBox.Text = "ENTREZ UNE TACHE...."; // Reset placeholder
-            }
-            else
-            {
-                Console.WriteLine($"❌ Validation échouée - Texte invalide");
-                MessageBox.Show($"Texte invalide : '{texte}'", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            AjouterTache(texte);
+            NouvelleTacheTextBox.Text = "ENTREZ UNE TACHE....";
         }
 
-        // 🔥 MÉTHODE SIMPLIFIÉE : Plus besoin d'AfficherTaches() !
-        private void AjouterTache(string texte)
+        private void AjouterTache(string description)
         {
-            if (_utilisateur == null || string.IsNullOrWhiteSpace(texte))
-                return;
+            if (_utilisateur == null) return;
 
             try
             {
-                var nouvelleTache = new Tache
+                _utilisateur.ListeTaches.Add(new Tache
                 {
-                    Description = texte,
+                    Description = description,
                     EstTerminee = false,
                     Date = DateTime.Now
-                };
+                });
 
-                // ✨ MAGIE : Juste ajouter à la liste, l'UI se met à jour automatiquement !
-                _utilisateur.ListeTaches.Add(nouvelleTache);
-
-                // Sauvegarder et mettre à jour l'utilisateur actif
                 JsonService.SauvegarderUtilisateur(_utilisateur);
-                UserService.UtilisateurActif = _utilisateur; // Déclenche la notification
 
-                Console.WriteLine($"✅ Nouvelle tâche ajoutée : {texte}");
-                Console.WriteLine($"   Total tâches : {_utilisateur.ListeTaches.Count}");
+                // NOTE : ceci NE déclenche UtilisateurActifChanged que si l’instance change.
+                // On le laisse si d’autres pages s’y attendent.
+                UserService.UtilisateurActif = _utilisateur;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors de l'ajout de la tâche :\n{ex.Message}",
-                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Erreur lors de l'ajout de la tâche :\n{ex.Message}",
+                    "Erreur",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
         }
 
-        // 🔥 MÉTHODE SIMPLIFIÉE : Plus de recherche manuelle !
         private void SupprimerTache_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is Tache tache && _utilisateur != null)
+            if (_utilisateur == null) return;
+            if (sender is not Button { Tag: Tache tache }) return;
+
+            try
             {
-                try
-                {
-                    // ✨ MAGIE : Juste supprimer de la liste, l'UI se met à jour automatiquement !
-                    _utilisateur.ListeTaches.Remove(tache);
-
-                    // Sauvegarder et notifier
-                    JsonService.SauvegarderUtilisateur(_utilisateur);
-                    UserService.UtilisateurActif = _utilisateur; // Déclenche la notification
-
-                    Console.WriteLine($"🗑️ Tâche supprimée : {tache.Description}");
-                    Console.WriteLine($"   Tâches restantes : {_utilisateur.ListeTaches.Count}");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Erreur lors de la suppression :\n{ex.Message}",
-                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                _utilisateur.ListeTaches.Remove(tache);
+                JsonService.SauvegarderUtilisateur(_utilisateur);
+                UserService.UtilisateurActif = _utilisateur; // voir note ci-dessus
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erreur lors de la suppression :\n{ex.Message}",
+                    "Erreur",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
         }
 
-        // 🆕 NOUVELLE MÉTHODE : Gestion automatique du changement d'état
         private void TacheCheckBox_Changed(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox checkBox && checkBox.DataContext is Tache tache && _utilisateur != null)
+            if (_utilisateur == null) return;
+            if (sender is not CheckBox { DataContext: Tache _ }) return;
+
+            try
             {
-                try
-                {
-                    // ✨ Le binding s'occupe déjà de mettre à jour EstTerminee !
-                    // On n'a qu'à sauvegarder
-
-                    JsonService.SauvegarderUtilisateur(_utilisateur);
-                    UserService.UtilisateurActif = _utilisateur; // Déclenche la notification
-
-                    string etat = tache.EstTerminee ? "terminée" : "en cours";
-                    Console.WriteLine($"✅ Tâche '{tache.Description}' marquée comme {etat}");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Erreur lors de la mise à jour :\n{ex.Message}",
-                                   "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                // Le binding met déjà à jour EstTerminee.
+                JsonService.SauvegarderUtilisateur(_utilisateur);
+                UserService.UtilisateurActif = _utilisateur; // voir note ci-dessus
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erreur lors de la mise à jour :\n{ex.Message}",
+                    "Erreur",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
         }
 
-        // 🆕 MÉTHODE UTILITAIRE : Rafraîchir les données (si nécessaire)
-        public void RafraichirDonnees()
-        {
-            InitialiserUtilisateur();
-        }
-
-        // 🆕 Nettoyer les événements quand la page se ferme
-        ~ObjectifPage()
-        {
-            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
-        }
-
-        // === MÉTHODES SUPPRIMÉES ===
-        // ❌ Plus besoin de AfficherTaches() - le binding s'en occupe !
-        // ❌ Plus besoin de CreerTacheElement() - le DataTemplate s'en occupe !
-        // ❌ Plus besoin de ToggleTacheEtat() - le binding bidirectionnel s'en occupe !
-        // ❌ Plus besoin de boucles foreach - ItemsControl s'en occupe !
-        // ❌ Plus besoin de TaskListContainer.Children.Clear() - automatique !
-        // ❌ Plus besoin de gestion manuelle de EmptyStateMessage - binding conditionnel !
+        // Appel manuel si besoin
+        public void RafraichirDonnees() => InitialiserUtilisateur();
     }
 }

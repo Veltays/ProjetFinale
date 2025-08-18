@@ -3,6 +3,7 @@ using ProjetFinale.Models;
 using ProjetFinale.Services;
 using ProjetFinale.Views;
 using ProjetFinale.WPF;
+using ProjetFinale.Utils;
 using System;
 using System.Windows;
 

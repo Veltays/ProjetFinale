@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using ProjetFinale.Utils;
 
-namespace ProjetFinale.WPF
+namespace ProjetFinale.Utils
 {
     /// <summary>
     /// Gestionnaire des paramètres - UNIQUEMENT logique métier

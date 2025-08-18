@@ -1,310 +1,472 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using ProjetFinale.Models;    // ✅ AJOUTER CETTE LIGNE
-using ProjetFinale.Services;  // ✅ AJOUTER CETTE LIGNE (UserService est ici)
-using ProjetFinale.Utils;     // ✅ AJOUTER CETTE LIGNE
+using ProjetFinale.Models;
+using ProjetFinale.Services;
+using ProjetFinale.Utils;
 
 namespace ProjetFinale.Views
 {
     public partial class ExercicesPage : Page
     {
-        // ✅ REMPLACER Exercice par Activite
-        private List<Activite> _exercices;
-        private List<Activite> _exercicesFiltres;
+        // ===== Données =====
+        private List<Activite> _exercices = new();
+        private List<Activite> _exercicesFiltres = new();
+        private Activite? _exerciceEnEdition;
+        private bool _estEnModeEdition;
 
-        // ✅ REMPLACER Exercice par Activite
-        private Activite _exerciceEnEdition;
-        private bool _estEnModeEdition = false;
+        // ===== Utilisateur =====
+        private Utilisateur? _utilisateur;
 
-        // ✅ AJOUTER : Référence à l'utilisateur actuel
-        private Utilisateur _utilisateur;
+        // ===== Images (formulaire) =====
+        private string? _imagePathForm; // chemin fichier de l'image choisie (en création/édition)
+        private readonly string _imagesDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProjetFinale", "Images"
+        );
+
+        // Si pas d’image fournie, on utilise un visuel de secours (présent dans /Images)
+        private const string DEFAULT_RELATIVE_PLACEHOLDER = "/Images/default_exercise.png";
 
         public ExercicesPage()
         {
             InitializeComponent();
 
-            // ✅ CHARGER L'UTILISATEUR AU DÉMARRAGE (comme pour les tâches)
-            ChargerUtilisateurEtDonnees();
+            Directory.CreateDirectory(_imagesDir);
 
-            InitialiserDonnees();
-            FiltrerExercices();
-            MettreAJourAffichage();
+            ChargerUtilisateur();     // 1) charge l’utilisateur
+            ChargerActivites();       // 2) charge la liste d’activités (utilisateur ou défaut)
+            AppliquerFiltre();        // 3) filtre courant (barre de recherche)
+            RafraichirListe();        // 4) reconstruit l’UI liste
 
-            // ✅ AJOUTER : S'abonner aux changements d'utilisateur
+            // Reagir au changement d’utilisateur (ex: login/logout)
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+
+            // Désabonnement propre
+            Loaded += OnLoaded;                     // ⬅️ faire l’init quand la page est prête
+            Unloaded += (_, __) => UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
+        }
+
+        // ------------------------------------------------------------
+        // Cycle de vie / chargement
+        // ------------------------------------------------------------
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // éviter double init si la page est rechargée
+            Loaded -= OnLoaded;
+
+            Directory.CreateDirectory(_imagesDir);
+
+            ChargerUtilisateur();     // charge l’utilisateur
+            ChargerActivites();       // charge les activités
+            AppliquerFiltre();        // applique le filtre (barre de recherche)
+            RafraichirListe();        // reconstruit la liste (le XAML est garanti non-null ici)
+
             UserService.UtilisateurActifChanged += OnUtilisateurChanged;
         }
 
-        // ✅ NOUVELLE MÉTHODE : Charger l'utilisateur comme dans ObjectifsPage
-        private void ChargerUtilisateurEtDonnees()
+        private void ChargerUtilisateur()
         {
-            // Essayer d'abord l'utilisateur actif
-            _utilisateur = UserService.UtilisateurActif;
-            Console.WriteLine($"🔍 UtilisateurActif : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
-
-            // Si pas d'utilisateur actif, charger depuis le fichier JSON
-            if (_utilisateur == null)
-            {
-                _utilisateur = JsonService.ChargerUtilisateur();
-                Console.WriteLine($"🔍 ChargerUtilisateur : {(_utilisateur != null ? _utilisateur.Pseudo : "NULL")}");
-
-                if (_utilisateur != null)
-                {
-                    UserService.UtilisateurActif = _utilisateur;
-                }
-            }
-
-            if (_utilisateur != null)
-            {
-                Console.WriteLine($"✅ Utilisateur chargé pour ExercicesPage : {_utilisateur.Pseudo}");
-                Console.WriteLine($"   Nombre d'activités : {_utilisateur.ListeActivites.Count}");
-            }
-            else
-            {
-                Console.WriteLine("⚠️ Aucun utilisateur trouvé pour ExercicesPage");
-            }
+            _utilisateur = UserService.UtilisateurActif ?? JsonService.ChargerUtilisateur();
+            if (UserService.UtilisateurActif == null && _utilisateur != null)
+                UserService.UtilisateurActif = _utilisateur;
         }
 
-        // ✅ MODIFIER : Gérer les changements d'utilisateur avec rechargement complet
         private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
         {
-            Console.WriteLine("🔄 Changement d'utilisateur détecté dans ExercicesPage");
             _utilisateur = nouvelUtilisateur;
-
-            if (_utilisateur != null)
-            {
-                Console.WriteLine($"   Nouvel utilisateur : {_utilisateur.Pseudo}");
-                Console.WriteLine($"   Activités disponibles : {_utilisateur.ListeActivites.Count}");
-            }
-
-            // Recharger toutes les données
-            InitialiserDonnees();
-            FiltrerExercices();
-            MettreAJourAffichage();
+            ChargerActivites();
+            AppliquerFiltre();
+            RafraichirListe();
         }
 
-        private void InitialiserDonnees()
+        private void ChargerActivites()
         {
-            // ✅ MODIFIER : Ne charger depuis l'utilisateur QUE s'il a des activités
-            if (_utilisateur?.ListeActivites != null && _utilisateur.ListeActivites.Count > 0)
+            // Source de vérité : ListeActivites de l’utilisateur si dispo
+            if (_utilisateur?.ListeActivites is { Count: > 0 } list)
             {
-                // Charger les activités sauvegardées de l'utilisateur
-                _exercices = new List<Activite>(_utilisateur.ListeActivites);
-                Console.WriteLine($"✅ {_exercices.Count} activités chargées depuis l'utilisateur");
+                _exercices = new List<Activite>(list);
             }
             else
             {
-                // ✅ CRÉER des données par défaut SEULEMENT si l'utilisateur n'a aucune activité
-                Console.WriteLine("ℹ️ Aucune activité trouvée, création des exercices par défaut");
+                // Données par défaut, histoire que la page ne soit jamais “vide”
                 _exercices = new List<Activite>
                 {
-                    new Activite
-                    {
-                        Titre = "Développé couché",
-                        CaloriesBrulees = 180,
-                        Duree = TimeSpan.FromMinutes(45),
-                        ImagePath = "/Images/developpe_couche.png"
-                    },
-                    new Activite
-                    {
-                        Titre = "Course à pied",
-                        CaloriesBrulees = 300,
-                        Duree = TimeSpan.FromMinutes(30),
-                        ImagePath = "/Images/course.png"
-                    },
-                    new Activite
-                    {
-                        Titre = "Squats",
-                        CaloriesBrulees = 120,
-                        Duree = TimeSpan.FromMinutes(20),
-                        ImagePath = "/Images/squats.png"
-                    }
+                    new() { Titre = "Développé couché", CaloriesBrulees = 180, Duree = TimeSpan.FromMinutes(45), ImagePath = "/Images/developpe_couche.png" },
+                    new() { Titre = "Course à pied",    CaloriesBrulees = 300, Duree = TimeSpan.FromMinutes(30), ImagePath = "/Images/course.png"         },
+                    new() { Titre = "Squats",           CaloriesBrulees = 120, Duree = TimeSpan.FromMinutes(20), ImagePath = "/Images/squats.png"         }
                 };
 
-                // ✅ AJOUTER : Sauvegarder les données par défaut dans l'utilisateur
+                // Et on les pousse dans l’utilisateur la 1ère fois
                 if (_utilisateur != null)
                 {
-                    foreach (var exercice in _exercices)
-                    {
-                        _utilisateur.ListeActivites.Add(exercice);
-                    }
+                    foreach (var ex in _exercices) _utilisateur.ListeActivites.Add(ex);
                     UserService.MettreAJourUtilisateur(_utilisateur);
-                    Console.WriteLine("✅ Exercices par défaut sauvegardés dans l'utilisateur");
                 }
             }
 
             _exercicesFiltres = new List<Activite>(_exercices);
+            // Reset UI image formulaire
+            _imagePathForm = null;
+            RafraichirPreview(null);
         }
 
-        #region Gestion du formulaire
+        // ------------------------------------------------------------
+        // Formulaire (type, image, ajout/modif)
+        // ------------------------------------------------------------
 
         private void TypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TypeComboBox.SelectedItem is ComboBoxItem item)
-            {
-                string type = item.Tag.ToString();
+            // Affiche le bon groupe selon le type sélectionné
+            var type = GetSelectedType();
+            RepetitionsGroup.Visibility = type == "repetitions" ? Visibility.Visible : Visibility.Collapsed;
+            DurationGroup.Visibility = type == "duration" ? Visibility.Visible : Visibility.Collapsed;
+        }
 
-                if (type == "repetitions")
-                {
-                    RepetitionsGroup.Visibility = Visibility.Visible;
-                    DurationGroup.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    RepetitionsGroup.Visibility = Visibility.Collapsed;
-                    DurationGroup.Visibility = Visibility.Visible;
-                }
+        private void BtnPickImage_Click(object sender, RoutedEventArgs e)
+        {
+            var ofd = new OpenFileDialog
+            {
+                Title = "Choisir une image",
+                Filter = "Images|*.png;*.jpg;*.jpeg;*.webp;*.gif;*.bmp",
+                Multiselect = false
+            };
+            if (ofd.ShowDialog() != true) return;
+
+            try
+            {
+                var dest = Path.Combine(_imagesDir, $"{Guid.NewGuid():N}{Path.GetExtension(ofd.FileName)}");
+                File.Copy(ofd.FileName, dest, overwrite: true);
+
+                _imagePathForm = dest;
+                TxtImageName.Text = Path.GetFileName(ofd.FileName);
+                RafraichirPreview(_imagePathForm);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Impossible de copier l'image.\n{ex.Message}",
+                                "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!ValiderFormulaire())
+            if (!ValiderFormulaire()) return;
+
+            var nom = ExerciseNameBox.Text.Trim();
+            var type = GetSelectedType();
+            var duree = type == "repetitions"
+                ? TimeSpan.FromMinutes(EstimerDureeRepetitions(RepetitionsBox.Text.Trim()))
+                : ParserDuree(DurationBox.Text.Trim());
+
+            float.TryParse(CaloriesBox.Text.Trim(), out var calories);
+
+            // Image à stocker (fichier copié ou placeholder)
+            var imagePathFinal = string.IsNullOrWhiteSpace(_imagePathForm)
+                ? DEFAULT_RELATIVE_PLACEHOLDER
+                : _imagePathForm;
+
+            if (_estEnModeEdition && _exerciceEnEdition != null)
+            {
+                _exerciceEnEdition.Titre = nom;
+                _exerciceEnEdition.CaloriesBrulees = calories;
+                _exerciceEnEdition.Duree = duree;
+                if (!string.IsNullOrWhiteSpace(_imagePathForm))
+                    _exerciceEnEdition.ImagePath = imagePathFinal;
+
+                PersisterUtilisateur();
+                MessageBox.Show("Exercice modifié avec succès!", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                var nouvelle = new Activite
+                {
+                    Titre = nom,
+                    CaloriesBrulees = calories,
+                    Duree = duree,
+                    ImagePath = imagePathFinal
+                };
+
+                _exercices.Add(nouvelle);
+                _utilisateur?.ListeActivites.Add(nouvelle);
+                PersisterUtilisateur();
+                MessageBox.Show("Exercice créé avec succès!", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            ResetFormulaire();
+            AppliquerFiltre();
+            RafraichirListe();
+        }
+
+        // ------------------------------------------------------------
+        // Recherche / filtre
+        // ------------------------------------------------------------
+
+        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (SearchBox.Text == "Rechercher un exercice...")
+            {
+                SearchBox.Text = "";
+                SearchBox.Foreground = (Brush)FindResource("App.Foreground");
+            }
+        }
+
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
+                SearchBox.Text = "Rechercher un exercice...";
+                SearchBox.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(170, 170, 170));
+            }
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AppliquerFiltre();
+            RafraichirListe();
+        }
+
+        private void AppliquerFiltre()
+        {
+            var term = (SearchBox.Text ?? "").ToLower();
+            if (string.IsNullOrWhiteSpace(term) || term == "rechercher un exercice...")
+            {
+                _exercicesFiltres = new List<Activite>(_exercices);
                 return;
-
-            try
-            {
-                // Récupérer les données du formulaire
-                string nom = ExerciseNameBox.Text.Trim();
-                ComboBoxItem selectedItem = TypeComboBox.SelectedItem as ComboBoxItem;
-                string type = selectedItem?.Tag.ToString();
-
-                // ✅ MODIFIER : Gérer la durée selon le type
-                TimeSpan duree;
-                if (type == "repetitions")
-                {
-                    // Pour les répétitions, estimer une durée basée sur le nombre
-                    string repsValue = RepetitionsBox.Text.Trim();
-                    // Estimation : 1 minute par série
-                    duree = TimeSpan.FromMinutes(EstimerDureeRepetitions(repsValue));
-                }
-                else
-                {
-                    // Pour la durée, parser directement
-                    duree = ParserDuree(DurationBox.Text.Trim());
-                }
-
-                float calories = 0;
-                float.TryParse(CaloriesBox.Text.Trim(), out calories);
-
-                if (_estEnModeEdition)
-                {
-                    // ✅ MODIFIER : Modifier l'activité existante
-                    _exerciceEnEdition.Titre = nom;
-                    _exerciceEnEdition.CaloriesBrulees = calories;
-                    _exerciceEnEdition.Duree = duree;
-
-                    // ✅ AJOUTER : Sauvegarder les modifications
-                    if (_utilisateur != null)
-                    {
-                        UserService.MettreAJourUtilisateur(_utilisateur);
-                    }
-
-                    MessageBox.Show("Exercice modifié avec succès!", "Succès",
-                                   MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    // ✅ MODIFIER : Créer une nouvelle Activite
-                    Activite nouvelleActivite = new Activite
-                    {
-                        Titre = nom,
-                        CaloriesBrulees = calories,
-                        Duree = duree,
-                        ImagePath = "/Images/default_exercise.png"
-                    };
-
-                    _exercices.Add(nouvelleActivite);
-
-                    // ✅ AJOUTER : Ajouter à l'utilisateur et sauvegarder
-                    if (_utilisateur != null)
-                    {
-                        _utilisateur.ListeActivites.Add(nouvelleActivite);
-                        UserService.MettreAJourUtilisateur(_utilisateur);
-                    }
-
-                    MessageBox.Show("Exercice créé avec succès!", "Succès",
-                                   MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-
-                // Réinitialiser le formulaire et mettre à jour l'affichage
-                ReinitialiserFormulaire();
-                FiltrerExercices();
-                MettreAJourAffichage();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erreur lors de la sauvegarde : {ex.Message}", "Erreur",
-                               MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+
+            _exercicesFiltres = _exercices
+                .Where(ex => !string.IsNullOrWhiteSpace(ex.Titre) &&
+                             ex.Titre.ToLower().Contains(term))
+                .ToList();
         }
 
-        // ✅ AJOUTER : Méthodes utilitaires pour gérer les durées
-        private int EstimerDureeRepetitions(string repsValue)
+        // ------------------------------------------------------------
+        // Liste (cartes) + actions
+        // ------------------------------------------------------------
+
+        private void RafraichirListe()
         {
-            // Estimer la durée basée sur les répétitions (ex: "12 x 3" = 3 séries = 3 minutes)
+            if (ExercisesListPanel == null) return;           // ⬅️ garde
+            if (NoExercisesMessage == null) return;           // ⬅️ garde
+
+            ExercisesListPanel.Children.Clear();
+
+            if (_exercicesFiltres.Count == 0)
+            {
+                NoExercisesMessage.Visibility = Visibility.Visible;
+                return;
+            }
+
+            NoExercisesMessage.Visibility = Visibility.Collapsed;
+            foreach (var ex in _exercicesFiltres)
+                ExercisesListPanel.Children.Add(CreerCarte(ex));
+        }
+
+        private Border CreerCarte(Activite exercice)
+        {
+            var card = new Border { Style = (Style)FindResource("ExercicesCardStyle") };
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                     // image
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }); // nom
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // durée
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // calories
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                      // actions
+
+            // Miniature
+            var image = new Image
+            {
+                Width = 42,
+                Height = 42,
+                Margin = new Thickness(10, 4, 14, 4),
+                Stretch = Stretch.UniformToFill,
+                SnapsToDevicePixels = true
+            };
+            SetImageSource(image, exercice.ImagePath);
+            Grid.SetColumn(image, 0);
+
+            // Titre
+            var titre = new TextBlock
+            {
+                Text = exercice.Titre,
+                FontWeight = FontWeights.Bold,
+                Foreground = (Brush)FindResource("App.Foreground"),
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 14
+            };
+            Grid.SetColumn(titre, 1);
+
+            // Durée
+            var duree = new TextBlock
+            {
+                Text = $"⏱️ {exercice.Duree.TotalMinutes:F0} min",
+                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(204, 204, 204)),
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 12
+            };
+            Grid.SetColumn(duree, 2);
+
+            // Calories
+            var calories = new TextBlock
+            {
+                Text = $"🔥 {exercice.CaloriesBrulees:F0} cal",
+                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(204, 204, 204)),
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 12
+            };
+            Grid.SetColumn(calories, 3);
+
+            // Actions
+            var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+
+            var edit = new Button
+            {
+                Content = "MODIFIER",
+                Style = (Style)FindResource("ExercicesPrimaryButtonStyle"),
+                Margin = new Thickness(0, 0, 12, 0),
+                MinWidth = 90,
+                Tag = exercice
+            };
+            edit.Click += Edit_Click;
+
+            var del = new Button
+            {
+                Content = "SUPPRIMER",
+                Style = (Style)FindResource("ExercicesDeleteButtonStyle"),
+                MinWidth = 90,
+                Tag = exercice
+            };
+            del.Click += Delete_Click;
+
+            actions.Children.Add(edit);
+            actions.Children.Add(del);
+            Grid.SetColumn(actions, 4);
+
+            grid.Children.Add(image);
+            grid.Children.Add(titre);
+            grid.Children.Add(duree);
+            grid.Children.Add(calories);
+            grid.Children.Add(actions);
+
+            card.Child = grid;
+            return card;
+        }
+
+        private void Edit_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is not Activite ex) return;
+
+            _estEnModeEdition = true;
+            _exerciceEnEdition = ex;
+
+            ExerciseNameBox.Text = ex.Titre;
+            CaloriesBox.Text = ex.CaloriesBrulees.ToString();
+
+            // Déduire un type simple selon la durée (pas critique, juste pour préremplir)
+            if (ex.Duree.TotalMinutes <= 10)
+                SetSelectedType("repetitions", () => RepetitionsBox.Text = $"10 x {ex.Duree.TotalMinutes:F0}");
+            else
+                SetSelectedType("duration", () => DurationBox.Text = $"{ex.Duree.TotalMinutes:F0} minutes");
+
+            // Preview image si fichier absolu dispo
+            _imagePathForm = (Path.IsPathRooted(ex.ImagePath) && File.Exists(ex.ImagePath)) ? ex.ImagePath : null;
+            TxtImageName.Text = _imagePathForm != null ? Path.GetFileName(_imagePathForm) : "Aucune image sélectionnée";
+            RafraichirPreview(_imagePathForm);
+
+            AddButton.Content = "MODIFIER";
+        }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is not Activite ex) return;
+
+            var confirm = MessageBox.Show(
+                $"Supprimer l'exercice '{ex.Titre}' ?",
+                "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            _exercices.Remove(ex);
+            _utilisateur?.ListeActivites.Remove(ex);
+            PersisterUtilisateur();
+
+            AppliquerFiltre();
+            RafraichirListe();
+
+            MessageBox.Show("Exercice supprimé avec succès!", "Succès",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        // ------------------------------------------------------------
+        // Helpers (brefs et réutilisables)
+        // ------------------------------------------------------------
+
+        private void PersisterUtilisateur()
+        {
+            if (_utilisateur != null)
+                UserService.MettreAJourUtilisateur(_utilisateur);
+        }
+
+        private string GetSelectedType()
+        {
+            return (TypeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "";
+        }
+
+        private void SetSelectedType(string tag, Action afterSelect)
+        {
+            foreach (ComboBoxItem item in TypeComboBox.Items)
+                if (item.Tag?.ToString() == tag) { TypeComboBox.SelectedItem = item; break; }
+
+            TypeComboBox_SelectionChanged(TypeComboBox, null);
+            afterSelect?.Invoke();
+        }
+
+        private void SetImageSource(Image img, string? path)
+        {
             try
             {
-                if (repsValue.Contains("x"))
+                if (!string.IsNullOrWhiteSpace(path) && Path.IsPathRooted(path) && File.Exists(path))
                 {
-                    var parts = repsValue.Split('x');
-                    if (parts.Length == 2 && int.TryParse(parts[1].Trim(), out int series))
-                    {
-                        return series; // 1 minute par série
-                    }
+                    img.Source = new BitmapImage(new Uri(path));
                 }
-                return 15; // Durée par défaut
+                else
+                {
+                    // pack URI relatif vers une ressource incluse (si elle existe)
+                    img.Source = new BitmapImage(new Uri(DEFAULT_RELATIVE_PLACEHOLDER, UriKind.Relative));
+                }
             }
             catch
             {
-                return 15;
+                img.Source = null;
             }
         }
 
-        private TimeSpan ParserDuree(string dureeStr)
+        private void RafraichirPreview(string? path)
         {
             try
             {
-                // Supporter différents formats : "30 minutes", "1h30", "45min", etc.
-                dureeStr = dureeStr.ToLower().Replace(" ", "");
-
-                if (dureeStr.Contains("minute"))
+                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
                 {
-                    string numStr = dureeStr.Replace("minutes", "").Replace("minute", "");
-                    if (int.TryParse(numStr, out int minutes))
-                        return TimeSpan.FromMinutes(minutes);
-                }
-                else if (dureeStr.Contains("min"))
-                {
-                    string numStr = dureeStr.Replace("min", "");
-                    if (int.TryParse(numStr, out int minutes))
-                        return TimeSpan.FromMinutes(minutes);
-                }
-                else if (dureeStr.Contains("h"))
-                {
-                    // Format "1h30" ou "1h"
-                    var parts = dureeStr.Split('h');
-                    int heures = int.Parse(parts[0]);
-                    int minutes = parts.Length > 1 && !string.IsNullOrEmpty(parts[1]) ? int.Parse(parts[1]) : 0;
-                    return TimeSpan.FromHours(heures).Add(TimeSpan.FromMinutes(minutes));
+                    PreviewImage.Source = new BitmapImage(new Uri(path));
+                    PreviewImage.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    // Supposer que c'est en minutes
-                    if (int.TryParse(dureeStr, out int minutes))
-                        return TimeSpan.FromMinutes(minutes);
+                    PreviewImage.Source = null;
+                    PreviewImage.Visibility = Visibility.Collapsed;
                 }
-
-                return TimeSpan.FromMinutes(30); // Défaut
             }
             catch
             {
-                return TimeSpan.FromMinutes(30);
+                PreviewImage.Source = null;
+                PreviewImage.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -313,7 +475,7 @@ namespace ProjetFinale.Views
             if (string.IsNullOrWhiteSpace(ExerciseNameBox.Text))
             {
                 MessageBox.Show("Veuillez entrer un nom pour l'exercice.", "Validation",
-                               MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 ExerciseNameBox.Focus();
                 return false;
             }
@@ -321,17 +483,15 @@ namespace ProjetFinale.Views
             if (TypeComboBox.SelectedItem == null)
             {
                 MessageBox.Show("Veuillez sélectionner un type d'exercice.", "Validation",
-                               MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
-            ComboBoxItem selectedItem = TypeComboBox.SelectedItem as ComboBoxItem;
-            string type = selectedItem?.Tag.ToString();
-
+            var type = GetSelectedType();
             if (type == "repetitions" && string.IsNullOrWhiteSpace(RepetitionsBox.Text))
             {
                 MessageBox.Show("Veuillez entrer le nombre de répétitions.", "Validation",
-                               MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 RepetitionsBox.Focus();
                 return false;
             }
@@ -339,7 +499,7 @@ namespace ProjetFinale.Views
             if (type == "duration" && string.IsNullOrWhiteSpace(DurationBox.Text))
             {
                 MessageBox.Show("Veuillez entrer la durée de l'exercice.", "Validation",
-                               MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 DurationBox.Focus();
                 return false;
             }
@@ -347,7 +507,7 @@ namespace ProjetFinale.Views
             return true;
         }
 
-        private void ReinitialiserFormulaire()
+        private void ResetFormulaire()
         {
             ExerciseNameBox.Text = "";
             RepetitionsBox.Text = "";
@@ -359,264 +519,49 @@ namespace ProjetFinale.Views
             RepetitionsGroup.Visibility = Visibility.Collapsed;
             DurationGroup.Visibility = Visibility.Collapsed;
 
-            // Reset du mode édition
+            _imagePathForm = null;
+            TxtImageName.Text = "Aucune image sélectionnée";
+            RafraichirPreview(null);
+
             _estEnModeEdition = false;
             _exerciceEnEdition = null;
             AddButton.Content = "AJOUTER";
         }
 
-        #endregion
-
-        #region Gestion de la recherche
-
-        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        private int EstimerDureeRepetitions(string repsValue)
         {
-            TextBox searchBox = sender as TextBox;
-            if (searchBox.Text == "Rechercher un exercice...")
+            // Heuristique simple : "12 x 3" -> 3 minutes (1 min/série)
+            try
             {
-                searchBox.Text = "";
-                searchBox.Foreground = Brushes.White;
+                var parts = (repsValue ?? "").ToLower().Split('x');
+                return parts.Length == 2 && int.TryParse(parts[1].Trim(), out var series) ? series : 15;
             }
+            catch { return 15; }
         }
 
-        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        private TimeSpan ParserDuree(string dureeStr)
         {
-            TextBox searchBox = sender as TextBox;
-            if (string.IsNullOrWhiteSpace(searchBox.Text))
+            // Accepte "30", "30min", "30 minutes", "1h30"
+            try
             {
-                searchBox.Text = "Rechercher un exercice...";
-                searchBox.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170));
-            }
-        }
+                var s = (dureeStr ?? "").ToLower().Replace(" ", "");
+                if (s.Contains("minute")) s = s.Replace("minutes", "").Replace("minute", "");
+                if (s.EndsWith("min")) s = s.Replace("min", "");
 
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            FiltrerExercices();
-            MettreAJourAffichage();
-        }
-
-        private void FiltrerExercices()
-        {
-            // Vérifier que les données sont initialisées
-            if (_exercices == null || SearchBox == null)
-                return;
-
-            string searchTerm = SearchBox.Text.ToLower();
-
-            if (searchTerm == "rechercher un exercice..." || string.IsNullOrWhiteSpace(searchTerm))
-            {
-                _exercicesFiltres = new List<Activite>(_exercices);
-            }
-            else
-            {
-                // ✅ MODIFIER : Adapter pour la classe Activite
-                _exercicesFiltres = _exercices.Where(ex =>
-                    !string.IsNullOrEmpty(ex.Titre) && ex.Titre.ToLower().Contains(searchTerm)).ToList();
-            }
-        }
-
-        #endregion
-
-        #region Gestion de l'affichage
-
-        private void MettreAJourAffichage()
-        {
-            // Vérifier que les composants sont initialisés
-            if (ExercisesListPanel == null || NoExercisesMessage == null || _exercicesFiltres == null)
-                return;
-
-            ExercisesListPanel.Children.Clear();
-
-            if (_exercicesFiltres.Count == 0)
-            {
-                NoExercisesMessage.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                NoExercisesMessage.Visibility = Visibility.Collapsed;
-
-                foreach (var exercice in _exercicesFiltres)
+                if (s.Contains('h'))
                 {
-                    var carte = CreerCarteExercice(exercice);
-                    ExercisesListPanel.Children.Add(carte);
+                    var p = s.Split('h');
+                    var h = int.Parse(p[0]);
+                    var m = (p.Length > 1 && !string.IsNullOrEmpty(p[1])) ? int.Parse(p[1]) : 0;
+                    return TimeSpan.FromHours(h) + TimeSpan.FromMinutes(m);
                 }
+
+                if (int.TryParse(s, out var onlyMinutes))
+                    return TimeSpan.FromMinutes(onlyMinutes);
+
+                return TimeSpan.FromMinutes(30);
             }
-        }
-
-        // ✅ MODIFIER : Adapter pour la classe Activite
-        private Border CreerCarteExercice(Activite exercice)
-        {
-            var border = new Border
-            {
-                Style = (Style)FindResource("ExercicesCardStyle")  // ✅ NOUVEAU NOM
-            };
-
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            // ✅ MODIFIER : Utiliser Titre au lieu de Name
-            var nomText = new TextBlock
-            {
-                Text = exercice.Titre,
-                FontWeight = FontWeights.Bold,
-                Foreground = Brushes.White,
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 14
-            };
-            Grid.SetColumn(nomText, 0);
-
-            // ✅ MODIFIER : Afficher la durée
-            var dureeText = new TextBlock
-            {
-                Text = $"⏱️ {exercice.Duree.TotalMinutes:F0} min",
-                Foreground = new SolidColorBrush(Color.FromRgb(204, 204, 204)),
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 12
-            };
-            Grid.SetColumn(dureeText, 1);
-
-            // ✅ MODIFIER : Utiliser CaloriesBrulees
-            var caloriesText = new TextBlock
-            {
-                Text = $"🔥 {exercice.CaloriesBrulees:F0} cal",
-                Foreground = new SolidColorBrush(Color.FromRgb(204, 204, 204)),
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 12
-            };
-            Grid.SetColumn(caloriesText, 2);
-
-            // Boutons d'actions
-            var actionsPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right
-            };
-
-            var editButton = new Button
-            {
-                Content = "MODIFIER",
-                Style = (Style)FindResource("ExercicesPrimaryButtonStyle"),  // ✅ NOUVEAU NOM
-                Margin = new Thickness(0, 0, 10, 0),
-                Tag = exercice
-            };
-            editButton.Click += EditExercise_Click;
-
-            var deleteButton = new Button
-            {
-                Content = "SUPPRIMER",
-                Style = (Style)FindResource("ExercicesDeleteButtonStyle"),  // ✅ PROPRE
-                Tag = exercice
-            };
-
-            deleteButton.Click += DeleteExercise_Click;
-            actionsPanel.Children.Add(editButton);
-            actionsPanel.Children.Add(deleteButton);
-            Grid.SetColumn(actionsPanel, 3);
-
-            grid.Children.Add(nomText);
-            grid.Children.Add(dureeText);
-            grid.Children.Add(caloriesText);
-            grid.Children.Add(actionsPanel);
-
-            border.Child = grid;
-            return border;
-        }
-
-        private void EditExercise_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = sender as Button;
-            Activite exercice = button.Tag as Activite; // ✅ MODIFIER : Activite au lieu d'Exercice
-
-            if (exercice != null)
-            {
-                ChargerExercicePourEdition(exercice);
-            }
-        }
-
-        private void DeleteExercise_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = sender as Button;
-            Activite exercice = button.Tag as Activite; // ✅ MODIFIER : Activite au lieu d'Exercice
-
-            if (exercice != null)
-            {
-                MessageBoxResult result = MessageBox.Show(
-                    $"Êtes-vous sûr de vouloir supprimer l'exercice '{exercice.Titre}' ?", // ✅ MODIFIER : Titre
-                    "Confirmation de suppression",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    _exercices.Remove(exercice);
-
-                    // ✅ AJOUTER : Supprimer de l'utilisateur
-                    if (_utilisateur != null)
-                    {
-                        _utilisateur.ListeActivites.Remove(exercice);
-                        UserService.MettreAJourUtilisateur(_utilisateur);
-                    }
-
-                    FiltrerExercices();
-                    MettreAJourAffichage();
-                    MessageBox.Show("Exercice supprimé avec succès!", "Succès",
-                                   MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-        }
-
-        // ✅ MODIFIER : Adapter pour la classe Activite
-        private void ChargerExercicePourEdition(Activite exercice)
-        {
-            _estEnModeEdition = true;
-            _exerciceEnEdition = exercice;
-
-            // ✅ MODIFIER : Utiliser les propriétés de Activite
-            ExerciseNameBox.Text = exercice.Titre;
-            CaloriesBox.Text = exercice.CaloriesBrulees.ToString();
-
-            // Estimer le type basé sur la durée (vous pouvez ajuster cette logique)
-            if (exercice.Duree.TotalMinutes <= 10)
-            {
-                // Probablement des répétitions
-                foreach (ComboBoxItem item in TypeComboBox.Items)
-                {
-                    if (item.Tag.ToString() == "repetitions")
-                    {
-                        TypeComboBox.SelectedItem = item;
-                        break;
-                    }
-                }
-                TypeComboBox_SelectionChanged(TypeComboBox, null);
-                RepetitionsBox.Text = $"10 x {exercice.Duree.TotalMinutes:F0}"; // Estimation
-            }
-            else
-            {
-                // Probablement une durée
-                foreach (ComboBoxItem item in TypeComboBox.Items)
-                {
-                    if (item.Tag.ToString() == "duration")
-                    {
-                        TypeComboBox.SelectedItem = item;
-                        break;
-                    }
-                }
-                TypeComboBox_SelectionChanged(TypeComboBox, null);
-                DurationBox.Text = $"{exercice.Duree.TotalMinutes:F0} minutes";
-            }
-
-            AddButton.Content = "MODIFIER";
-        }
-
-        #endregion
-
-        // ✅ AJOUTER : Nettoyage lors de la fermeture
-        ~ExercicesPage()
-        {
-            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
+            catch { return TimeSpan.FromMinutes(30); }
         }
     }
 }
