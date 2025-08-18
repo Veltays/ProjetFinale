@@ -35,37 +35,14 @@
                          Style="{StaticResource ModernTextBox}"
                          Margin="0,0,0,20"/>
 
-                <!-- Date et durée -->
+                <!-- Date -->
+                <TextBlock Text="Date *" Style="{StaticResource LabelStyle}"/>
+                <DatePicker x:Name="DatePicker"
+                            Style="{StaticResource ModernDatePicker}"
+                            Margin="0,0,0,20"/>
+
+                <!-- Heures -->
                 <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Date *" Style="{StaticResource LabelStyle}"/>
-                        <DatePicker x:Name="DatePicker"
-                                    Style="{StaticResource ModernDatePicker}"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Durée" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox x:Name="DureeComboBox"
-                                  Style="{StaticResource ModernComboBox}">
-                            <ComboBoxItem Content="30 min"/>
-                            <ComboBoxItem Content="1 heure" IsSelected="True"/>
-                            <ComboBoxItem Content="1h30"/>
-                            <ComboBoxItem Content="2 heures"/>
-                            <ComboBoxItem Content="2h30"/>
-                            <ComboBoxItem Content="3 heures"/>
-                            <ComboBoxItem Content="Personnalisé"/>
-                        </ComboBox>
-                    </StackPanel>
-                </Grid>
-
-                <!-- Heures personnalisées -->
-                <Grid x:Name="CustomTimePanel" Visibility="Visible" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="10"/>

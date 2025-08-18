@@ -6,8 +6,8 @@
   "Age": 21,
   "MDPHash": "Yassine77!",
   "Poids": 70,
-  "Taille": 180,
-  "ObjectifPoids": 75,
+  "Taille": 190,
+  "ObjectifPoids": 800,
   "DateInscription": "2025-08-10T21:40:05.5275712+02:00",
   "DateObjectif": "2025-12-20T00:00:00",
   "ListeActivites": [
@@ -112,14 +112,14 @@
       "Date": "2025-08-13T18:21:31.254244+02:00"
     }
   ],
-  "IMC": 21.6,
+  "IMC": 19.4,
   "AgeFormate": "21 ANS",
   "PoidsFormate": "70 KG",
-  "TailleFormatee": "180 CM",
-  "IMCFormate": "21,6",
-  "ObjectifPoidsFormate": "75 KG",
+  "TailleFormatee": "190 CM",
+  "IMCFormate": "19,4",
+  "ObjectifPoidsFormate": "800 KG",
   "DateObjectifFormatee": "2025",
-  "IMCObjectifFormate": "23,1 IMC",
+  "IMCObjectifFormate": "221,6 IMC",
   "AnneesRestantesFormate": "0 ANS",
   "MotDePasse": "Yassine77!"
 }

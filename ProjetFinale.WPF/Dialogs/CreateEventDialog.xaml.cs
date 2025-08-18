@@ -14,8 +14,9 @@ namespace ProjetFinale.WPF.Pages
     public partial class CreateEventDialog : Window
     {
         public Agenda CreatedEvent { get; private set; }
+
         private string _selectedColor = "#8B5CF6";
-        private List<Activite> _availableActivites;
+        private readonly List<Activite> _availableActivites;
 
         public CreateEventDialog(DateTime defaultDate, TimeSpan defaultStartTime, List<Activite> activites = null)
         {
@@ -52,101 +53,35 @@ namespace ProjetFinale.WPF.Pages
             ActiviteComboBox.Items.Add("Aucune activité");
 
             foreach (var activite in _availableActivites)
-            {
                 ActiviteComboBox.Items.Add(activite);
-            }
 
             ActiviteComboBox.SelectedIndex = 0;
         }
 
         private void SetupEventHandlers()
         {
-            DureeComboBox.SelectionChanged += DureeComboBox_SelectionChanged;
             LierObjectifCheckBox.Checked += LierObjectifCheckBox_Checked;
             LierObjectifCheckBox.Unchecked += LierObjectifCheckBox_Unchecked;
-        }
-
-        private void DureeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (DureeComboBox.SelectedItem is ComboBoxItem item)
-            {
-                string content = item.Content.ToString();
-
-                if (content == "Personnalisé")
-                {
-                    CustomTimePanel.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    CustomTimePanel.Visibility = Visibility.Collapsed;
-                    UpdateEndTimeFromDuration(content);
-                }
-            }
-        }
-
-        private void UpdateEndTimeFromDuration(string durationText)
-        {
-            if (!TimeSpan.TryParse(HeureDebutTextBox.Text, out TimeSpan startTime))
-                return;
-
-            TimeSpan duration = durationText switch
-            {
-                "30 min" => TimeSpan.FromMinutes(30),
-                "1 heure" => TimeSpan.FromHours(1),
-                "1h30" => TimeSpan.FromHours(1.5),
-                "2 heures" => TimeSpan.FromHours(2),
-                "2h30" => TimeSpan.FromHours(2.5),
-                "3 heures" => TimeSpan.FromHours(3),
-                _ => TimeSpan.FromHours(1)
-            };
-
-            TimeSpan endTime = startTime.Add(duration);
-            HeureFinTextBox.Text = endTime.ToString(@"hh\:mm");
         }
 
         private void LierObjectifCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             ObjectifComboBox.Visibility = Visibility.Visible;
 
-            // Charger les tâches de l'utilisateur comme objectifs
             ObjectifComboBox.Items.Clear();
             ObjectifComboBox.Items.Add("Aucun objectif");
 
-            // 🔥 SOLUTION : Essayer plusieurs sources pour récupérer l'utilisateur
-            Utilisateur utilisateur = null;
+            // Récup utilisateur
+            var utilisateur = UserService.UtilisateurActif ?? JsonService.ChargerUtilisateur();
+            if (utilisateur != null) UserService.UtilisateurActif = utilisateur;
 
-            // 1. Essayer UserService.UtilisateurActif
-            utilisateur = UserService.UtilisateurActif;
-
-            // 2. Si null, essayer de charger depuis le fichier
-            if (utilisateur == null)
+            if (utilisateur?.ListeTaches != null)
             {
-                utilisateur = JsonService.ChargerUtilisateur();
-                if (utilisateur != null)
-                {
-                    UserService.UtilisateurActif = utilisateur; // Synchroniser
-                }
-            }
-
-            // 3. Si toujours null, essayer via les activités passées au constructeur
-            if (utilisateur == null && _availableActivites != null)
-            {
-                // Si vous avez accès à l'utilisateur via les activités
-                // (vous pourriez passer l'utilisateur complet au lieu de juste les activités)
-            }
-
-            if (utilisateur != null && utilisateur.ListeTaches != null)
-            {
-                Console.WriteLine($"🎯 Objectifs trouvés : {utilisateur.ListeTaches.Count} tâches");
                 foreach (var tache in utilisateur.ListeTaches)
-                {
                     ObjectifComboBox.Items.Add(tache);
-                    Console.WriteLine($"   - {tache.Description}");
-                }
             }
             else
             {
-                Console.WriteLine("⚠️ Aucun utilisateur ou aucune tâche trouvé");
                 ObjectifComboBox.Items.Add("(Aucune tâche disponible)");
             }
 
@@ -161,28 +96,24 @@ namespace ProjetFinale.WPF.Pages
 
         private void ColorButton_Click(object sender, RoutedEventArgs e)
         {
-            // Réinitialiser toutes les bordures
+            // Reset
             foreach (Button colorBtn in ColorPanel.Children.OfType<Button>())
-            {
                 colorBtn.BorderBrush = Brushes.Transparent;
-            }
 
-            // Sélectionner la nouvelle couleur
             if (sender is Button button)
             {
                 button.BorderBrush = Brushes.White;
-                _selectedColor = button.Tag.ToString();
+                _selectedColor = button.Tag?.ToString() ?? _selectedColor;
             }
         }
 
         private void Create_Click(object sender, RoutedEventArgs e)
         {
-            if (ValidateForm())
-            {
-                CreatedEvent = CreateEventFromForm();
-                DialogResult = true;
-                Close();
-            }
+            if (!ValidateForm()) return;
+
+            CreatedEvent = CreateEventFromForm();
+            DialogResult = true;
+            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -193,7 +124,7 @@ namespace ProjetFinale.WPF.Pages
 
         private bool ValidateForm()
         {
-            // Vérifier le titre
+            // Titre
             if (string.IsNullOrWhiteSpace(TitreTextBox.Text))
             {
                 MessageBox.Show("Le titre est obligatoire !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -201,28 +132,40 @@ namespace ProjetFinale.WPF.Pages
                 return false;
             }
 
-            // Vérifier la date
+            // Date
             if (!DatePicker.SelectedDate.HasValue)
             {
                 MessageBox.Show("La date est obligatoire !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
-            // Vérifier les heures
-            if (CustomTimePanel.Visibility == Visibility.Visible)
+            // Heures (sans durée)
+            if (!TryParseTime(HeureDebutTextBox.Text, out var start))
             {
-                if (!TimeSpan.TryParse(HeureDebutTextBox.Text, out TimeSpan startTime) ||
-                    !TimeSpan.TryParse(HeureFinTextBox.Text, out TimeSpan endTime))
-                {
-                    MessageBox.Show("Format d'heure invalide ! Utilisez le format HH:MM", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return false;
-                }
+                MessageBox.Show("Heure de début invalide (utilisez HH:MM).", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
 
-                if (endTime <= startTime)
+            // Si fin vide → +1h
+            TimeSpan end;
+            if (string.IsNullOrWhiteSpace(HeureFinTextBox.Text))
+            {
+                end = start.Add(TimeSpan.FromHours(1));
+                HeureFinTextBox.Text = end.ToString(@"hh\:mm");
+            }
+            else
+            {
+                if (!TryParseTime(HeureFinTextBox.Text, out end))
                 {
-                    MessageBox.Show("L'heure de fin doit être postérieure à l'heure de début !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Heure de fin invalide (utilisez HH:MM).", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
+            }
+
+            if (end <= start)
+            {
+                MessageBox.Show("L'heure de fin doit être postérieure à l'heure de début.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
             }
 
             return true;
@@ -230,49 +173,45 @@ namespace ProjetFinale.WPF.Pages
 
         private Agenda CreateEventFromForm()
         {
-            TimeSpan startTime, endTime;
-
-            if (CustomTimePanel.Visibility == Visibility.Visible)
-            {
-                TimeSpan.TryParse(HeureDebutTextBox.Text, out startTime);
-                TimeSpan.TryParse(HeureFinTextBox.Text, out endTime);
-            }
-            else
-            {
-                TimeSpan.TryParse(HeureDebutTextBox.Text, out startTime);
-                string durationText = ((ComboBoxItem)DureeComboBox.SelectedItem).Content.ToString();
-
-                TimeSpan duration = durationText switch
-                {
-                    "30 min" => TimeSpan.FromMinutes(30),
-                    "1 heure" => TimeSpan.FromHours(1),
-                    "1h30" => TimeSpan.FromHours(1.5),
-                    "2 heures" => TimeSpan.FromHours(2),
-                    "2h30" => TimeSpan.FromHours(2.5),
-                    "3 heures" => TimeSpan.FromHours(3),
-                    _ => TimeSpan.FromHours(1)
-                };
-
-                endTime = startTime.Add(duration);
-            }
+            // Parse sûrs (ValidateForm a déjà contrôlé)
+            TryParseTime(HeureDebutTextBox.Text, out var startTime);
+            TryParseTime(HeureFinTextBox.Text, out var endTime);
 
             // Activité sélectionnée
-            Activite selectedActivite = null;
-            if (ActiviteComboBox.SelectedItem is Activite activite)
-            {
-                selectedActivite = activite;
-            }
+            Activite selectedActivite = ActiviteComboBox.SelectedItem as Activite;
 
             return new Agenda
             {
                 Titre = TitreTextBox.Text.Trim(),
-                Date = DatePicker.SelectedDate.Value,
+                Date = DatePicker.SelectedDate!.Value,
                 HeureDebut = startTime,
                 HeureFin = endTime,
                 Couleur = _selectedColor,
                 Description = DescriptionTextBox.Text.Trim(),
                 Activite = selectedActivite
             };
+        }
+
+        /// <summary>
+        /// Tolère "8", "8h", "8:00", "08:00", "8.30" → TimeSpan.
+        /// </summary>
+        private static bool TryParseTime(string input, out TimeSpan result)
+        {
+            result = default;
+            if (string.IsNullOrWhiteSpace(input)) return false;
+
+            var t = input.Trim()
+                         .ToLowerInvariant()
+                         .Replace("h", ":")
+                         .Replace(".", ":");
+
+            // Ajoute les minutes si juste l'heure
+            if (!t.Contains(":")) t += ":00";
+
+            return TimeSpan.TryParseExact(t,
+                                          new[] { @"h\:mm", @"hh\:mm" },
+                                          CultureInfo.InvariantCulture,
+                                          out result);
         }
     }
 }
