@@ -135,9 +135,9 @@ namespace ProjetFinale.WPF.Pages
                 ShowEditEventDialog(evt);
         }
 
-        private void ShowEditEventDialog(Agenda evt)
+        private void ShowEditEventDialog(Agenda original)
         {
-            var dialog = new EditEventDialog(evt, _utilisateur?.ListeActivites)
+            var dialog = new EditEventDialog(original, _utilisateur?.ListeActivites)
             {
                 Owner = Window.GetWindow(this)
             };
@@ -146,16 +146,42 @@ namespace ProjetFinale.WPF.Pages
 
             if (dialog.IsDeleted)
             {
-                // Suppression centralisée (pas de manipulation directe de _events/ListeAgenda)
-                AgendaService.SupprimerEvenement(evt);
-            }
-            else
-            {
-                // Modification centralisée
-                AgendaService.ModifierEvenement(evt);
+                AgendaService.SupprimerEvenement(original);
+                RefreshCalendar();
+                return;
             }
 
+            var draft = dialog.EditedEvent ?? original;
+
+            // Exclure l'original pour la détection
+            var autres = _events.Where(e => !ReferenceEquals(e, original)).ToList();
+            if (AgendaService.VerifierConflitHoraire(draft, autres))
+            {
+                MessageBox.Show(
+                    "Conflit horaire détecté avec un autre événement.",
+                    "Conflit d'horaire",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
+                RefreshCalendar(); // rien n'a été recopié → affichage inchangé
+                return;
+            }
+
+            // Appliquer la copie dans l'original puis persister
+            ApplyAgendaChanges(original, draft);
+            AgendaService.ModifierEvenement(original);
             RefreshCalendar();
+        }
+
+        private static void ApplyAgendaChanges(Agenda target, Agenda source)
+        {
+            target.Titre = source.Titre;
+            target.Description = source.Description;
+            target.Date = source.Date;
+            target.HeureDebut = source.HeureDebut;
+            target.HeureFin = source.HeureFin;
+            target.Couleur = source.Couleur;
+            target.Activite = source.Activite;
         }
 
         // =========================

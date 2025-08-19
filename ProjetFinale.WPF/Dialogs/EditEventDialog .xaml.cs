@@ -14,8 +14,10 @@ namespace ProjetFinale.WPF.Pages
     public partial class EditEventDialog : Window
     {
         public bool IsDeleted { get; private set; }
+        public Agenda? EditedEvent { get; private set; } // <-- résultat à lire par l'appelant
 
-        private readonly Agenda _evt;
+        private readonly Agenda _original;         // juste pour le titre et référence
+        private Agenda _draft;                     // <-- copie de travail
         private readonly List<Activite> _activites;
         private string _selectedColor;
         private Button? _selectedColorBtn;
@@ -24,9 +26,10 @@ namespace ProjetFinale.WPF.Pages
         {
             InitializeComponent();
 
-            _evt = eventToEdit;
+            _original = eventToEdit;
+            _draft = CloneAgenda(eventToEdit);         // <-- on clone ici
             _activites = activites ?? new List<Activite>();
-            _selectedColor = _evt.Couleur;
+            _selectedColor = _draft.Couleur;
 
             InitForm();
             WireEvents();
@@ -35,28 +38,23 @@ namespace ProjetFinale.WPF.Pages
         // ---- Init ----
         private void InitForm()
         {
-            // Texte & date
-            TitreTextBox.Text = _evt.Titre;
-            DatePicker.SelectedDate = _evt.Date;
+            TitreTextBox.Text = _draft.Titre;
+            DatePicker.SelectedDate = _draft.Date;
 
-            // Heures
-            HeureDebutTextBox.Text = _evt.HeureDebut.ToString(@"hh\:mm");
-            HeureFinTextBox.Text = _evt.HeureFin.ToString(@"hh\:mm");
+            HeureDebutTextBox.Text = _draft.HeureDebut.ToString(@"hh\:mm");
+            HeureFinTextBox.Text = _draft.HeureFin.ToString(@"hh\:mm");
 
-            // Description
-            DescriptionTextBox.Text = _evt.Description ?? string.Empty;
+            DescriptionTextBox.Text = _draft.Description ?? string.Empty;
 
-            // Couleur (sélection visuelle)
             SelectColorButton(_selectedColor);
 
-            // Activités
             ActiviteComboBox.Items.Clear();
             ActiviteComboBox.Items.Add("Aucune activité");
             foreach (var a in _activites) ActiviteComboBox.Items.Add(a);
 
-            if (_evt.Activite != null)
+            if (_draft.Activite != null)
             {
-                var current = _activites.FirstOrDefault(a => a.Titre == _evt.Activite.Titre);
+                var current = _activites.FirstOrDefault(a => a.Titre == _draft.Activite.Titre);
                 ActiviteComboBox.SelectedItem = current ?? ActiviteComboBox.Items[0];
             }
             else
@@ -125,7 +123,22 @@ namespace ProjetFinale.WPF.Pages
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (!ValidateForm()) return;
-            ApplyFormToEvent();
+
+            // Remplit la copie _draft depuis le formulaire
+            TryParseTime(HeureDebutTextBox.Text, out var startTime);
+            TryParseTime(HeureFinTextBox.Text, out var endTime);
+
+            _draft.Titre = TitreTextBox.Text.Trim();
+            _draft.Date = DatePicker.SelectedDate!.Value;
+            _draft.HeureDebut = startTime;
+            _draft.HeureFin = endTime;
+            _draft.Couleur = _selectedColor;
+            _draft.Description = DescriptionTextBox.Text.Trim();
+            _draft.Activite = ActiviteComboBox.SelectedItem as Activite;
+
+            // Expose le résultat à l'appelant, sans toucher _original
+            EditedEvent = _draft;
+
             DialogResult = true;
             Close();
         }
@@ -133,7 +146,7 @@ namespace ProjetFinale.WPF.Pages
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             var confirm = MessageBox.Show(
-                $"Êtes-vous sûr de vouloir supprimer l'événement '{_evt.Titre}' ?",
+                $"Êtes-vous sûr de vouloir supprimer l'événement '{_original.Titre}' ?",
                 "Confirmer la suppression",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -194,20 +207,6 @@ namespace ProjetFinale.WPF.Pages
             return true;
         }
 
-        // ---- Apply ----
-        private void ApplyFormToEvent()
-        {
-            TryParseTime(HeureDebutTextBox.Text, out var startTime);
-            TryParseTime(HeureFinTextBox.Text, out var endTime);
-
-            _evt.Titre = TitreTextBox.Text.Trim();
-            _evt.Date = DatePicker.SelectedDate!.Value;
-            _evt.HeureDebut = startTime;
-            _evt.HeureFin = endTime;
-            _evt.Couleur = _selectedColor;
-            _evt.Description = DescriptionTextBox.Text.Trim();
-            _evt.Activite = ActiviteComboBox.SelectedItem as Activite;
-        }
 
         /// <summary>
         /// Tolère "8", "8h", "8:00", "08:00", "8.30".
@@ -227,5 +226,20 @@ namespace ProjetFinale.WPF.Pages
                 out result
             );
         }
+
+
+        private static Agenda CloneAgenda(Agenda a) => new Agenda
+        {
+            Titre = a.Titre,
+            Description = a.Description,
+            Date = a.Date,
+            HeureDebut = a.HeureDebut,
+            HeureFin = a.HeureFin,
+            Couleur = a.Couleur,
+            Activite = a.Activite
+        };
+
+
+
     }
 }

@@ -3,16 +3,17 @@ using ProjetFinale.Models;
 using ProjetFinale.Services;
 using ProjetFinale.Utils;
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml.Serialization;
-using System.Reflection;
 
 namespace ProjetFinale.WPF
 {
@@ -30,6 +31,7 @@ namespace ProjetFinale.WPF
         public ImportPage()
         {
             InitializeComponent();
+            Loaded += (_, __) => RenderHistory();   // reconstruit à chaque arrivée sur la page
         }
 
         // === Boutons ===
@@ -83,17 +85,9 @@ namespace ProjetFinale.WPF
 
             switch (format)
             {
-                case "JSON":
-                    ImportJsonFile(filePath);
-                    break;
-
-                case "CSV":
-                    ImportCsvFile(filePath);   // ⬅️ maintenant : remplace l’utilisateur
-                    break;
-
-                case "XML":
-                    ImportXmlFile(filePath);
-                    break;
+                case "JSON": ImportJsonFile(filePath); break;
+                case "CSV": ImportCsvFile(filePath); break; // remplace l’utilisateur
+                case "XML": ImportXmlFile(filePath); break;
             }
         }
 
@@ -138,104 +132,235 @@ namespace ProjetFinale.WPF
             RefreshAccueilPage();
         }
 
-        // === CSV : remplace l'utilisateur ===
-        // Attendu : un CSV **une ligne** (ou plusieurs), avec entête colonnes correspondant aux propriétés simples de Utilisateur.
-        // Exemple minimal (séparateur ';' ou ','):
-        // Pseudo;Age;Poids;Taille
-        // Yassine;21;72.5;178
-        //
-        // Si plusieurs lignes : on prend la **première** ligne de données.
+        // === CSV : remplace entièrement l'utilisateur + ses listes (compatible avec TON export) ===
         private void ImportCsvFile(string filePath)
         {
-            var lines = File.ReadAllLines(filePath, Encoding.UTF8)
-                            .Where(l => !string.IsNullOrWhiteSpace(l))
-                            .ToArray();
+            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
+            if (lines.Length == 0) throw new Exception("CSV vide.");
 
-            if (lines.Length < 2)
-                throw new Exception("CSV invalide : entête + au moins une ligne de données sont requis.");
+            var u = new Utilisateur
+            {
+                // on initialise les collections (évite null)
+                ListeActivites = new System.Collections.Generic.List<Activite>(),
+                ListeAgenda = new ObservableCollection<Agenda>(),
+                ListeTaches = new ObservableCollection<Tache>()
+            };
 
-            // Détecte séparateur ; ou , automatiquement
-            char sep = DetectCsvSeparator(lines[0]);
+            int i = 0;
+            while (i < lines.Length)
+            {
+                var line = (lines[i] ?? "").Trim();
+                i++;
 
-            var headers = SplitCsvLine(lines[0], sep);
-            var values = SplitCsvLine(lines[1], sep); // 1ère ligne de données
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                if (!line.StartsWith("====", StringComparison.OrdinalIgnoreCase)) continue;
 
-            if (values.Length != headers.Length)
-                throw new Exception("CSV invalide : le nombre de valeurs ne correspond pas au nombre de colonnes.");
+                if (line.Contains("Utilisateur", StringComparison.OrdinalIgnoreCase))
+                {
+                    while (i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]))
+                    {
+                        var (key, val) = SplitKV(lines[i]);
+                        ApplyUserKV(u, key, val);
+                        i++;
+                    }
+                }
+                else if (line.Contains("Tâches", StringComparison.OrdinalIgnoreCase) ||
+                         line.Contains("Taches", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (i < lines.Length && StartsWithIC(lines[i], "Description")) i++;
 
-            var utilisateur = new Utilisateur();
-            MapSimplePropertiesFromCsv(utilisateur, headers, values);
+                    while (i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]))
+                    {
+                        var cols = SplitCsv(lines[i]);
+                        if (cols.Length >= 1)
+                        {
+                            u.ListeTaches.Add(new Tache
+                            {
+                                Description = cols[0].Trim(),
+                                EstTerminee = cols.Length >= 2 && ParseBool(cols[1]),
+                                Date = DateTime.Now
+                            });
+                        }
+                        i++;
+                    }
+                }
+                else if (line.Contains("Activités", StringComparison.OrdinalIgnoreCase) ||
+                         line.Contains("Activites", StringComparison.OrdinalIgnoreCase))
+                {
+                    // saute l'en-tête
+                    if (i < lines.Length && StartsWithIC(lines[i], "Titre")) i++;
 
-            PersistAndBroadcast(utilisateur);
+                    while (i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]))
+                    {
+                        var cols = SplitCsv(lines[i]);
+                        if (cols.Length < 4)
+                            throw new Exception("Ligne 'Activités' invalide : 4 colonnes attendues (Titre,Duree,ImagePath,CaloriesBrulees).");
+
+                        u.ListeActivites.Add(new Activite
+                        {
+                            Titre = cols[0].Trim(),
+                            // TimeSpan attendu : accepte "90" (minutes) ou "01:30[:00]"
+                            Duree = ParseTimeSpanFlexible(cols[1]),
+                            ImagePath = cols[2].Trim(),
+                            CaloriesBrulees = ParseInt(cols[3])
+                        });
+
+                        i++;
+                    }
+                }
+                else if (line.Contains("Agenda", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Skip header: ancien ("HeureDebut,...") ou nouveau ("Titre,...")
+                    if (i < lines.Length && (StartsWithIC(lines[i], "HeureDebut") || StartsWithIC(lines[i], "Titre")))
+                        i++;
+
+                    while (i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]))
+                    {
+                        var cols = SplitCsv(lines[i]);
+
+                        // Au minimum on veut 3 colonnes
+                        if (cols.Length >= 3)
+                        {
+                            // Nouveau format si >= 6 colonnes : Titre,HeureDebut,HeureFin,Date,ActiviteTitre,Couleur[,Description]
+                            bool nouveauFormat = cols.Length >= 6;
+
+                            if (nouveauFormat)
+                            {
+                                // 0  : Titre (Agenda)
+                                // 1-2: HeureDebut / HeureFin
+                                // 3  : Date
+                                // 4  : ActiviteTitre (optionnel)
+                                // 5  : Couleur (optionnel)
+                                // 6  : Description (optionnel)
+                                var titreAgenda = cols[0].Trim();
+                                var heureDebut = ParseTimeSpanFlexible(cols[1]);
+                                var heureFin = ParseTimeSpanFlexible(cols[2]);
+                                var date = ParseDate(cols[3]);
+
+                                Activite? act = null;
+                                if (cols.Length >= 5)
+                                {
+                                    var actTitre = cols[4].Trim();
+                                    if (!string.IsNullOrEmpty(actTitre))
+                                        act = u.ListeActivites.FirstOrDefault(a =>
+                                            a?.Titre?.Equals(actTitre, StringComparison.OrdinalIgnoreCase) == true);
+                                }
+
+                                var agenda = new Agenda
+                                {
+                                    Titre = titreAgenda,
+                                    HeureDebut = heureDebut,
+                                    HeureFin = heureFin,
+                                    Date = date,
+                                    Activite = act
+                                };
+
+                                if (cols.Length >= 6) agenda.Couleur = cols[5].Trim();
+                                if (cols.Length >= 7) agenda.Description = cols[6]; // garde tel quel
+
+                                u.ListeAgenda.Add(agenda);
+                            }
+                            else
+                            {
+                                // Ancien format: HeureDebut,HeureFin,Date,ActiviteTitre
+                                Activite? act = null;
+                                if (cols.Length >= 4)
+                                {
+                                    var actTitre = cols[3].Trim();
+                                    if (!string.IsNullOrEmpty(actTitre))
+                                        act = u.ListeActivites.FirstOrDefault(a =>
+                                            a?.Titre?.Equals(actTitre, StringComparison.OrdinalIgnoreCase) == true);
+                                }
+
+                                u.ListeAgenda.Add(new Agenda
+                                {
+                                    HeureDebut = ParseTimeSpanFlexible(cols[0]),
+                                    HeureFin = ParseTimeSpanFlexible(cols[1]),
+                                    Date = ParseDate(cols[2]),
+                                    Activite = act
+                                });
+                            }
+                        }
+
+                        i++;
+                    }
+                }
+
+                // sauter les lignes vides entre sections
+                while (i < lines.Length && string.IsNullOrWhiteSpace(lines[i])) i++;
+            }
+
+            PersistAndBroadcast(u);
 
             MessageBox.Show(
                 $"✅ Données utilisateur (CSV) importées et remplacées !\n\n" +
-                $"👤 Utilisateur : {utilisateur.Pseudo}\n" +
-                $"📅 Âge : {utilisateur.Age}\n" +
-                $"⚖️ Poids : {utilisateur.Poids}\n" +
-                $"📏 Taille : {utilisateur.Taille}",
+                $"👤 Utilisateur : {u.Pseudo}\n" +
+                $"📅 Âge : {u.Age}\n" +
+                $"⚖️ Poids : {u.Poids}\n" +
+                $"📏 Taille : {u.Taille}",
                 "Import CSV", MessageBoxButton.OK, MessageBoxImage.Information);
 
             RefreshAccueilPage();
         }
 
-        // Mappe seulement les propriétés "simples" usuelles (string, int, double, bool, DateTime) par nom de colonne.
-        private static void MapSimplePropertiesFromCsv(object target, string[] headers, string[] values)
+        // ===== Helpers minimalistes =====
+        private static (string key, string val) SplitKV(string line)
         {
-            var type = target.GetType();
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                            .Where(p => p.CanWrite);
+            var parts = line.Split(',', 2);            // coupe en 2 morceaux max
+            var key = parts[0].Trim();
+            var val = parts.Length > 1 ? parts[1].Trim() : "";
+            return (key, val);
+        }
 
-            // dictionnaire provisoire header->value
-            for (int i = 0; i < headers.Length; i++)
+        private static string[] SplitCsv(string line)
+            => (line ?? "").Split(',').Select(s => s.Trim()).ToArray();
+
+        private static bool StartsWithIC(string s, string prefix)
+            => s?.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) == true;
+
+        private static int ParseInt(string s)
+            => int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n) ? n : 0;
+
+        private static double ParseDouble(string s)
+            => double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : 0d;
+
+        private static bool ParseBool(string s)
+            => s.Equals("true", StringComparison.OrdinalIgnoreCase) || s == "1";
+
+        private static DateTime ParseDate(string s)
+        {
+            if (DateTime.TryParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+                return dt;
+            return DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out dt) ? dt : DateTime.MinValue;
+        }
+
+        // Mappe tous les champs "Utilisateur" exportés
+        private static void ApplyUserKV(Utilisateur u, string key, string val)
+        {
+            switch (key.ToLowerInvariant())
             {
-                var name = headers[i].Trim();
-                var value = values[i].Trim();
+                case "pseudo": u.Pseudo = val; break;
+                case "nom": u.Nom = val; break;
+                case "prenom": u.Prenom = val; break;
+                case "email": u.Email = val; break;
+                case "mdphash":
+                    if (!TrySetStringProperty(u, "MdpHash", val))
+                    {
+                        if (!TrySetStringProperty(u, "MDPHash", val))
+                        {
+                            TrySetStringProperty(u, "MotDePasseHash", val);
+                        }
+                    }
+                    break;
 
-                var prop = props.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-                if (prop == null) continue;
+                case "age": u.Age = ParseInt(val); break;
+                case "poids": u.Poids = ParseDouble(val); break;
+                case "taille": u.Taille = ParseDouble(val); break;
+                case "objectifpoids": u.ObjectifPoids = ParseDouble(val); break;
 
-                object? converted = ConvertString(value, prop.PropertyType);
-                prop.SetValue(target, converted);
+                case "dateinscription": u.DateInscription = ParseDate(val); break;
+                case "dateobjectif": u.DateObjectif = ParseDate(val); break;
             }
-        }
-
-        private static object? ConvertString(string value, Type targetType)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                // valeurs par défaut nullables
-                if (!targetType.IsValueType || Nullable.GetUnderlyingType(targetType) != null)
-                    return null;
-            }
-
-            var t = Nullable.GetUnderlyingType(targetType) ?? targetType;
-
-            if (t == typeof(string)) return value;
-            if (t == typeof(int)) return int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var i) ? i : 0;
-            if (t == typeof(double)) return double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var d) ? d : 0d;
-            if (t == typeof(float)) return float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var f) ? f : 0f;
-            if (t == typeof(decimal)) return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var m) ? m : 0m;
-            if (t == typeof(bool)) return value.Equals("1") || value.Equals("true", StringComparison.OrdinalIgnoreCase);
-            if (t == typeof(DateTime)) return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dt) ? dt : DateTime.MinValue;
-
-            // Types non gérés (collections, objets complexes) : on ignore proprement.
-            return null;
-        }
-
-        private static char DetectCsvSeparator(string headerLine)
-        {
-            // simple heuristique
-            var comma = headerLine.Count(c => c == ',');
-            var semi = headerLine.Count(c => c == ';');
-            return semi >= comma ? ';' : ',';
-        }
-
-        private static string[] SplitCsvLine(string line, char sep)
-        {
-            // Split simple (sans guillemets imbriqués). Suffisant pour notre usage.
-            // Si besoin de CSV avancé (quotes/escapes), on pourra upgrader.
-            return line.Split(sep).Select(s => s.Trim()).ToArray();
         }
 
         // === Persistance + propagation ===
@@ -252,7 +377,6 @@ namespace ProjetFinale.WPF
             {
                 if (Application.Current.MainWindow is Views.MainWindow main)
                 {
-                    main.NavigateToAccueil();
                     Console.WriteLine("🔄 Page Accueil rafraîchie");
                 }
             }
@@ -263,7 +387,14 @@ namespace ProjetFinale.WPF
         }
 
         // === Historique UI ===
+
         private void AddToHistory(string format, string fileName, long fileSize, DateTime importedAt)
+        {
+            ImportHistoryService.Add(new ImportHistoryEntry(format, fileName, fileSize, importedAt));
+            RenderHistory(); // rafraîchit l’affichage
+        }
+
+        private Border BuildHistoryItem(string format, string fileName, long fileSize, DateTime importedAt)
         {
             var item = new Border
             {
@@ -303,22 +434,7 @@ namespace ProjetFinale.WPF
             row.Children.Add(icon);
             row.Children.Add(info);
             item.Child = row;
-
-            // Ajoute en haut, garde 5 éléments max
-            if (HistoryGrid.Children.Count == 1 && HistoryGrid.Children[0] is TextBlock)
-            {
-                HistoryGrid.Children.Clear();
-                var stack = new StackPanel();
-                stack.Children.Add(item);
-                HistoryGrid.Children.Add(stack);
-                return;
-            }
-
-            if (HistoryGrid.Children.Count > 0 && HistoryGrid.Children[0] is StackPanel s)
-            {
-                s.Children.Insert(0, item);
-                if (s.Children.Count > 5) s.Children.RemoveAt(s.Children.Count - 1);
-            }
+            return item;
         }
 
         // === Utils ===
@@ -329,16 +445,60 @@ namespace ProjetFinale.WPF
             "XML" => "📜",
             _ => "📁"
         };
+        private void RenderHistory()
+        {
+            // Vide le conteneur
+            HistoryGrid.Children.Clear();
 
+            var list = ImportHistoryService.Load();
+            if (list.Count == 0)
+            {
+                // texte “Aucun import” si vide
+                HistoryGrid.Children.Add(new TextBlock
+                {
+                    Text = "Aucun import effectué pour le moment",
+                    Foreground = new SolidColorBrush(Color.FromArgb(255, 204, 204, 204)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 8, 0, 8)
+                });
+                return;
+            }
+
+            var stack = new StackPanel();
+            foreach (var h in list)
+                stack.Children.Add(BuildHistoryItem(h.Format, h.FileName, h.FileSize, h.ImportedAt));
+
+            HistoryGrid.Children.Add(stack);
+        }
         private static string FormatFileSize(long bytes)
         {
             if (bytes < 1024) return $"{bytes} B";
-
             double kb = bytes / 1024d;
             if (kb < 1024) return $"{kb:F1} KB";
-
             double mb = kb / 1024d;
             return $"{mb:F1} MB";
         }
+
+        private static TimeSpan ParseTimeSpanFlexible(string s)
+        {
+            if (TimeSpan.TryParse(s, out var ts)) return ts;
+            if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes))
+                return TimeSpan.FromMinutes(minutes);
+            return TimeSpan.Zero;
+        }
+
+        private static bool TrySetStringProperty(object target, string propertyName, string value)
+        {
+            var prop = target.GetType()
+                             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                             .FirstOrDefault(p => p.CanWrite &&
+                                                  string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase) &&
+                                                  p.PropertyType == typeof(string));
+            if (prop == null) return false;
+            prop.SetValue(target, value);
+            return true;
+        }
+
+
     }
 }

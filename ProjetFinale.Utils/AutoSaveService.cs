@@ -4,132 +4,175 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Microsoft.Win32;
-using ProjetFinale.Services;   // JsonService, UserService
-
-// Alias pour éviter l'ambiguïté entre System.Timers.Timer et System.Threading.Timer
-using STimer = System.Timers.Timer;
+using ProjetFinale.Services; // UserService
 
 namespace ProjetFinale.Utils
 {
     /// <summary>
-    /// Service d’auto-sauvegarde JSON (singleton).
-    /// Utilise System.Timers.Timer (hors UI) + SemaphoreSlim pour éviter le chevauchement.
-    /// Aucune dépendance à WPF.
+    /// AutoSaveService = service d’auto-sauvegarde (singleton).
+    /// - Lance un minuteur (timer) qui crée périodiquement un "snapshot" JSON.
+    /// - À la fermeture de l’app, crée un dernier snapshot si activé.
+    /// - Lit sa configuration (activé + fréquence) dans la Registry.
     /// </summary>
     public sealed class AutoSaveService
     {
+        // --------- Constantes & chemins ---------
+        private const string RegistryPath = @"Software\ProjetFinale";
+        private const string RegistryKeyEnabled = "SauvegardeAuto";
+        private const string RegistryKeyFrequency = "FrequenceSauvegarde"; // "1 min" | "5 min" | "15 min" | "30 min"
+
+        private static readonly string AutoSaveFolder =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ProjetFitness");
+        // // Chemin du dossier où seront stockés les snapshots JSON
+        // --> "Documents\ProjetFitness\AutoSaves"
+
+        // --------- Singleton ---------
         private static readonly Lazy<AutoSaveService> _lazy = new(() => new AutoSaveService());
         public static AutoSaveService Instance => _lazy.Value;
 
-        private readonly STimer _timer;
-        private readonly SemaphoreSlim _lock = new(1, 1);
-
+        // --------- État interne ---------
+        private readonly System.Timers.Timer _timer;
+        private readonly SemaphoreSlim _snapshotMutex = new(1, 1); // empêche 2 sauvegardes en parallèle
         private bool _isEnabled;
         private TimeSpan _interval = TimeSpan.FromMinutes(5);
 
+        // --------- Ctor privé (singleton) ---------
         private AutoSaveService()
         {
-            _timer = new STimer(_interval.TotalMilliseconds)
+            _timer = new System.Timers.Timer(_interval.TotalMilliseconds)
             {
-                AutoReset = true
+                AutoReset = true, // relance automatiquement après chaque tick
+                Enabled = false   // on ne démarre pas tant qu’on n’a pas lu la config
             };
-            _timer.Elapsed += async (_, __) => await OnTickAsync().ConfigureAwait(false);
+
+            _timer.Elapsed += async (_, __) =>
+            {
+                // Un tick = on tente un snapshot
+                await CreateSnapshotAsync().ConfigureAwait(false);
+            };
         }
 
-        /// <summary>Activer/Désactiver le service.</summary>
-        public void Enable(bool enabled)
+        // =========================================================
+        // API publique : configuration & cycle de vie
+        // =========================================================
+
+        /// <summary>Active ou désactive l’auto-sauvegarde.</summary>
+        public void SetEnabled(bool enabled)
         {
             _isEnabled = enabled;
-            ReapplyTimerState();
+            ApplyTimerState();
         }
 
-        /// <summary>Changer l’intervalle (minutes).</summary>
-        public void SetInterval(int minutes)
+        /// <summary>Change la fréquence (en minutes, minimum 1).</summary>
+        public void SetIntervalMinutes(int minutes)
         {
             if (minutes <= 0) minutes = 1;
             _interval = TimeSpan.FromMinutes(minutes);
             _timer.Interval = _interval.TotalMilliseconds;
-            ReapplyTimerState();
+            ApplyTimerState();
         }
 
-        /// <summary>Configuration complète.</summary>
+        /// <summary>Configure entièrement (activé + intervalle).</summary>
         public void Configure(bool enabled, TimeSpan interval)
         {
             _isEnabled = enabled;
             _interval = interval <= TimeSpan.Zero ? TimeSpan.FromMinutes(1) : interval;
             _timer.Interval = _interval.TotalMilliseconds;
-            ReapplyTimerState();
+            ApplyTimerState();
         }
 
-        /// <summary>
-        /// (Re)lit la configuration depuis le Registry (sans dépendre de SettingsManager).
-        /// </summary>
-        public void ConfigureFromSettings()
+        /// <summary>Lit la configuration depuis la Registry et l’applique.</summary>
+        public void ConfigureFromRegistry()
         {
-            bool enabled = GetRegistryBool(@"Software\ProjetFinale", "SauvegardeAuto", true);
-            string freq = GetRegistryString(@"Software\ProjetFinale", "FrequenceSauvegarde", "5 min");
-            var minutes = MapFrequencyToMinutes(freq);
+            bool enabled = ReadRegistryBool(RegistryPath, RegistryKeyEnabled, defaultValue: true);
+            string freqLabel = ReadRegistryString(RegistryPath, RegistryKeyFrequency, defaultValue: "5 min");
+            int minutes = FrequencyLabelToMinutes(freqLabel);
+
             Configure(enabled, TimeSpan.FromMinutes(minutes));
         }
 
-        /// <summary>Export complet en JSON (fichier horodaté). Retourne le chemin écrit.</summary>
-        public async Task<string> ExportAllAsync()
+        /// <summary>
+        /// À appeler au démarrage (après ConfigureFromRegistry) si tu veux démarrer explicitement.
+        /// Utile si tu préfères ne pas démarrer dans Configure().
+        /// </summary>
+        public void StartIfEnabled() => ApplyTimerState();
+
+        /// <summary>
+        /// À appeler à la fermeture de l’application.
+        /// Si l’autosave est activée, on arrête le timer et on force un dernier snapshot.
+        /// </summary>
+        public async Task HandleAppClosingAsync()
         {
-            // Empêche deux exports en parallèle
-            if (!await _lock.WaitAsync(0).ConfigureAwait(false))
+            // Recharge la config au cas où
+            ConfigureFromRegistry();
+
+            if (!_isEnabled) return;
+
+            _timer.Stop(); // évite un tick concurrent pendant la fermeture
+            await CreateSnapshotAsync().ConfigureAwait(false);
+        }
+
+        // =========================================================
+        // Snapshot : écrit un JSON horodaté sur disque (dossier AutoSaves)
+        // =========================================================
+
+        /// <summary>
+        /// Crée un snapshot JSON (retourne le chemin du fichier). Retourne "" si déjà en cours ou si erreur.
+        /// </summary>
+        public async Task<string> CreateSnapshotAsync()
+        {
+            // Empêche deux snapshots en parallèle
+            if (!await _snapshotMutex.WaitAsync(0).ConfigureAwait(false))
                 return string.Empty;
 
             try
             {
-                var snapshot = AppStateAggregator.GetAllData();
+                // 1) Récupère l’état courant (ce que tu veux inclure dans l’export)
+                var state = AppStateAggregator.GetAllData();
 
-                var options = new JsonSerializerOptions
+                // 2) Options JSON lisibles + robustes
+                var jsonOptions = new JsonSerializerOptions
                 {
                     WriteIndented = true,
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     ReferenceHandler = ReferenceHandler.IgnoreCycles
                 };
 
-                string json = JsonSerializer.Serialize(snapshot, options);
+                string json = JsonSerializer.Serialize(state, jsonOptions);
 
-                string baseDir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "ProjetFitness",
-                    "AutoSaves");
-
-                Directory.CreateDirectory(baseDir);
-
+                // 3) Prépare le dossier + nom de fichier
+                Directory.CreateDirectory(AutoSaveFolder);
                 string fileName = $"autosave_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json";
-                string fullPath = Path.Combine(baseDir, fileName);
+                string fullPath = Path.Combine(AutoSaveFolder, fileName);
 
+                // 4) Écrit le fichier
                 await File.WriteAllTextAsync(fullPath, json).ConfigureAwait(false);
                 return fullPath;
             }
             catch
             {
-                return string.Empty; // TODO: logger si besoin
+                // Ici tu peux logguer si tu as un logger central
+                return string.Empty;
             }
             finally
             {
-                _lock.Release();
+                _snapshotMutex.Release();
             }
         }
 
-        private async Task OnTickAsync()
-        {
-            _ = await ExportAllAsync().ConfigureAwait(false);
-        }
+        // =========================================================
+        // Helpers privés
+        // =========================================================
 
-        private void ReapplyTimerState()
+        private void ApplyTimerState()
         {
             _timer.Stop();
             if (_isEnabled)
                 _timer.Start();
         }
 
-        internal static int MapFrequencyToMinutes(string frequency) => frequency switch
+        internal static int FrequencyLabelToMinutes(string label) => label switch
         {
             "1 min" => 1,
             "5 min" => 5,
@@ -138,30 +181,37 @@ namespace ProjetFinale.Utils
             _ => 5
         };
 
-        private static string GetRegistryString(string path, string name, string def)
+        private static string ReadRegistryString(string path, string name, string defaultValue)
         {
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(path);
-                return key?.GetValue(name)?.ToString() ?? def;
+                return key?.GetValue(name)?.ToString() ?? defaultValue;
             }
-            catch { return def; }
+            catch
+            {
+                return defaultValue;
+            }
         }
 
-        private static bool GetRegistryBool(string path, string name, bool def)
+        private static bool ReadRegistryBool(string path, string name, bool defaultValue)
         {
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(path);
                 var s = key?.GetValue(name)?.ToString();
-                return s == null ? def : s.Equals("true", StringComparison.OrdinalIgnoreCase);
+                return s == null ? defaultValue : s.Equals("true", StringComparison.OrdinalIgnoreCase);
             }
-            catch { return def; }
+            catch
+            {
+                return defaultValue;
+            }
         }
     }
 
     /// <summary>
-    /// Petit agrégateur d’état à étendre selon les besoins.
+    /// Point central pour agréger l’état à sauvegarder.
+    /// Étends cet objet quand tu veux inclure plus de données.
     /// </summary>
     public static class AppStateAggregator
     {
@@ -169,7 +219,6 @@ namespace ProjetFinale.Utils
         {
             var user = UserService.UtilisateurActif;
 
-            // TODO: Ajouter ici d’autres données (agendas, exercices, objectifs, etc.)
             return new
             {
                 generatedAt = DateTime.Now,

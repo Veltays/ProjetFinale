@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Threading.Tasks;
 using ProjetFinale.Services;
 using ProjetFinale.Utils;   // SettingsContext, ThemeManager
 using ProjetFinale.Views;   // LoginWindow
@@ -20,6 +21,7 @@ namespace ProjetFinale
             ApplyUnitsToContext();
             ApplyTheme();
             ApplyWpfResources();
+            AutoSaveService.Instance.ConfigureFromRegistry();
 
             var window = CreateStartupWindow();
             MainWindow = window;
@@ -67,5 +69,16 @@ namespace ProjetFinale
             }
             return new LoginWindow();
         }
+
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Dernière sauvegarde si activée
+            AutoSaveService.Instance.HandleAppClosingAsync()
+                .GetAwaiter().GetResult();
+
+            base.OnExit(e);
+        }
+
     }
 }

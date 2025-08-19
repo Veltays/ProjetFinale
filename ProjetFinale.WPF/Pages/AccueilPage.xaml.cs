@@ -61,13 +61,6 @@ namespace ProjetFinale.WPF
                 double taille = double.Parse(TailleTextBox.Text);
                 int age = int.Parse(AgeTextBox.Text);
 
-                // ✅ Vérifie si quelque chose a réellement changé
-                if (poids == _user.Poids && taille == _user.Taille && age == _user.Age)
-                {
-                    MessageBox.Show("Aucune modification détectée.", "Info",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
 
                 // 📝 Mise à jour
                 _user.Poids = poids;
@@ -104,13 +97,6 @@ namespace ProjetFinale.WPF
                 DateTime dateVisee = DateObjectifPicker.SelectedDate
                     ?? throw new FormatException("Veuillez sélectionner une date.");
 
-                // ✅ Vérifie si les données ont réellement changé
-                if (poidsVise == _user.ObjectifPoids && dateVisee == _user.DateObjectif)
-                {
-                    MessageBox.Show("Aucune modification détectée.", "Info",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
 
                 // 📝 Mise à jour
                 _user.ObjectifPoids = poidsVise;

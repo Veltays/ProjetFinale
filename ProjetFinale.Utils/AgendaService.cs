@@ -1,172 +1,133 @@
-﻿using Newtonsoft.Json;
-using ProjetFinale.Models;
-using ProjetFinale.Utils;           // ✅ pour JsonService
+﻿using ProjetFinale.Models;
+using ProjetFinale.Utils; // JsonService
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 
 namespace ProjetFinale.Services
 {
-    /// <summary>
-    /// Version refactorée : 
-    /// - PLUS AUCUN accès à agenda.json
-    /// - TOUT passe par UserService.UtilisateurActif.ListeAgenda
-    /// - Sauvegarde via JsonService.SauvegarderUtilisateur(utilisateur)
-    /// </summary>
     public static class AgendaService
     {
-        // ==========
-        // Helpers internes
-        // ==========
-
+        // --- Accès rapide à l'utilisateur actif
         private static Utilisateur? CurrentUser => UserService.UtilisateurActif;
 
-        private static ObservableCollection<Agenda> GetAgendaCollection(bool createIfNull = true)
+        // Retourne la collection d'agenda de l'utilisateur (crée si null)
+        private static ObservableCollection<Agenda> GetAgendaCollection(bool createIfMissing = true)
         {
             var user = CurrentUser;
             if (user == null)
             {
-                Console.WriteLine("⚠️ Aucun utilisateur actif. ListeAgenda indisponible.");
+                Console.WriteLine("⚠️ Aucun utilisateur actif.");
                 return new ObservableCollection<Agenda>();
             }
 
-            if (user.ListeAgenda == null && createIfNull)
+            if (user.ListeAgenda == null && createIfMissing)
             {
                 user.ListeAgenda = new ObservableCollection<Agenda>();
-                TrySaveUser(user);
+                SaveUser(user);
             }
 
             return user.ListeAgenda ?? new ObservableCollection<Agenda>();
         }
 
-        private static bool TrySaveUser(Utilisateur? user = null)
+        // Sauvegarde l'utilisateur actif (évite les try/catch répétitifs)
+        private static bool SaveUser(Utilisateur? user = null)
         {
+            user ??= CurrentUser;
+            if (user == null)
+            {
+                Console.WriteLine("⚠️ Sauvegarde ignorée (aucun utilisateur).");
+                return false;
+            }
+
             try
             {
-                user ??= CurrentUser;
-                if (user == null)
-                {
-                    Console.WriteLine("⚠️ Sauvegarde ignorée : aucun utilisateur actif.");
-                    return false;
-                }
-
                 JsonService.SauvegarderUtilisateur(user);
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Erreur lors de la sauvegarde de l'utilisateur : {ex.Message}");
+                Console.WriteLine($"❌ Erreur sauvegarde utilisateur : {ex.Message}");
                 return false;
             }
         }
 
-        // ==========
-        // API publique (signatures conservées quand possible)
-        // ==========
+        // --- API publique (noms conservés)
 
-        /// <summary>
-        /// (Refactor) Sauvegarder les événements = met à jour ListeAgenda de l'utilisateur et sauvegarde l'utilisateur.
-        /// </summary>
+        // Remplace toute la liste par 'evenements' et sauvegarde
         public static void SauvegarderAgenda(List<Agenda> evenements)
         {
             var user = CurrentUser;
             if (user == null)
             {
-                Console.WriteLine("⚠️ SauvegarderAgenda ignoré : aucun utilisateur actif.");
+                Console.WriteLine("⚠️ SauvegarderAgenda ignoré (aucun utilisateur).");
                 return;
             }
 
             user.ListeAgenda = new ObservableCollection<Agenda>(evenements ?? new List<Agenda>());
-            TrySaveUser(user);
+            SaveUser(user);
         }
 
-        /// <summary>
-        /// (Refactor) Charger les événements = lit depuis UtilisateurActif.ListeAgenda
-        /// </summary>
+        // Renvoie une copie List<> pour compatibilité
         public static List<Agenda> ChargerAgenda()
         {
-            var list = GetAgendaCollection(createIfNull: false);
-            // On renvoie une copie List pour compatibilité avec l'existant
+            var list = GetAgendaCollection(createIfMissing: false);
             return list?.ToList() ?? new List<Agenda>();
         }
 
-        /// <summary>
-        /// Ajouter un nouvel événement (dans l'utilisateur), puis sauvegarder l'utilisateur.
-        /// </summary>
+        // Ajoute un événement et sauvegarde
         public static void AjouterEvenement(Agenda nouvelEvenement)
         {
             if (nouvelEvenement == null) return;
 
-            var coll = GetAgendaCollection();
-            coll.Add(nouvelEvenement);
-            TrySaveUser();
+            var agenda = GetAgendaCollection();
+            agenda.Add(nouvelEvenement);
+            SaveUser();
         }
 
-        /// <summary>
-        /// Modifier un événement existant (match naïf : Date + HeureDébut + Titre), puis sauvegarder.
-        /// </summary>
+        // Modifie (match simple : Date + HeureDébut + Titre) puis sauvegarde
         public static void ModifierEvenement(Agenda evenementModifie)
         {
             if (evenementModifie == null) return;
 
-            var coll = GetAgendaCollection();
-            var index = coll.ToList().FindIndex(e =>
-                e.Date == evenementModifie.Date &&
-                e.HeureDebut == evenementModifie.HeureDebut &&
-                e.Titre == evenementModifie.Titre);
-
+            var agenda = GetAgendaCollection();
+            var index = agenda.ToList().FindIndex(e => IsSameIdentity(e, evenementModifie));
             if (index >= 0)
             {
-                coll[index] = evenementModifie;
-                TrySaveUser();
+                agenda[index] = evenementModifie;
+                SaveUser();
             }
         }
 
-        /// <summary>
-        /// Supprimer un événement (match naïf : Date + HeureDébut + Titre), puis sauvegarder.
-        /// </summary>
+        // Supprime (match simple : Date + HeureDébut + Titre) puis sauvegarde
         public static void SupprimerEvenement(Agenda evenementASupprimer)
         {
             if (evenementASupprimer == null) return;
 
-            var coll = GetAgendaCollection();
-            // On recherche toutes les correspondances "équivalentes"
-            var toRemove = coll.Where(e =>
-                e.Date == evenementASupprimer.Date &&
-                e.HeureDebut == evenementASupprimer.HeureDebut &&
-                e.Titre == evenementASupprimer.Titre).ToList();
+            var agenda = GetAgendaCollection();
+            var toRemove = agenda.Where(e => IsSameIdentity(e, evenementASupprimer)).ToList();
+            foreach (var e in toRemove) agenda.Remove(e);
 
-            foreach (var e in toRemove)
-                coll.Remove(e);
-
-            TrySaveUser();
+            if (toRemove.Count > 0) SaveUser();
         }
 
-        /// <summary>
-        /// Obtenir les événements d'une période.
-        /// </summary>
+        // Renvoie les événements dans [dateDebut, dateFin]
         public static List<Agenda> ObtenirEvenements(DateTime dateDebut, DateTime dateFin)
         {
-            var evenements = ChargerAgenda();
-            return evenements
+            return ChargerAgenda()
                 .Where(e => e.Date >= dateDebut && e.Date <= dateFin)
                 .ToList();
         }
 
-        /// <summary>
-        /// Obtenir les événements d'une semaine (dateDebutSemaine = lundi).
-        /// </summary>
+        // Renvoie les événements d'une semaine (lundi -> dimanche)
         public static List<Agenda> ObtenirEvenementsSemaine(DateTime dateDebutSemaine)
         {
             var dateFin = dateDebutSemaine.AddDays(6);
             return ObtenirEvenements(dateDebutSemaine, dateFin);
         }
 
-        /// <summary>
-        /// Obtenir les événements d'une journée (toute la journée).
-        /// </summary>
+        // Renvoie les événements d'un jour (toute la journée)
         public static List<Agenda> ObtenirEvenementsJour(DateTime date)
         {
             var debut = date.Date;
@@ -174,75 +135,50 @@ namespace ProjetFinale.Services
             return ObtenirEvenements(debut, fin);
         }
 
-        /// <summary>
-        /// Vérifier s'il y a un conflit horaire.
-        /// Par défaut, on vérifie vs la liste de l'utilisateur.
-        /// </summary>
-        public static bool VerifierConflitHoraire(Agenda nouvelEvenement, List<Agenda> evenementsExistants = null)
+        // Détecte un chevauchement horaire le même jour
+        public static bool VerifierConflitHoraire(Agenda nouvelEvenement, List<Agenda> existants = null)
         {
-            evenementsExistants ??= ChargerAgenda();
+            if (nouvelEvenement == null) return false;
 
-            return evenementsExistants.Any(e =>
+            existants ??= ChargerAgenda();
+
+            return existants.Any(e =>
                 e.Date.Date == nouvelEvenement.Date.Date &&
                 !(nouvelEvenement.HeureFin <= e.HeureDebut || nouvelEvenement.HeureDebut >= e.HeureFin));
         }
 
-        /// <summary>
-        /// Statistiques de la semaine.
-        /// </summary>
+        // Stats semaine : nombre d'événements + total heures
         public static (int NombreEvenements, double HeuresTotal) ObtenirStatistiquesSemaine(DateTime dateDebutSemaine)
         {
-            var evenements = ObtenirEvenementsSemaine(dateDebutSemaine);
-            var nombreEvenements = evenements.Count;
-            var heuresTotal = evenements.Sum(e => (e.HeureFin - e.HeureDebut).TotalHours);
-            return (nombreEvenements, heuresTotal);
+            var semaine = ObtenirEvenementsSemaine(dateDebutSemaine);
+            var count = semaine.Count;
+            var heures = semaine.Sum(e => (e.HeureFin - e.HeureDebut).TotalHours);
+            return (count, heures);
         }
 
-        /// <summary>
-        /// Export CSV : lit la liste de l'utilisateur (pas de fichier externe).
-        /// </summary>
-        public static string ExporterCSV()
-        {
-            var evenements = ChargerAgenda();
-            var lignes = new List<string>
-            {
-                "Date,HeureDebut,HeureFin,Titre,Description,Activite,Couleur"
-            };
+   
 
-            foreach (var evt in evenements.OrderBy(e => e.Date).ThenBy(e => e.HeureDebut))
-            {
-                var ligne = $"{evt.Date:yyyy-MM-dd}," +
-                           $"{evt.HeureDebut:hh\\:mm}," +
-                           $"{evt.HeureFin:hh\\:mm}," +
-                           $"\"{evt.Titre}\"," +
-                           $"\"{(evt.Description ?? "").Replace("\"", "\"\"")}\"," +
-                           $"\"{(evt.Activite?.Titre ?? "").Replace("\"", "\"\"")}\"," +
-                           $"{evt.Couleur}";
-                lignes.Add(ligne);
-            }
-
-            return string.Join(Environment.NewLine, lignes);
-        }
-
-        /// <summary>
-        /// Nettoyer les anciens événements (plus de 1 an) dans l'utilisateur, puis sauvegarder.
-        /// </summary>
+        // Supprime les événements de plus d'un an et sauvegarde si changement
         public static void NettoyerAnciensEvenements()
         {
-            var coll = GetAgendaCollection();
-            var dateSeuilSuppression = DateTime.Now.AddYears(-1);
+            var agenda = GetAgendaCollection();
+            var seuil = DateTime.Now.AddYears(-1);
 
-            var conserves = coll.Where(e => e.Date >= dateSeuilSuppression).ToList();
-            if (conserves.Count != coll.Count)
-            {
-                // Remplacer la collection (préserve le binding si la prop Notifies)
-                var user = CurrentUser;
-                if (user != null)
-                {
-                    user.ListeAgenda = new ObservableCollection<Agenda>(conserves);
-                    TrySaveUser(user);
-                }
-            }
+            var conserves = agenda.Where(e => e.Date >= seuil).ToList();
+            if (conserves.Count == agenda.Count) return;
+
+            var user = CurrentUser;
+            if (user == null) return;
+
+            user.ListeAgenda = new ObservableCollection<Agenda>(conserves);
+            SaveUser(user);
         }
+
+        // --- Petits helpers privés
+
+        // Identité “simple” d’un événement
+        private static bool IsSameIdentity(Agenda a, Agenda b) =>
+            a.Date == b.Date && a.HeureDebut == b.HeureDebut && a.Titre == b.Titre;
+
     }
 }

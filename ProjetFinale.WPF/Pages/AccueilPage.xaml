@@ -98,13 +98,13 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBox x:Name="TailleTextBox"
-         Grid.Column="0"
-         Text="{Binding Taille, Converter={StaticResource HeightConverter}, UpdateSourceTrigger=PropertyChanged}"
-         Style="{StaticResource AccueilEditableTextBoxStyle}"/>
+                                                     Grid.Column="0"
+                                                     Text="{Binding Taille, Converter={StaticResource HeightConverter}, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource AccueilEditableTextBoxStyle}"/>
 
                                             <TextBlock Grid.Column="1"
-           Text="{Binding Source={x:Static utils:SettingsContext.Instance}, Path=HeightUnit}"
-           Style="{StaticResource AccueilFieldUnitStyle}"/>
+                                                       Text="{Binding Source={x:Static utils:SettingsContext.Instance}, Path=HeightUnit}"
+                                                       Style="{StaticResource AccueilFieldUnitStyle}"/>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
@@ -161,9 +161,9 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="ObjectifPoidsTextBox"
-         Grid.Column="0"
-         Text="{Binding ObjectifPoids, Converter={StaticResource WeightConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-         Style="{StaticResource AccueilEditableTextBoxStyle}"/>
+                                             Grid.Column="0"
+                                             Text="{Binding ObjectifPoids, Converter={StaticResource WeightConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource AccueilEditableTextBoxStyle}"/>
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding Source={x:Static utils:SettingsContext.Instance}, Path=WeightUnit}"
                                                Style="{StaticResource AccueilObjectifsUnitStyle}"/>

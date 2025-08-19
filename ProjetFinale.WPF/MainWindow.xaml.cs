@@ -133,8 +133,19 @@ namespace ProjetFinale.Views
 
             if (!ok) return;
 
+            // 1) Couper l’auto-login (registre)
+            var settings = new SettingsManager();
+            settings.IsLogin = false;
+
+            // 2) Vider la session en mémoire
+            UserService.UtilisateurActif = null;
+
+            // 3) Ouvrir l’écran de login sans arrêter l’app
             var login = new LoginWindow();
+            Application.Current.MainWindow = login; // ⚠️ évite le Shutdown automatique
             login.Show();
+
+            // 4) Fermer la fenêtre actuelle
             Close();
         }
     }

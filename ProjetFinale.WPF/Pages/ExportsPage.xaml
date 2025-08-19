@@ -133,9 +133,7 @@
                         <Button Content="EXPORTER TOUT (.zip)"
                                 Style="{StaticResource ExportsBigButtonStyle}"
                                 Click="ExportAll_Click"/>
-                        <Button Content="PROGRAMMER EXPORT"
-                                Style="{StaticResource ExportsSecondaryButtonStyle}"
-                                Click="ScheduleExport_Click"/>
+
                     </StackPanel>
                 </StackPanel>
             </Border>

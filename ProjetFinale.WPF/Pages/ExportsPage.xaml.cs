@@ -4,7 +4,6 @@ using ProjetFinale.Services;
 using ProjetFinale.Utils;
 using System;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,335 +11,134 @@ namespace ProjetFinale.WPF
 {
     public partial class ExportsPage : Page
     {
-        private readonly ExportService _exportService = new ExportService();
+        private readonly ExportService _exportService = new();
         private Utilisateur? _utilisateur;
+
+        private const string DefaultXmlDir =
+            @"C:\Users\grany\OneDrive\HEPL\BAC2\Q2\Programmation orientée objet en C#\ProjetFinale\ProjetFinale.WPF\Datafile\";
 
         public ExportsPage()
         {
             InitializeComponent();
             InitialiserUtilisateur();
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+            Unloaded += (_, __) => UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
         }
 
         private void InitialiserUtilisateur()
         {
-            // Essayer d'abord l'utilisateur actif
-            _utilisateur = UserService.UtilisateurActif;
+            _utilisateur = UserService.UtilisateurActif ?? JsonService.ChargerUtilisateur();
+            if (UserService.UtilisateurActif == null && _utilisateur != null)
+                UserService.UtilisateurActif = _utilisateur;
 
-            // Si pas d'utilisateur actif, charger depuis le fichier
-            if (_utilisateur == null)
-            {
-                _utilisateur = JsonService.ChargerUtilisateur();
-                if (_utilisateur != null)
-                {
-                    UserService.UtilisateurActif = _utilisateur;
-                }
-            }
-
-            // 🔥 DÉFINIR LE DATACONTEXT pour les stats dynamiques
             if (_utilisateur != null)
-            {
-                this.DataContext = _utilisateur;
-                Console.WriteLine($"✅ DataContext défini pour ExportsPage : {_utilisateur.Pseudo}");
-                Console.WriteLine($"   Données à exporter :");
-                Console.WriteLine($"   - {_utilisateur.ListeTaches.Count} tâches");
-                Console.WriteLine($"   - {_utilisateur.ListeActivites.Count} activités");
-                Console.WriteLine($"   - {_utilisateur.ListeAgenda.Count} événements agenda");
-            }
+                DataContext = _utilisateur;
             else
-            {
-                Console.WriteLine("⚠️ Aucun utilisateur trouvé pour ExportsPage");
-
-                // Afficher un message à l'utilisateur
                 MessageBox.Show("❌ Aucun utilisateur trouvé.\nVeuillez vous connecter ou importer des données.",
-                               "Aucune donnée", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-
-            // 🆕 S'abonner aux changements d'utilisateur (après import par exemple)
-            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+                                "Aucune donnée", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
-        // 🆕 Méthode appelée quand l'utilisateur change (après import)
-        private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
+        private void OnUtilisateurChanged(Utilisateur? u)
         {
-            _utilisateur = nouvelUtilisateur;
-            this.DataContext = nouvelUtilisateur;
-
-            if (nouvelUtilisateur != null)
-            {
-                Console.WriteLine($"🔄 ExportsPage - Utilisateur changé : {nouvelUtilisateur.Pseudo}");
-                Console.WriteLine($"   Nouvelles données : {nouvelUtilisateur.ListeTaches.Count} tâches");
-            }
+            _utilisateur = u;
+            DataContext = u;
         }
 
-        // === ÉVÉNEMENTS D'EXPORT (améliorés avec validation) ===
-
+        // === Exports ===
         private void ExportJSON_Click(object sender, RoutedEventArgs e)
         {
-            if (!VerifierUtilisateur()) return;
+            if (_utilisateur == null) { AlerteNoUser(); return; }
 
-            var dialog = new SaveFileDialog
-            {
-                Filter = "Fichier JSON (*.json)|*.json",
-                FileName = $"{_utilisateur.Pseudo}_complet.json"
-            };
+            var dlg = new SaveFileDialog { Filter = "Fichier JSON (*.json)|*.json", FileName = $"{_utilisateur.Pseudo}_complet.json" };
+            if (dlg.ShowDialog() != true) return;
 
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    _exportService.ExportJson(_utilisateur, dialog.FileName);
-                    AfficherSuccesExport("JSON", dialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    AfficherErreurExport("JSON", ex.Message);
-                }
-            }
+            try { _exportService.ExportJson(_utilisateur, dlg.FileName); Succes("JSON", dlg.FileName); }
+            catch (Exception ex) { Erreur("JSON", ex.Message); }
         }
 
         private void ExportSerialize_Click(object sender, RoutedEventArgs e)
         {
-            if (!VerifierUtilisateur()) return;
+            if (_utilisateur == null) { AlerteNoUser(); return; }
 
-            var dialog = new SaveFileDialog
+            var dlg = new SaveFileDialog
             {
                 Filter = "Fichier XML (*.xml)|*.xml",
-                FileName = $"{_utilisateur.Pseudo}_complet.xml"
+                FileName = $"{_utilisateur.Pseudo}_complet.xml",
+                InitialDirectory = Directory.Exists(DefaultXmlDir)
+                    ? DefaultXmlDir
+                    : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
+            if (dlg.ShowDialog() != true) return;
 
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    _exportService.ExportXml(_utilisateur, dialog.FileName);
-                    AfficherSuccesExport("XML", dialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    AfficherErreurExport("XML", ex.Message);
-                }
-            }
+            try { _exportService.ExportXml(_utilisateur, dlg.FileName); Succes("XML", dlg.FileName); }
+            catch (Exception ex) { Erreur("XML", ex.Message); }
         }
 
         private void ExportCSV_Click(object sender, RoutedEventArgs e)
         {
-            if (!VerifierUtilisateur()) return;
+            if (_utilisateur == null) { AlerteNoUser(); return; }
 
-            var dialog = new SaveFileDialog
-            {
-                Filter = "Fichier CSV (*.csv)|*.csv",
-                FileName = $"{_utilisateur.Pseudo}_complet.csv"
-            };
+            var dlg = new SaveFileDialog { Filter = "Fichier CSV (*.csv)|*.csv", FileName = $"{_utilisateur.Pseudo}_complet.csv" };
+            if (dlg.ShowDialog() != true) return;
 
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    ExportCSVToFile(dialog.FileName);
-                    AfficherSuccesExport("CSV", dialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    AfficherErreurExport("CSV", ex.Message);
-                }
-            }
-        }
-
-        private void ScheduleExport_Click(object sender, RoutedEventArgs e)
-        {
-            if (!VerifierUtilisateur()) return;
-
-            var dialog = new SaveFileDialog
-            {
-                Filter = "Fichier TXT (*.txt)|*.txt",
-                FileName = $"{_utilisateur.Pseudo}_rapport.txt"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    ExportTXTToFile(dialog.FileName);
-                    AfficherSuccesExport("TXT", dialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    AfficherErreurExport("TXT", ex.Message);
-                }
-            }
+            try { _exportService.ExportCsv(_utilisateur, dlg.FileName); Succes("CSV", dlg.FileName); }
+            catch (Exception ex) { Erreur("CSV", ex.Message); }
         }
 
         private void ExportAll_Click(object sender, RoutedEventArgs e)
         {
-            if (!VerifierUtilisateur()) return;
+            if (_utilisateur == null) { AlerteNoUser(); return; }
 
             try
             {
-                string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
+                var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
                 Directory.CreateDirectory(folder);
+                var baseName = $"{_utilisateur.Pseudo}_{DateTime.Now:yyyyMMdd_HHmmss}";
 
-                string baseFileName = $"{_utilisateur.Pseudo}_{DateTime.Now:yyyyMMdd_HHmmss}";
+                var json = Path.Combine(folder, $"{baseName}.json");
+                var xml = Path.Combine(folder, $"{baseName}.xml");
+                var csv = Path.Combine(folder, $"{baseName}.csv");
 
-                // Export dans tous les formats
-                _exportService.ExportJson(_utilisateur, Path.Combine(folder, $"{baseFileName}.json"));
-                _exportService.ExportXml(_utilisateur, Path.Combine(folder, $"{baseFileName}.xml"));
-                ExportCSVToFile(Path.Combine(folder, $"{baseFileName}.csv"));
-                ExportTXTToFile(Path.Combine(folder, $"{baseFileName}.txt"));
+                _exportService.ExportJson(_utilisateur, json);
+                _exportService.ExportXml(_utilisateur, xml);
+                _exportService.ExportCsv(_utilisateur, csv);
 
-                // Message de succès avec statistiques
-                var totalTaches = _utilisateur.ListeTaches.Count;
-                var totalActivites = _utilisateur.ListeActivites.Count;
-                var totalAgenda = _utilisateur.ListeAgenda.Count;
-              
-
-                MessageBox.Show($"✅ Export complet réussi !\n\n" +
-                               $"📂 Emplacement : {folder}\n" +
-                               $"📊 Données exportées :\n" +
-                               $"   • {totalTaches} tâches\n" +
-                               $"   • {totalActivites} activités\n" +
-                               $"   • {totalAgenda} événements agenda\n" +
-                               $"📁 Formats créés : JSON, XML, CSV, TXT",
-                               "Export terminé", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                Console.WriteLine($"✅ Export complet réussi pour {_utilisateur.Pseudo}");
+                MessageBox.Show(
+                    $"✅ Export complet réussi !\n\n" +
+                    $"📂 Emplacement : {folder}\n" +
+                    $"📊 Données exportées :\n" +
+                    $"   • {_utilisateur.ListeTaches?.Count ?? 0} tâches\n" +
+                    $"   • {_utilisateur.ListeActivites?.Count ?? 0} activités\n" +
+                    $"   • {_utilisateur.ListeAgenda?.Count ?? 0} événements agenda\n" +
+                    $"📁 Formats créés : JSON, XML, CSV",
+                    "Export terminé", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Erreur lors de l'export complet :\n{ex.Message}",
-                               "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                Erreur("COMPLET", ex.Message);
             }
         }
 
-        // === MÉTHODES UTILITAIRES ===
+        // === UI utils courts ===
+        private static void AlerteNoUser() =>
+            MessageBox.Show("❌ Aucun utilisateur chargé.\nVeuillez vous connecter ou importer des données.",
+                            "Aucune donnée", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-        private bool VerifierUtilisateur()
+        private static void Succes(string format, string fichier)
         {
-            if (_utilisateur == null)
-            {
-                MessageBox.Show("❌ Aucun utilisateur chargé.\nVeuillez vous connecter ou importer des données.",
-                               "Aucune donnée", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
-            return true;
+            var size = new FileInfo(fichier).Length;
+            var human = size < 1024 ? $"{size} B" : (size < 1024 * 1024 ? $"{size / 1024d:F1} KB" : $"{size / 1024d / 1024d:F1} MB");
+
+            MessageBox.Show(
+                $"✅ Export {format} réussi !\n\n" +
+                $"📁 Fichier : {Path.GetFileName(fichier)}\n" +
+                $"📏 Taille : {human}\n" +
+                $"📂 Emplacement : {Path.GetDirectoryName(fichier)}",
+                "Export terminé", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void AfficherSuccesExport(string format, string fichier)
-        {
-            var tailleFichier = new FileInfo(fichier).Length;
-            string tailleFormatee = FormatFileSize(tailleFichier);
-
-            MessageBox.Show($"✅ Export {format} réussi !\n\n" +
-                           $"📁 Fichier : {Path.GetFileName(fichier)}\n" +
-                           $"📏 Taille : {tailleFormatee}\n" +
-                           $"📂 Emplacement : {Path.GetDirectoryName(fichier)}",
-                           "Export terminé", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            Console.WriteLine($"✅ Export {format} réussi : {fichier} ({tailleFormatee})");
-        }
-
-        private void AfficherErreurExport(string format, string erreur)
-        {
-            MessageBox.Show($"❌ Erreur lors de l'export {format} :\n{erreur}",
-                           "Erreur d'export", MessageBoxButton.OK, MessageBoxImage.Error);
-            Console.WriteLine($"❌ Erreur export {format} : {erreur}");
-        }
-
-        private string FormatFileSize(long bytes)
-        {
-            if (bytes < 1024)
-                return $"{bytes} B";
-            else if (bytes < 1024 * 1024)
-                return $"{bytes / 1024:F1} KB";
-            else
-                return $"{bytes / (1024 * 1024):F1} MB";
-        }
-
-        // 🆕 Méthode publique pour rafraîchir (si nécessaire)
-        public void RafraichirDonnees()
-        {
-            InitialiserUtilisateur();
-        }
-
-        // === MÉTHODES D'EXPORT (conservées) ===
-
-        private void ExportCSVToFile(string path)
-        {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("==== Utilisateur ====");
-            sb.AppendLine($"Pseudo,{_utilisateur.Pseudo}");
-            sb.AppendLine($"Nom,{_utilisateur.Nom}");
-            sb.AppendLine($"Prenom,{_utilisateur.Prenom}");
-            sb.AppendLine($"Email,{_utilisateur.Email}");
-            sb.AppendLine($"Age,{_utilisateur.Age}");
-            sb.AppendLine($"Taille,{_utilisateur.Taille}");
-            sb.AppendLine($"Poids,{_utilisateur.Poids}");
-            sb.AppendLine($"ObjectifPoids,{_utilisateur.ObjectifPoids}");
-            sb.AppendLine($"DateInscription,{_utilisateur.DateInscription:yyyy-MM-dd}");
-            sb.AppendLine($"DateObjectif,{_utilisateur.DateObjectif:yyyy-MM-dd}");
-            sb.AppendLine();
-
-            sb.AppendLine("==== Tâches ====");
-            sb.AppendLine("Description,EstTerminee");
-            foreach (var t in _utilisateur.ListeTaches)
-                sb.AppendLine($"{t.Description},{t.EstTerminee}");
-            sb.AppendLine();
-
-            sb.AppendLine("==== Activités ====");
-            sb.AppendLine("Titre,Duree,CaloriesBrulees");
-            foreach (var a in _utilisateur.ListeActivites)
-                sb.AppendLine($"{a.Titre},{a.Duree},{a.CaloriesBrulees}");
-            sb.AppendLine();
-
-            sb.AppendLine("==== Agenda ====");
-            sb.AppendLine("HeureDebut,HeureFin,Date,ActiviteTitre");
-            foreach (var a in _utilisateur.ListeAgenda)
-                sb.AppendLine($"{a.HeureDebut},{a.HeureFin},{a.Date:yyyy-MM-dd},{a.Activite?.Titre}");
-            sb.AppendLine();
-
-            File.WriteAllText(path, sb.ToString());
-        }
-
-        private void ExportTXTToFile(string path)
-        {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("=== UTILISATEUR ===");
-            sb.AppendLine($"Pseudo : {_utilisateur.Pseudo}");
-            sb.AppendLine($"Nom : {_utilisateur.Nom}");
-            sb.AppendLine($"Prénom : {_utilisateur.Prenom}");
-            sb.AppendLine($"Email : {_utilisateur.Email}");
-            sb.AppendLine($"Age : {_utilisateur.Age}");
-            sb.AppendLine($"Taille : {_utilisateur.Taille} cm");
-            sb.AppendLine($"Poids : {_utilisateur.Poids} kg");
-            sb.AppendLine($"IMC : {_utilisateur.IMC:F1}");
-            sb.AppendLine($"Objectif : {_utilisateur.ObjectifPoids} kg d'ici le {_utilisateur.DateObjectif:dd/MM/yyyy}");
-            sb.AppendLine($"Date d'inscription : {_utilisateur.DateInscription:dd/MM/yyyy}");
-            sb.AppendLine();
-
-            sb.AppendLine("=== TÂCHES ===");
-            foreach (var t in _utilisateur.ListeTaches)
-                sb.AppendLine($"- {t.Description} ({(t.EstTerminee ? "✅ terminée" : "⏳ en cours")})");
-            sb.AppendLine();
-
-            sb.AppendLine("=== ACTIVITÉS ===");
-            foreach (var a in _utilisateur.ListeActivites)
-                sb.AppendLine($"- {a.Titre} : {a.Duree} min, {a.CaloriesBrulees} kcal");
-            sb.AppendLine();
-
-            sb.AppendLine("=== AGENDA ===");
-            foreach (var ag in _utilisateur.ListeAgenda)
-                sb.AppendLine($"- {ag.Date:dd/MM/yyyy} : {ag.HeureDebut}-{ag.HeureFin} ({ag.Activite?.Titre})");
-            sb.AppendLine();
-
-
-            File.WriteAllText(path, sb.ToString());
-        }
-
-        // 🆕 Nettoyer les événements quand la page se ferme
-        ~ExportsPage()
-        {
-            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
-        }
+        private static void Erreur(string format, string msg) =>
+            MessageBox.Show($"❌ Erreur lors de l'export {format} :\n{msg}",
+                            "Erreur d'export", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }

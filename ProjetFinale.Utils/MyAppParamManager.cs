@@ -1,6 +1,7 @@
-﻿using System;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using ProjetFinale.Utils;
+using System;
+using System.Reflection.Emit;
 
 namespace ProjetFinale.Utils
 {
@@ -105,7 +106,6 @@ namespace ProjetFinale.Utils
                 FormatTaille = format;
                 UpdateLastModified();
 
-                // TODO conversions éventuelles
             }
         }
 
@@ -307,8 +307,8 @@ namespace ProjetFinale.Utils
 
         private void ReconfigureAutoSaveTimer(string frequency)
         {
-            var minutes = Utils.AutoSaveService.MapFrequencyToMinutes(frequency);
-            AutoSaveService.Instance.SetInterval(minutes);
+            var minutes = AutoSaveService.FrequencyLabelToMinutes(frequency);
+            AutoSaveService.Instance.SetIntervalMinutes(minutes);
         }
 
         private void ConfigureWorkoutNotifications(bool isEnabled)
@@ -323,7 +323,7 @@ namespace ProjetFinale.Utils
 
         private void ConfigureAutoSave(bool isEnabled)
         {
-            AutoSaveService.Instance.Enable(isEnabled);
+            AutoSaveService.Instance.SetEnabled(isEnabled);
         }
 
         private void DeleteAllUserData()

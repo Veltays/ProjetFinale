@@ -55,10 +55,18 @@ namespace ProjetFinale.Views
             // Si OK → continuer
             MessageBox.Show($"Bienvenue {utilisateur.Prenom} ! Profil créé avec succès.", "Succès");
 
+
+            // Si ton service ne le fait pas déjà :
+            UserService.UtilisateurActif ??= utilisateur;
+
             var paramManager = new SettingsManager();
             paramManager.IsLogin = true;
 
             var mainWindow = new MainWindow();
+
+            // ⚠️ rendre MainWindow = mainWindow avant de fermer le login
+            Application.Current.MainWindow = mainWindow;
+
             mainWindow.Show();
             this.Close();
         }

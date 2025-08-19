@@ -37,7 +37,7 @@ namespace ProjetFinale.WPF
 
         private void BrancherEvenements()
         {
-            // Une seule méthode pour les 3 ComboBox
+            // Une seule méthode pour les 3 ComboBox  // c'est le WPF qui fait l'invoke
             FormatPoidsComboBox.SelectionChanged += Combo_SelectionChanged;
             FormatTailleComboBox.SelectionChanged += Combo_SelectionChanged;
             SaveFrequencyComboBox.SelectionChanged += Combo_SelectionChanged;

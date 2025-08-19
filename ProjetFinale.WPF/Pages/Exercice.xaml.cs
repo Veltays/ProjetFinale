@@ -96,23 +96,14 @@ namespace ProjetFinale.Views
             }
             else
             {
-                // Données par défaut, histoire que la page ne soit jamais “vide”
-                _exercices = new List<Activite>
-                {
-                    new() { Titre = "Développé couché", CaloriesBrulees = 180, Duree = TimeSpan.FromMinutes(45), ImagePath = "/Images/developpe_couche.png" },
-                    new() { Titre = "Course à pied",    CaloriesBrulees = 300, Duree = TimeSpan.FromMinutes(30), ImagePath = "/Images/course.png"         },
-                    new() { Titre = "Squats",           CaloriesBrulees = 120, Duree = TimeSpan.FromMinutes(20), ImagePath = "/Images/squats.png"         }
-                };
-
-                // Et on les pousse dans l’utilisateur la 1ère fois
-                if (_utilisateur != null)
-                {
-                    foreach (var ex in _exercices) _utilisateur.ListeActivites.Add(ex);
-                    UserService.MettreAJourUtilisateur(_utilisateur);
-                }
+                // Plus d'exercices par défaut → juste une liste vide
+                _exercices = new List<Activite>();
+                _utilisateur?.ListeActivites.Clear();
+                UserService.MettreAJourUtilisateur(_utilisateur);
             }
 
             _exercicesFiltres = new List<Activite>(_exercices);
+
             // Reset UI image formulaire
             _imagePathForm = null;
             RafraichirPreview(null);
@@ -203,7 +194,8 @@ namespace ProjetFinale.Views
 
             ResetFormulaire();
             AppliquerFiltre();
-            RafraichirListe(); BinderDataGrid();
+            RafraichirListe(); 
+            BinderDataGrid();
         }
 
         // ------------------------------------------------------------
