@@ -87,13 +87,13 @@
                                     <Line Style="{StaticResource ImportExcelVLine2Style}"/>
                                 </Canvas>
                             </Border>
-                            <TextBlock Text="EXCEL (.xlsx)" Style="{StaticResource ImportCardTitleStyle}"/>
-                            <TextBlock Text="Importez directement depuis vos fichiers Excel avec support des feuilles multiples."
+                            <TextBlock Text="XML (.xml)" Style="{StaticResource ImportCardTitleStyle}"/>
+                            <TextBlock Text="Importez directement depuis vos fichiers XML"
                                        Style="{StaticResource ImportCardDescriptionStyle}"/>
                             <TextBlock Text="TAILLE MAX: ~10 MB" Style="{StaticResource ImportCardSizeBlueStyle}"/>
-                            <Button Content="IMPORTER EXCEL"
+                            <Button Content="Importer XML"
                                     Style="{StaticResource ImportButtonStyle}"
-                                    Click="ImportExcel_Click"/>
+                                    Click="ImportXML_Click" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>

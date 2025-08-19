@@ -12,26 +12,10 @@
   "DateObjectif": "2027-01-23T00:00:00",
   "ListeActivites": [
     {
-      "Titre": "Muscle",
-      "Duree": "00:15:00",
+      "Titre": "D\u00E9velopp\u00E9 Couch\u00E9",
+      "Duree": "39.01:10:00",
       "CaloriesBrulees": 120,
-      "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\80ce39cafcf24a299cf6470a6e788d32.png",
-      "Id": 0,
-      "Date": "0001-01-01T00:00:00"
-    },
-    {
-      "Titre": "Caca",
-      "Duree": "02:00:00",
-      "CaloriesBrulees": 5181,
-      "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\dd41bcb3e13c456dbdb95aae014b0068.png",
-      "Id": 0,
-      "Date": "0001-01-01T00:00:00"
-    },
-    {
-      "Titre": "Baiser",
-      "Duree": "00:12:00",
-      "CaloriesBrulees": 100,
-      "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\737ceac67ae64806befbba9d53e93271.png",
+      "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\8edb23625d6943c0971a5d6b5a1cb56e.png",
       "Id": 0,
       "Date": "0001-01-01T00:00:00"
     }

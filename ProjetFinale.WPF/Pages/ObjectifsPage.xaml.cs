@@ -165,6 +165,8 @@ namespace ProjetFinale.WPF
                     MessageBoxImage.Error
                 );
             }
+
+
         }
 
         // Appel manuel si besoin

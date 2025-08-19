@@ -94,19 +94,6 @@ namespace ProjetFinale.WPF
             }
         }
 
-        // ---- BOUTONS ----
-        private void ModifierProfil_Click(object sender, RoutedEventArgs e)
-        {
-            Afficher("Redirection vers modification profil...");
-        }
-
-        private void SupprimerCompte_Click(object sender, RoutedEventArgs e)
-        {
-            if (!ConfirmerSuppression()) return;
-            _settings.DeleteAccount();
-            Afficher("Compte supprimé !");
-        }
-
         // ---- HELPERS ----
         private static int IndexFrequence(string f) => f switch
         {
@@ -120,24 +107,7 @@ namespace ProjetFinale.WPF
         private static string ContentAsString(object? item) =>
             item is ComboBoxItem { Content: not null } c ? c.Content.ToString()! : item?.ToString() ?? string.Empty;
 
-        private static bool ConfirmerSuppression()
-        {
-            var r1 = MessageBox.Show(
-                "ATTENTION ! Voulez-vous vraiment supprimer votre compte ?\n\nToutes vos données seront perdues !",
-                "⚠️ Suppression du compte",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
 
-            if (r1 != MessageBoxResult.Yes) return false;
-
-            var r2 = MessageBox.Show(
-                "DERNIÈRE CHANCE !\n\nÊtes-vous VRAIMENT sûr de vouloir supprimer définitivement votre compte ?",
-                "⚠️ Confirmation finale",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Stop);
-
-            return r2 == MessageBoxResult.Yes;
-        }
 
         private static void Afficher(string msg) =>
             MessageBox.Show(msg, "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);

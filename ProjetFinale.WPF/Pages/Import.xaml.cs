@@ -3,11 +3,16 @@ using ProjetFinale.Models;
 using ProjetFinale.Services;
 using ProjetFinale.Utils;
 using System;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Xml.Serialization;
+using System.Reflection;
 
 namespace ProjetFinale.WPF
 {
@@ -16,9 +21,9 @@ namespace ProjetFinale.WPF
         // Limites (octets)
         private const long MAX_JSON_BYTES = 2L * 1024 * 1024;
         private const long MAX_CSV_BYTES = 5L * 1024 * 1024;
-        private const long MAX_XLS_BYTES = 10L * 1024 * 1024;
+        private const long MAX_XML_BYTES = 5L * 1024 * 1024;
 
-        // Couleurs UI (garde le même rendu)
+        // Couleurs UI
         private static readonly SolidColorBrush AccentBrush = new(Color.FromArgb(255, 175, 102, 255));
         private static readonly SolidColorBrush MutedTextBrush = new(Color.FromArgb(255, 204, 204, 204));
 
@@ -27,15 +32,21 @@ namespace ProjetFinale.WPF
             InitializeComponent();
         }
 
-        // === Handlers boutons ===
+        // === Boutons ===
         private void ImportCSV_Click(object sender, RoutedEventArgs e)
-            => OpenAndProcess("Sélectionner un fichier CSV", "Fichiers CSV (*.csv)|*.csv|Tous les fichiers (*.*)|*.*", "csv", "CSV", MAX_CSV_BYTES);
+            => OpenAndProcess("Sélectionner un fichier CSV",
+                              "Fichiers CSV (*.csv)|*.csv|Tous les fichiers (*.*)|*.*",
+                              "csv", "CSV", MAX_CSV_BYTES);
 
         private void ImportJSON_Click(object sender, RoutedEventArgs e)
-            => OpenAndProcess("Sélectionner un fichier JSON", "Fichiers JSON (*.json)|*.json|Tous les fichiers (*.*)|*.*", "json", "JSON", MAX_JSON_BYTES);
+            => OpenAndProcess("Sélectionner un fichier JSON",
+                              "Fichiers JSON (*.json)|*.json|Tous les fichiers (*.*)|*.*",
+                              "json", "JSON", MAX_JSON_BYTES);
 
-        private void ImportExcel_Click(object sender, RoutedEventArgs e)
-            => OpenAndProcess("Sélectionner un fichier Excel", "Fichiers Excel (*.xlsx;*.xls)|*.xlsx;*.xls|Tous les fichiers (*.*)|*.*", "xlsx", "EXCEL", MAX_XLS_BYTES);
+        private void ImportXML_Click(object sender, RoutedEventArgs e)
+            => OpenAndProcess("Sélectionner un fichier XML",
+                              "Fichiers XML (*.xml)|*.xml|Tous les fichiers (*.*)|*.*",
+                              "xml", "XML", MAX_XML_BYTES);
 
         // === Orchestration commune ===
         private void OpenAndProcess(string title, string filter, string defaultExt, string format, long maxBytes)
@@ -77,47 +88,164 @@ namespace ProjetFinale.WPF
                     break;
 
                 case "CSV":
-                    MessageBox.Show("Import CSV pas encore implémenté", "Info",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    ImportCsvFile(filePath);   // ⬅️ maintenant : remplace l’utilisateur
                     break;
 
-                case "EXCEL":
-                    MessageBox.Show("Import Excel pas encore implémenté", "Info",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                case "XML":
+                    ImportXmlFile(filePath);
                     break;
             }
         }
 
-        // === JSON ===
+        // === JSON : remplace l'utilisateur ===
         private void ImportJsonFile(string filePath)
         {
-            Console.WriteLine($"🔄 Début import JSON : {filePath}");
-
-            var json = File.ReadAllText(filePath);
+            var json = File.ReadAllText(filePath, Encoding.UTF8);
             var utilisateur = JsonSerializer.Deserialize<Utilisateur>(json)
-                ?? throw new Exception("Impossible de désérialiser le fichier JSON");
+                ?? throw new Exception("Impossible de désérialiser le fichier JSON.");
 
-            Console.WriteLine($"✅ Utilisateur désérialisé : {utilisateur.Pseudo}, Age: {utilisateur.Age}");
-
-            // Remplace les données locales
-            JsonService.SauvegarderUtilisateur(utilisateur);
-            UserService.UtilisateurActif = utilisateur;
-
-            Console.WriteLine("💾 Utilisateur sauvegardé + UtilisateurActif mis à jour");
-
-            RefreshAccueilPage();
+            PersistAndBroadcast(utilisateur);
 
             MessageBox.Show(
-                $"✅ Données utilisateur importées et remplacées !\n\n" +
+                $"✅ Données utilisateur (JSON) importées et remplacées !\n\n" +
                 $"👤 Utilisateur : {utilisateur.Pseudo}\n" +
-                $"📅 Âge : {utilisateur.Age} ans\n" +
-                $"⚖️ Poids : {utilisateur.Poids} kg\n" +
-                $"📏 Taille : {utilisateur.Taille} cm\n\n" +
-                $"➡️ Allez sur la page Account pour voir les changements !",
-                "Import réussi", MessageBoxButton.OK, MessageBoxImage.Information);
+                $"📅 Âge : {utilisateur.Age}\n" +
+                $"⚖️ Poids : {utilisateur.Poids}\n" +
+                $"📏 Taille : {utilisateur.Taille}",
+                "Import JSON", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            RefreshAccueilPage();
         }
 
-        // Navigue pour forcer un rafraîchissement visuel
+        // === XML : remplace l'utilisateur ===
+        private void ImportXmlFile(string filePath)
+        {
+            var ser = new XmlSerializer(typeof(Utilisateur));
+            using var fs = File.OpenRead(filePath);
+            if (ser.Deserialize(fs) is not Utilisateur utilisateur)
+                throw new Exception("Impossible de désérialiser le fichier XML.");
+
+            PersistAndBroadcast(utilisateur);
+
+            MessageBox.Show(
+                $"✅ Données utilisateur (XML) importées et remplacées !\n\n" +
+                $"👤 Utilisateur : {utilisateur.Pseudo}\n" +
+                $"📅 Âge : {utilisateur.Age}\n" +
+                $"⚖️ Poids : {utilisateur.Poids}\n" +
+                $"📏 Taille : {utilisateur.Taille}",
+                "Import XML", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            RefreshAccueilPage();
+        }
+
+        // === CSV : remplace l'utilisateur ===
+        // Attendu : un CSV **une ligne** (ou plusieurs), avec entête colonnes correspondant aux propriétés simples de Utilisateur.
+        // Exemple minimal (séparateur ';' ou ','):
+        // Pseudo;Age;Poids;Taille
+        // Yassine;21;72.5;178
+        //
+        // Si plusieurs lignes : on prend la **première** ligne de données.
+        private void ImportCsvFile(string filePath)
+        {
+            var lines = File.ReadAllLines(filePath, Encoding.UTF8)
+                            .Where(l => !string.IsNullOrWhiteSpace(l))
+                            .ToArray();
+
+            if (lines.Length < 2)
+                throw new Exception("CSV invalide : entête + au moins une ligne de données sont requis.");
+
+            // Détecte séparateur ; ou , automatiquement
+            char sep = DetectCsvSeparator(lines[0]);
+
+            var headers = SplitCsvLine(lines[0], sep);
+            var values = SplitCsvLine(lines[1], sep); // 1ère ligne de données
+
+            if (values.Length != headers.Length)
+                throw new Exception("CSV invalide : le nombre de valeurs ne correspond pas au nombre de colonnes.");
+
+            var utilisateur = new Utilisateur();
+            MapSimplePropertiesFromCsv(utilisateur, headers, values);
+
+            PersistAndBroadcast(utilisateur);
+
+            MessageBox.Show(
+                $"✅ Données utilisateur (CSV) importées et remplacées !\n\n" +
+                $"👤 Utilisateur : {utilisateur.Pseudo}\n" +
+                $"📅 Âge : {utilisateur.Age}\n" +
+                $"⚖️ Poids : {utilisateur.Poids}\n" +
+                $"📏 Taille : {utilisateur.Taille}",
+                "Import CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            RefreshAccueilPage();
+        }
+
+        // Mappe seulement les propriétés "simples" usuelles (string, int, double, bool, DateTime) par nom de colonne.
+        private static void MapSimplePropertiesFromCsv(object target, string[] headers, string[] values)
+        {
+            var type = target.GetType();
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                            .Where(p => p.CanWrite);
+
+            // dictionnaire provisoire header->value
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var name = headers[i].Trim();
+                var value = values[i].Trim();
+
+                var prop = props.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                if (prop == null) continue;
+
+                object? converted = ConvertString(value, prop.PropertyType);
+                prop.SetValue(target, converted);
+            }
+        }
+
+        private static object? ConvertString(string value, Type targetType)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                // valeurs par défaut nullables
+                if (!targetType.IsValueType || Nullable.GetUnderlyingType(targetType) != null)
+                    return null;
+            }
+
+            var t = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            if (t == typeof(string)) return value;
+            if (t == typeof(int)) return int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var i) ? i : 0;
+            if (t == typeof(double)) return double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var d) ? d : 0d;
+            if (t == typeof(float)) return float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var f) ? f : 0f;
+            if (t == typeof(decimal)) return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var m) ? m : 0m;
+            if (t == typeof(bool)) return value.Equals("1") || value.Equals("true", StringComparison.OrdinalIgnoreCase);
+            if (t == typeof(DateTime)) return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dt) ? dt : DateTime.MinValue;
+
+            // Types non gérés (collections, objets complexes) : on ignore proprement.
+            return null;
+        }
+
+        private static char DetectCsvSeparator(string headerLine)
+        {
+            // simple heuristique
+            var comma = headerLine.Count(c => c == ',');
+            var semi = headerLine.Count(c => c == ';');
+            return semi >= comma ? ';' : ',';
+        }
+
+        private static string[] SplitCsvLine(string line, char sep)
+        {
+            // Split simple (sans guillemets imbriqués). Suffisant pour notre usage.
+            // Si besoin de CSV avancé (quotes/escapes), on pourra upgrader.
+            return line.Split(sep).Select(s => s.Trim()).ToArray();
+        }
+
+        // === Persistance + propagation ===
+        private static void PersistAndBroadcast(Utilisateur utilisateur)
+        {
+            JsonService.SauvegarderUtilisateur(utilisateur);
+            UserService.UtilisateurActif = utilisateur;
+        }
+
+        // Navigue pour forcer un rafraîchissement visuel (facultatif)
         private void RefreshAccueilPage()
         {
             try
@@ -125,7 +253,7 @@ namespace ProjetFinale.WPF
                 if (Application.Current.MainWindow is Views.MainWindow main)
                 {
                     main.NavigateToAccueil();
-                    Console.WriteLine("🔄 Page Account/Accueil rafraîchie");
+                    Console.WriteLine("🔄 Page Accueil rafraîchie");
                 }
             }
             catch (Exception ex)
@@ -198,7 +326,7 @@ namespace ProjetFinale.WPF
         {
             "CSV" => "📊",
             "JSON" => "📄",
-            "EXCEL" => "📈",
+            "XML" => "📜",
             _ => "📁"
         };
 

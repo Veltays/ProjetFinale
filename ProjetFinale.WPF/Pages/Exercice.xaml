@@ -182,7 +182,6 @@
                         </Grid>
 
                     </StackPanel>
-                    <!-- ⚠️ cette fermeture manquait -->
                 </Border>
 
                 <!-- Section Liste des exercices -->
@@ -193,7 +192,7 @@
                             <TextBlock Text="MES EXERCICES" Style="{StaticResource ExercicesSectionTitleStyle}"/>
                         </StackPanel>
 
-                        <!-- Barre de recherche -->
+                        <!-- Barre de recherche (inchangée) -->
                         <Grid Style="{StaticResource ExercicesSearchContainerStyle}">
                             <TextBox Name="SearchBox"
                                      Style="{StaticResource ExercicesSearchBoxStyle}"
@@ -203,9 +202,72 @@
                                      TextChanged="SearchBox_TextChanged"/>
                         </Grid>
 
-                        <!-- Liste (items créés côté code) -->
+                        <!-- ========= DATAGRID PERSONNALISÉE (branchée côté .cs) ========= -->
+                        <DataGrid x:Name="ExercisesGrid"
+                                  Margin="0,8,0,0"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  HeadersVisibility="Column"
+                                  RowHeaderWidth="0"
+                                  GridLinesVisibility="None"
+                                  Background="{DynamicResource App.Background}"
+                                  Foreground="{DynamicResource App.Foreground}"
+                                  BorderBrush="{DynamicResource Control.Border}">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Padding" Value="8,6"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+
+                            <DataGrid.Columns>
+                                <!-- Nom -->
+                                <DataGridTextColumn Header="Nom" Width="2*" Binding="{Binding Titre}" />
+
+                                <!-- Durée en minutes -->
+                                <DataGridTextColumn Header="Durée (min)" Width="*" 
+                                                    Binding="{Binding Duree.TotalMinutes, StringFormat={}{0:F0}}" />
+
+                                <!-- Calories brûlées -->
+                                <DataGridTextColumn Header="Calories" Width="*" Binding="{Binding CaloriesBrulees}" />
+
+                                <!-- Image -->
+                                <DataGridTemplateColumn Header="Image" Width="2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="{Binding ImagePath}" Width="36" Height="36"
+                                                       Margin="0,0,8,0" Stretch="UniformToFill"/>
+                                                <TextBlock Text="{Binding ImagePath}"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- Actions -->
+                                <DataGridTemplateColumn Header="Actions" Width="170">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <Button Content="Modifier"
+                                                        Margin="0,0,8,0"
+                                                        Click="Edit_Click"
+                                                        Tag="{Binding}"/>
+                                                <Button Content="Supprimer"
+                                                        Click="Delete_Click"
+                                                        Tag="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <!-- ========= FIN DATAGRID ========= -->
+
+                        <!-- Liste existante conservée (compat) -->
                         <StackPanel Name="ExercisesListPanel"/>
-                        <!-- Aucun exercice -->
                         <TextBlock Name="NoExercisesMessage"
                                    Text="Aucun exercice créé pour le moment"
                                    Style="{StaticResource ExercicesNoItemsMessageStyle}"/>

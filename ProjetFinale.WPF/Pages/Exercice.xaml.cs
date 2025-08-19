@@ -43,10 +43,9 @@ namespace ProjetFinale.Views
             ChargerUtilisateur();     // 1) charge l’utilisateur
             ChargerActivites();       // 2) charge la liste d’activités (utilisateur ou défaut)
             AppliquerFiltre();        // 3) filtre courant (barre de recherche)
-            RafraichirListe();        // 4) reconstruit l’UI liste
+            RafraichirListe(); 
+            BinderDataGrid();        // 4) reconstruit l’UI liste
 
-            // Reagir au changement d’utilisateur (ex: login/logout)
-            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
 
             // Désabonnement propre
             Loaded += OnLoaded;                     // ⬅️ faire l’init quand la page est prête
@@ -66,7 +65,8 @@ namespace ProjetFinale.Views
             ChargerUtilisateur();     // charge l’utilisateur
             ChargerActivites();       // charge les activités
             AppliquerFiltre();        // applique le filtre (barre de recherche)
-            RafraichirListe();        // reconstruit la liste (le XAML est garanti non-null ici)
+            RafraichirListe(); 
+            BinderDataGrid();        // reconstruit la liste (le XAML est garanti non-null ici)
 
             UserService.UtilisateurActifChanged += OnUtilisateurChanged;
         }
@@ -83,7 +83,8 @@ namespace ProjetFinale.Views
             _utilisateur = nouvelUtilisateur;
             ChargerActivites();
             AppliquerFiltre();
-            RafraichirListe();
+            RafraichirListe(); 
+            BinderDataGrid();
         }
 
         private void ChargerActivites()
@@ -115,6 +116,7 @@ namespace ProjetFinale.Views
             // Reset UI image formulaire
             _imagePathForm = null;
             RafraichirPreview(null);
+            BinderDataGrid();
         }
 
         // ------------------------------------------------------------
@@ -201,7 +203,7 @@ namespace ProjetFinale.Views
 
             ResetFormulaire();
             AppliquerFiltre();
-            RafraichirListe();
+            RafraichirListe(); BinderDataGrid();
         }
 
         // ------------------------------------------------------------
@@ -229,7 +231,7 @@ namespace ProjetFinale.Views
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             AppliquerFiltre();
-            RafraichirListe();
+            RafraichirListe(); BinderDataGrid();
         }
 
         private void AppliquerFiltre()
@@ -398,7 +400,7 @@ namespace ProjetFinale.Views
             PersisterUtilisateur();
 
             AppliquerFiltre();
-            RafraichirListe();
+            RafraichirListe(); BinderDataGrid();
 
             MessageBox.Show("Exercice supprimé avec succès!", "Succès",
                 MessageBoxButton.OK, MessageBoxImage.Information);
@@ -563,5 +565,16 @@ namespace ProjetFinale.Views
             }
             catch { return TimeSpan.FromMinutes(30); }
         }
+
+
+        private void BinderDataGrid()
+        {
+            if (ExercisesGrid == null) return;
+            ExercisesGrid.ItemsSource = _exercicesFiltres;
+            ExercisesGrid.Items.Refresh();
+        }
+
+
+
     }
 }
