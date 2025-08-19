@@ -1,26 +1,18 @@
 ﻿using Microsoft.Win32;
-using ProjetFinale.Utils;
 using System;
-using System.Reflection.Emit;
 
 namespace ProjetFinale.Utils
 {
     /// <summary>
-    /// Gestionnaire des paramètres - UNIQUEMENT logique métier
-    /// Utilise le Registry comme MyAppParamManager
+    /// Gestionnaire des paramètres - logique métier uniquement (Registry)
     /// </summary>
     public class SettingsManager
     {
         private const string REGISTRY_PATH = @"Software\ProjetFinale";
 
-        public SettingsManager()
-        {
-            // Ensure registry key exists
-            EnsureRegistryKeyExists();
-        }
+        public SettingsManager() => EnsureRegistryKeyExists();
 
-        #region Registry Properties
-
+        // ========== Properties (Registry) ==========
         public string FormatPoids
         {
             get => GetRegistryValue("FormatPoids", "KG");
@@ -69,66 +61,48 @@ namespace ProjetFinale.Utils
             set => SetRegistryValue("SauvegardeAuto", value.ToString().ToLower());
         }
 
-        #endregion
-
-        #region Public Methods
-
-        public AppSettings GetCurrentSettings()
+        // ========== Public ==========
+        public AppSettings GetCurrentSettings() => new()
         {
-            return new AppSettings
-            {
-                FormatPoids = this.FormatPoids,
-                FormatTaille = this.FormatTaille,
-                ThemeCouleur = this.ThemeCouleur,
-                FrequenceSauvegarde = this.FrequenceSauvegarde,
-                ModeSombre = this.ModeSombre,
-                RappelsEntrainement = this.RappelsEntrainement,
-                RappelsObjectifs = this.RappelsObjectifs,
-                SauvegardeAuto = this.SauvegardeAuto
-            };
-        }
+            FormatPoids = FormatPoids,
+            FormatTaille = FormatTaille,
+            ThemeCouleur = ThemeCouleur,
+            FrequenceSauvegarde = FrequenceSauvegarde,
+            ModeSombre = ModeSombre,
+            RappelsEntrainement = RappelsEntrainement,
+            RappelsObjectifs = RappelsObjectifs,
+            SauvegardeAuto = SauvegardeAuto
+        };
 
         public void UpdateFormatPoids(string format)
         {
-            if (IsValidWeightFormat(format))
-            {
-                FormatPoids = format;
-                UpdateLastModified();
-
-                ConvertExistingWeightData(format);
-            }
+            if (!IsValidWeightFormat(format)) return;
+            FormatPoids = format;
+            UpdateLastModified();
+            ConvertExistingWeightData(format);
         }
 
-        public void UpdateFormatTaille(string format)  // "CM" ou "INCH"
+        public void UpdateFormatTaille(string format) // "CM" ou "INCH"
         {
-            if (format == "CM" || format == "INCH")
-            {
-                FormatTaille = format;
-                UpdateLastModified();
-
-            }
+            if (format != "CM" && format != "INCH") return;
+            FormatTaille = format;
+            UpdateLastModified();
         }
 
         public void UpdateTheme(string theme)
         {
-            if (IsValidTheme(theme))
-            {
-                ThemeCouleur = theme;
-                UpdateLastModified();
-                ApplyThemeToApplication(theme);
-            }
+            if (!IsValidTheme(theme)) return;
+            ThemeCouleur = theme;
+            UpdateLastModified();
+            ApplyThemeToApplication(theme);
         }
 
         public void UpdateSaveFrequency(string frequency)
         {
-            if (IsValidSaveFrequency(frequency))
-            {
-                FrequenceSauvegarde = frequency;
-                UpdateLastModified();
-
-                // Reconfigurer le timer d'auto-save
-                ReconfigureAutoSaveTimer(frequency);
-            }
+            if (!IsValidSaveFrequency(frequency)) return;
+            FrequenceSauvegarde = frequency;
+            UpdateLastModified();
+            ReconfigureAutoSaveTimer(frequency);
         }
 
         public void UpdateDarkMode(bool isDarkMode)
@@ -156,8 +130,6 @@ namespace ProjetFinale.Utils
         {
             SauvegardeAuto = isEnabled;
             UpdateLastModified();
-
-            // Activer/Désactiver l'auto-save
             ConfigureAutoSave(isEnabled);
         }
 
@@ -178,6 +150,7 @@ namespace ProjetFinale.Utils
         public void ResetToDefaults()
         {
             FormatPoids = "KG";
+            FormatTaille = "CM";
             ThemeCouleur = "Violet";
             FrequenceSauvegarde = "5 min";
             ModeSombre = true;
@@ -187,86 +160,66 @@ namespace ProjetFinale.Utils
             UpdateLastModified();
         }
 
-        #endregion
-
-        #region Private Methods - Registry Operations
-
+        // ========== Registry ops ==========
         private void EnsureRegistryKeyExists()
         {
-            try
-            {
-                using var key = Registry.CurrentUser.CreateSubKey(REGISTRY_PATH);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur création clé registry : {ex.Message}");
-            }
+            try { using var _ = Registry.CurrentUser.CreateSubKey(REGISTRY_PATH); }
+            catch (Exception ex) { Console.WriteLine($"Erreur création clé registry : {ex.Message}"); }
         }
 
-        private string GetRegistryValue(string valueName, string defaultValue)
+        private string GetRegistryValue(string name, string def)
         {
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(REGISTRY_PATH);
-                return key?.GetValue(valueName)?.ToString() ?? defaultValue;
+                return key?.GetValue(name)?.ToString() ?? def;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lecture registry {valueName} : {ex.Message}");
-                return defaultValue;
+                Console.WriteLine($"Erreur lecture registry {name} : {ex.Message}");
+                return def;
             }
         }
 
-        private bool GetRegistryBoolValue(string valueName, bool defaultValue)
+        private bool GetRegistryBoolValue(string name, bool def)
         {
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(REGISTRY_PATH);
-                string value = key?.GetValue(valueName)?.ToString();
-                return value == null ? defaultValue
-                                     : string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+                var s = key?.GetValue(name)?.ToString();
+                return s == null ? def : s.Equals("true", StringComparison.OrdinalIgnoreCase);
             }
-            catch { return defaultValue; }
+            catch { return def; }
         }
 
-        private void SetRegistryValue(string valueName, string value)
+        private void SetRegistryValue(string name, string value)
         {
             try
             {
                 using var key = Registry.CurrentUser.CreateSubKey(REGISTRY_PATH);
-                key?.SetValue(valueName, value);
+                key?.SetValue(name, value);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur écriture registry {valueName} : {ex.Message}");
+                Console.WriteLine($"Erreur écriture registry {name} : {ex.Message}");
             }
         }
 
         private void UpdateLastModified()
-        {
-            SetRegistryValue("DerniereModification", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-        }
+            => SetRegistryValue("DerniereModification", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
         private void DeleteAllSettings()
         {
             try
             {
-                var settingsToDelete = new[]
+                var keys = new[]
                 {
-                    "FormatPoids","FormatTaille", "ThemeCouleur", "FrequenceSauvegarde",
-                    "ModeSombre", "RappelsEntrainement", "RappelsObjectifs", "SauvegardeAuto",
-                    "DerniereModification"
+                    "FormatPoids","FormatTaille","ThemeCouleur","FrequenceSauvegarde",
+                    "ModeSombre","RappelsEntrainement","RappelsObjectifs","SauvegardeAuto",
+                    "DerniereModification","IsLogin","LastAccountDeletion"
                 };
-
                 using var key = Registry.CurrentUser.CreateSubKey(REGISTRY_PATH);
-                if (key != null)
-                {
-                    foreach (var setting in settingsToDelete)
-                    {
-                        try { key.DeleteValue(setting, false); }
-                        catch { /* ignore */ }
-                    }
-                }
+                foreach (var k in keys) try { key?.DeleteValue(k, false); } catch { }
             }
             catch (Exception ex)
             {
@@ -274,94 +227,41 @@ namespace ProjetFinale.Utils
             }
         }
 
-        #endregion
-
-        #region Private Methods - Validation
-
-        private bool IsValidWeightFormat(string format) => format == "KG" || format == "LBS";
-
-        private bool IsValidTheme(string theme)
+        // ========== Validation ==========
+        private bool IsValidWeightFormat(string f) => f == "KG" || f == "LBS";
+        private bool IsValidTheme(string t)
         {
-            var validThemes = new[] { "Violet", "Bleu", "Rose", "Vert" };
-            return Array.Exists(validThemes, t => t.Equals(theme, StringComparison.OrdinalIgnoreCase));
+            var valid = new[] { "Violet", "Bleu", "Rose", "Vert" };
+            foreach (var v in valid) if (v.Equals(t, StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
         }
+        private bool IsValidSaveFrequency(string f)
+            => f == "1 min" || f == "5 min" || f == "15 min" || f == "30 min";
 
-        private bool IsValidSaveFrequency(string frequency)
-        {
-            var validFrequencies = new[] { "1 min", "5 min", "15 min", "30 min" };
-            return Array.Exists(validFrequencies, f => f == frequency);
-        }
-
-        #endregion
-
-        #region Private Methods - Business Logic
-
-        private void ConvertExistingWeightData(string newFormat)
-        {
-            // TODO: Conversion de données existantes si nécessaire
-        }
-
+        // ========== Business (stubs/appels services) ==========
+        private void ConvertExistingWeightData(string _) { /* TODO */ }
         private void ApplyThemeToApplication(string theme) => ThemeManager.ApplyTheme(theme);
-
-        private void ApplyDarkModeToApplication(bool isDarkMode) => ThemeManager.SetDarkMode(isDarkMode);
-
-        private void ReconfigureAutoSaveTimer(string frequency)
+        private void ApplyDarkModeToApplication(bool dark) => ThemeManager.SetDarkMode(dark);
+        private void ReconfigureAutoSaveTimer(string label)
         {
-            var minutes = AutoSaveService.FrequencyLabelToMinutes(frequency);
+            var minutes = AutoSaveService.FrequencyLabelToMinutes(label);
             AutoSaveService.Instance.SetIntervalMinutes(minutes);
         }
-
-        private void ConfigureWorkoutNotifications(bool isEnabled)
-        {
-            // TODO notifications entraînement
-        }
-
-        private void ConfigureGoalNotifications(bool isEnabled)
-        {
-            // TODO notifications objectifs
-        }
-
-        private void ConfigureAutoSave(bool isEnabled)
-        {
-            AutoSaveService.Instance.SetEnabled(isEnabled);
-        }
-
-        private void DeleteAllUserData()
-        {
-            // TODO suppression données utilisateur
-        }
-
+        private void ConfigureWorkoutNotifications(bool _) { /* TODO */ }
+        private void ConfigureGoalNotifications(bool _) { /* TODO */ }
+        private void ConfigureAutoSave(bool enabled) => AutoSaveService.Instance.SetEnabled(enabled);
+        private void DeleteAllUserData() { /* TODO */ }
         private void LogAccountDeletion()
-        {
-            var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Account deleted";
-            try
-            {
-                SetRegistryValue("LastAccountDeletion", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            }
-            catch { }
-        }
+            => SetRegistryValue("LastAccountDeletion", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
+        // ========== IsLogin (cohérent avec helpers) ==========
         public bool IsLogin
         {
-            get
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(@"Software\ProjetFinale");
-                string value = key?.GetValue("IsLogin")?.ToString();
-                return string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
-            }
-            set
-            {
-                using var key = Registry.CurrentUser.CreateSubKey(@"Software\ProjetFinale");
-                key?.SetValue("IsLogin", value.ToString().ToLower());
-            }
+            get => GetRegistryBoolValue("IsLogin", false);
+            set => SetRegistryValue("IsLogin", value.ToString().ToLower());
         }
-
-        #endregion
     }
 
-    /// <summary>
-    /// Modèle des paramètres de l'application (pour la compatibilité)
-    /// </summary>
     public class AppSettings
     {
         public string FormatPoids { get; set; } = "KG";
