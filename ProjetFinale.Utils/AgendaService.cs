@@ -61,7 +61,7 @@ namespace ProjetFinale.Services
             var user = CurrentUser;
             if (user == null)
             {
-                Console.WriteLine("⚠️ SauvegarderAgenda ignoré (aucun utilisateur).");
+                Console.WriteLine("⚠️ Sauvegarde Agenda ignoré (aucun utilisateur).");
                 return;
             }
 
@@ -73,6 +73,7 @@ namespace ProjetFinale.Services
         public static List<Agenda> ChargerAgenda()
         {
             var list = GetAgendaCollection(createIfMissing: false);
+            // vu qu'on veut juste lire, on peut renvoyer une liste simple
             return list?.ToList() ?? new List<Agenda>();
         }
 

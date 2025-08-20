@@ -3,7 +3,6 @@ using ProjetFinale.Models;
 using ProjetFinale.Services;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,14 +15,11 @@ namespace ProjetFinale.WPF.Pages
 {
     public partial class AgendaPage : Page
     {
-        // ====== Constantes ======
-        private const int START_HOUR = 8;     // heure visible de début (incluse)
-        private const int END_HOUR = 22;      // heure visible de fin (exclue pour l'affichage d'événements)
-        private const int ROW_HEIGHT_PX = 60; // 60 px = 1 heure => 1 minute = 1 px
+        private const int START_HOUR = 8;
+        private const int END_HOUR = 22;
+        private const int ROW_HEIGHT_PX = 60;
 
-        // ====== État ======
         private DateTime _currentWeekStart;
-        private ObservableCollection<Agenda> _events = new();
         private Utilisateur _utilisateur = new();
 
         public AgendaPage()
@@ -31,14 +27,19 @@ namespace ProjetFinale.WPF.Pages
             InitializeComponent();
 
             _currentWeekStart = GetStartOfWeek(DateTime.Now);
-
-            // Sécurise l'accès utilisateur/agenda (source de vérité = UserService)
             _utilisateur = UserService.UtilisateurActif ?? new Utilisateur();
-            _events = _utilisateur.ListeAgenda ?? new ObservableCollection<Agenda>();
+
+
+
+            // ✅ Abonnement automatique
+            if (_utilisateur.ListeAgenda != null)
+                _utilisateur.ListeAgenda.CollectionChanged += (s, e) => RefreshCalendar();
+
 
             InitializeCalendar();
             UpdateWeekDisplay();
-            UpdateWeekStats();
+
+            RefreshCalendar();
         }
 
         // =========================
@@ -50,16 +51,13 @@ namespace ProjetFinale.WPF.Pages
             TimeGrid.RowDefinitions.Clear();
             TimeGrid.ColumnDefinitions.Clear();
 
-            // Col 0 = libellés heures, puis 7 colonnes pour les jours
             TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             for (int i = 0; i < 7; i++)
                 TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Lignes horaires : de 8H à 22H (libellés inclus)
             for (int hour = START_HOUR; hour <= END_HOUR; hour++)
                 TimeGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT_PX) });
 
-            // Libellés d'heures + slots cliquables
             for (int hour = START_HOUR; hour <= END_HOUR; hour++)
             {
                 int row = hour - START_HOUR;
@@ -75,7 +73,6 @@ namespace ProjetFinale.WPF.Pages
 
                 for (int day = 0; day < 7; day++)
                 {
-                    // Tag = "hour,day" pour reconstituer la date/heure au clic
                     var slot = new Border
                     {
                         Style = (Style)FindResource("AgendaTimeSlotStyle"),
@@ -84,14 +81,14 @@ namespace ProjetFinale.WPF.Pages
                     slot.MouseLeftButtonDown += TimeSlot_MouseLeftButtonDown;
 
                     Grid.SetRow(slot, row);
-                    Grid.SetColumn(slot, day + 1); // +1 car col 0 = heures
+                    Grid.SetColumn(slot, day + 1);
                     TimeGrid.Children.Add(slot);
                 }
             }
         }
 
         // ======================
-        // Création / Édition UI
+        // Création / Édition
         // ======================
         private void TimeSlot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -116,16 +113,14 @@ namespace ProjetFinale.WPF.Pages
 
             if (dialog.ShowDialog() == true && dialog.CreatedEvent is Agenda newEvent)
             {
-                // Refus si conflit
-                if (AgendaService.VerifierConflitHoraire(newEvent, _events.ToList()))
+                if (AgendaService.VerifierConflitHoraire(newEvent, AgendaService.ChargerAgenda()))
                 {
                     MessageBox.Show("Conflit horaire détecté !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Ajout + persistance (source de vérité = AgendaService -> Utilisateur)
                 AgendaService.AjouterEvenement(newEvent);
-                RefreshCalendar();
+                
             }
         }
 
@@ -147,30 +142,20 @@ namespace ProjetFinale.WPF.Pages
             if (dialog.IsDeleted)
             {
                 AgendaService.SupprimerEvenement(original);
-                RefreshCalendar();
                 return;
             }
 
             var draft = dialog.EditedEvent ?? original;
 
-            // Exclure l'original pour la détection
-            var autres = _events.Where(e => !ReferenceEquals(e, original)).ToList();
+            var autres = AgendaService.ChargerAgenda().Where(e => !ReferenceEquals(e, original)).ToList();
             if (AgendaService.VerifierConflitHoraire(draft, autres))
             {
-                MessageBox.Show(
-                    "Conflit horaire détecté avec un autre événement.",
-                    "Conflit d'horaire",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning
-                );
-                RefreshCalendar(); // rien n'a été recopié → affichage inchangé
+                MessageBox.Show("Conflit horaire détecté !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Appliquer la copie dans l'original puis persister
             ApplyAgendaChanges(original, draft);
             AgendaService.ModifierEvenement(original);
-            RefreshCalendar();
         }
 
         private static void ApplyAgendaChanges(Agenda target, Agenda source)
@@ -189,26 +174,20 @@ namespace ProjetFinale.WPF.Pages
         // =========================
         private void RefreshCalendar()
         {
-            // Retirer uniquement les "event borders" (Tag = Agenda)
-            var toRemove = TimeGrid.Children
-                .OfType<Border>()
-                .Where(b => b.Tag is Agenda)
-                .ToList();
+            var toRemove = TimeGrid.Children.OfType<Border>().Where(b => b.Tag is Agenda).ToList();
+            foreach (var b in toRemove) TimeGrid.Children.Remove(b);
 
-            foreach (var b in toRemove)
-                TimeGrid.Children.Remove(b);
-
-            // Afficher les events de la semaine courante
             foreach (var evt in GetWeekEvents())
                 DisplayEvent(evt);
 
             UpdateWeekStats();
+
         }
 
         private IEnumerable<Agenda> GetWeekEvents()
         {
             var weekEnd = _currentWeekStart.AddDays(7);
-            return _events
+            return AgendaService.ChargerAgenda()
                 .Where(e => e.Date >= _currentWeekStart && e.Date < weekEnd)
                 .OrderBy(e => e.Date)
                 .ThenBy(e => e.HeureDebut);
@@ -216,38 +195,28 @@ namespace ProjetFinale.WPF.Pages
 
         private void DisplayEvent(Agenda evt)
         {
-            // Colonne du jour (Lundi=0..Dimanche=6)
             int day = (int)evt.Date.DayOfWeek;
-            if (day == 0) day = 7; // Sunday => 7
+            if (day == 0) day = 7;
             day--;
-            int col = day + 1;     // +1 car col 0 = heures
+            int col = day + 1;
 
-            // Fenêtre visible [START_HOUR, END_HOUR]
             var visibleStart = new TimeSpan(START_HOUR, 0, 0);
             var visibleEnd = new TimeSpan(END_HOUR, 0, 0);
 
-            // Entièrement en dehors -> on n'affiche pas
             if (evt.HeureFin <= visibleStart || evt.HeureDebut >= visibleEnd) return;
 
-            // Clamp pour rester dans la fenêtre visible
             var start = evt.HeureDebut < visibleStart ? visibleStart : evt.HeureDebut;
             var end = evt.HeureFin > visibleEnd ? visibleEnd : evt.HeureFin;
 
-            // Ligne de départ (08:00 => 0)
             int row = start.Hours - START_HOUR;
-            if (row < 0 || row > (END_HOUR - START_HOUR)) return; // garde-fou
+            if (row < 0 || row > (END_HOUR - START_HOUR)) return;
 
-            // Décalage vertical (1 px = 1 min, car 60 px = 60 min)
             int minuteOffset = start.Minutes;
-
-            // Durée visible (en minutes)
             double durationMinutes = (end - start).TotalMinutes;
             if (durationMinutes <= 0) return;
 
-            // Nombre de lignes "spannées" (pour couvrir plusieurs heures à l'affichage)
             int rowSpan = Math.Max(1, (int)Math.Ceiling((minuteOffset + durationMinutes) / 60.0));
 
-            // Contenu visuel
             var content = new StackPanel();
             content.Children.Add(new TextBlock
             {
@@ -279,13 +248,13 @@ namespace ProjetFinale.WPF.Pages
             var border = new Border
             {
                 Style = (Style)FindResource("AgendaEventStyle"),
-                Height = durationMinutes,                       // 1 px = 1 min
+                Height = durationMinutes,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(2, minuteOffset, 2, 0),  // décalage dans la 1re case horaire
-                Tag = evt,                                      // pour cleanup + click
+                Margin = new Thickness(2, minuteOffset, 2, 0),
+                Tag = evt,
                 Child = content,
                 Background = (SolidColorBrush)(new BrushConverter().ConvertFromString(evt.Couleur ?? "#AF66FF"))
-        };
+            };
             border.MouseLeftButtonDown += Event_MouseLeftButtonDown;
 
             Grid.SetRow(border, row);
@@ -296,18 +265,16 @@ namespace ProjetFinale.WPF.Pages
         }
 
         // ====================
-        // En-têtes & Statistiques
+        // En-têtes & Stats
         // ====================
         private void UpdateWeekDisplay()
         {
-            // Ex: "12-18 août 2025"
             CurrentWeekLabel.Text =
                 $"{_currentWeekStart:dd}-{_currentWeekStart.AddDays(6):dd} {_currentWeekStart:MMMM yyyy}";
 
             WeekTitleLabel.Text =
                 $"Semaine du {_currentWeekStart:dd} au {_currentWeekStart.AddDays(6):dd} {_currentWeekStart:MMMM yyyy}";
 
-            // Jours affichés sous l'entête
             MondayDate.Text = _currentWeekStart.Day.ToString();
             TuesdayDate.Text = _currentWeekStart.AddDays(1).Day.ToString();
             WednesdayDate.Text = _currentWeekStart.AddDays(2).Day.ToString();
@@ -315,38 +282,37 @@ namespace ProjetFinale.WPF.Pages
             FridayDate.Text = _currentWeekStart.AddDays(4).Day.ToString();
             SaturdayDate.Text = _currentWeekStart.AddDays(5).Day.ToString();
             SundayDate.Text = _currentWeekStart.AddDays(6).Day.ToString();
-
-            RefreshCalendar();
         }
 
         private void UpdateWeekStats()
         {
-            var weekEvents = GetWeekEvents().ToList();
-            EventCountLabel.Text = weekEvents.Count.ToString();
-
-            double totalHours = weekEvents.Sum(e => (e.HeureFin - e.HeureDebut).TotalHours);
-            PlannedHoursLabel.Text = $"{totalHours:F1}h";
+            var stats = AgendaService.ObtenirStatistiquesSemaine(_currentWeekStart);
+            EventCountLabel.Text = stats.NombreEvenements.ToString();
+            PlannedHoursLabel.Text = $"{stats.HeuresTotal:F1}h";
         }
 
         // ====================
-        // Navigation semaine
+        // Navigation
         // ====================
         private void PreviousWeek_Click(object sender, RoutedEventArgs e)
         {
             _currentWeekStart = _currentWeekStart.AddDays(-7);
             UpdateWeekDisplay();
+            RefreshCalendar();
         }
 
         private void NextWeek_Click(object sender, RoutedEventArgs e)
         {
             _currentWeekStart = _currentWeekStart.AddDays(7);
             UpdateWeekDisplay();
+            RefreshCalendar();
         }
 
         private void GoToToday_Click(object sender, RoutedEventArgs e)
         {
             _currentWeekStart = GetStartOfWeek(DateTime.Now);
             UpdateWeekDisplay();
+            RefreshCalendar();
         }
 
         // ====================
@@ -354,20 +320,17 @@ namespace ProjetFinale.WPF.Pages
         // ====================
         private void CreateEvent_Click(object sender, RoutedEventArgs e)
         {
-            // Slot par défaut = prochaine heure "ronde" (ou START_HOUR si on dépasse la plage visible)
             int nextHour = DateTime.Now.Hour + 1;
             if (nextHour > END_HOUR) nextHour = START_HOUR;
             ShowCreateEventDialog(DateTime.Today, new TimeSpan(nextHour, 0, 0));
         }
 
-        // ====================
-        // Export .ics
-        // ====================
         private void ExportIcs_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (_events == null || _events.Count == 0)
+                var events = AgendaService.ChargerAgenda();
+                if (events == null || events.Count == 0)
                 {
                     MessageBox.Show("Aucun événement à exporter.");
                     return;
@@ -383,7 +346,7 @@ namespace ProjetFinale.WPF.Pages
 
                 if (dialog.ShowDialog() != true) return;
 
-                var content = GenerateIcsContent(_events);
+                var content = GenerateIcsContent(events);
                 File.WriteAllText(dialog.FileName, content, Encoding.UTF8);
                 MessageBox.Show("Export réussi.");
             }
@@ -408,13 +371,10 @@ namespace ProjetFinale.WPF.Pages
                 ics.AppendLine($"DTSTART:{evt.Date.Add(evt.HeureDebut):yyyyMMddTHHmmss}");
                 ics.AppendLine($"DTEND:{evt.Date.Add(evt.HeureFin):yyyyMMddTHHmmss}");
                 ics.AppendLine($"SUMMARY:{EscapeIcsText(evt.Titre ?? "Sans titre")}");
-
                 if (!string.IsNullOrWhiteSpace(evt.Description))
                     ics.AppendLine($"DESCRIPTION:{EscapeIcsText(evt.Description)}");
-
                 if (evt.Activite != null)
                     ics.AppendLine($"CATEGORIES:{EscapeIcsText(evt.Activite.Titre)}");
-
                 ics.AppendLine("STATUS:CONFIRMED");
                 ics.AppendLine("TRANSP:OPAQUE");
                 ics.AppendLine("END:VEVENT");
@@ -426,7 +386,6 @@ namespace ProjetFinale.WPF.Pages
 
         private string GenerateEventUid(Agenda evt)
         {
-            // Simple et lisible : basé sur date/heure/titre (suffit pour un export local)
             var baseString = $"{evt.Date:yyyyMMdd}-{evt.HeureDebut:hhmm}-{evt.Titre ?? "event"}";
             int hash = baseString.GetHashCode();
             return $"{Math.Abs(hash)}@projetfinale.com";
@@ -441,16 +400,10 @@ namespace ProjetFinale.WPF.Pages
                 .Replace("\r", "")
             ?? "";
 
-        // ====================
-        // Utilitaires
-        // ====================
         private static DateTime GetStartOfWeek(DateTime date)
         {
-            // Lundi = début de semaine
             int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
             return date.AddDays(-diff).Date;
         }
     }
 }
-
-
