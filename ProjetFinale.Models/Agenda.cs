@@ -69,7 +69,6 @@ namespace ProjetFinale.Models
 
         public string HeureFormatee => $"{HeureDebut:hh\\:mm} - {HeureFin:hh\\:mm}";
 
-        // ✅ AJOUTEZ L'IMPLÉMENTATION INOTIFYPROPERTYCHANGED :
 
         public event PropertyChangedEventHandler PropertyChanged;
 

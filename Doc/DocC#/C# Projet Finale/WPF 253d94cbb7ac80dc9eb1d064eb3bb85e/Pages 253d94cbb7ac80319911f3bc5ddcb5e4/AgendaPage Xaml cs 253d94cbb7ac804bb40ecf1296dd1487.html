@@ -1,0 +1,1116 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>AgendaPage.Xaml.cs</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(50, 48, 44, 1);
+}
+.highlight-gray {
+	color: rgba(115, 114, 110, 1);
+	fill: rgba(115, 114, 110, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(205, 60, 58, 1);
+	fill: rgba(205, 60, 58, 1);
+}
+.highlight-default_background {
+	color: rgba(50, 48, 44, 1);
+}
+.highlight-gray_background {
+	background: rgba(248, 248, 247, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(248, 243, 252, 1);
+}
+.highlight-pink_background {
+	background: rgba(252, 241, 246, 1);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(115, 114, 110, 1);
+	fill: rgba(115, 114, 110, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(205, 60, 58, 1);
+	fill: rgba(205, 60, 58, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(248, 248, 247, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(248, 243, 252, 1);
+}
+.block-color-pink_background {
+	background: rgba(252, 241, 246, 1);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-default { background-color: rgba(84, 72, 49, 0.08); }
+.select-value-color-gray { background-color: rgba(84, 72, 49, 0.15); }
+.select-value-color-brown { background-color: rgba(210, 162, 141, 0.35); }
+.select-value-color-orange { background-color: rgba(224, 124, 57, 0.27); }
+.select-value-color-yellow { background-color: rgba(236, 191, 66, 0.39); }
+.select-value-color-green { background-color: rgba(123, 183, 129, 0.27); }
+.select-value-color-blue { background-color: rgba(93, 165, 206, 0.27); }
+.select-value-color-purple { background-color: rgba(168, 129, 197, 0.27); }
+.select-value-color-pink { background-color: rgba(225, 136, 179, 0.27); }
+.select-value-color-red { background-color: rgba(244, 171, 159, 0.4); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="253d94cb-b7ac-804b-b40e-cf1296dd1487" class="page sans"><header><h1 class="page-title">AgendaPage.Xaml.cs</h1><p class="page-description"></p></header><div class="page-body"><p id="253d94cb-b7ac-800e-ac3e-cde8e509fb7b" class="">
+</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="253d94cb-b7ac-803f-ae1e-c4f28d573dfa" class="code code-wrap"><code class="language-C#" style="white-space:pre-wrap;word-break:break-all">using Microsoft.Win32;
+using ProjetFinale.Models;
+using ProjetFinale.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+
+namespace ProjetFinale.WPF.Pages
+{
+    public partial class AgendaPage : Page
+    {
+        // ====== Constantes ======
+        private const int START_HOUR = 8;     // heure visible de début (incluse)
+        private const int END_HOUR = 22;      // heure visible de fin (exclue pour l&#x27;affichage d&#x27;événements)
+        private const int ROW_HEIGHT_PX = 60; // 60 px = 1 heure =&gt; 1 minute = 1 px
+
+        // ====== État ======
+        private DateTime _currentWeekStart;
+        private ObservableCollection&lt;Agenda&gt; _events = new();
+        private Utilisateur _utilisateur = new();
+
+        public AgendaPage()
+        {
+            InitializeComponent();
+
+            _currentWeekStart = GetStartOfWeek(DateTime.Now);
+
+            // Sécurise l&#x27;accès utilisateur/agenda (source de vérité = UserService)
+            _utilisateur = UserService.UtilisateurActif ?? new Utilisateur();
+            _events = _utilisateur.ListeAgenda ?? new ObservableCollection&lt;Agenda&gt;();
+
+            InitializeCalendar();
+            UpdateWeekDisplay();
+            UpdateWeekStats();
+        }
+
+        // =========================
+        // Construction de la grille
+        // =========================
+        private void InitializeCalendar()
+        {
+            TimeGrid.Children.Clear();
+            TimeGrid.RowDefinitions.Clear();
+            TimeGrid.ColumnDefinitions.Clear();
+
+            // Col 0 = libellés heures, puis 7 colonnes pour les jours
+            TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            for (int i = 0; i &lt; 7; i++)
+                TimeGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            // Lignes horaires : de 8H à 22H (libellés inclus)
+            for (int hour = START_HOUR; hour &lt;= END_HOUR; hour++)
+                TimeGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT_PX) });
+
+            // Libellés d&#x27;heures + slots cliquables
+            for (int hour = START_HOUR; hour &lt;= END_HOUR; hour++)
+            {
+                int row = hour - START_HOUR;
+
+                var timeLabel = new TextBlock
+                {
+                    Text = $&quot;{hour:00}H&quot;,
+                    Style = (Style)FindResource(&quot;AgendaTimeTextStyle&quot;)
+                };
+                Grid.SetRow(timeLabel, row);
+                Grid.SetColumn(timeLabel, 0);
+                TimeGrid.Children.Add(timeLabel);
+
+                for (int day = 0; day &lt; 7; day++)
+                {
+                    // Tag = &quot;hour,day&quot; pour reconstituer la date/heure au clic
+                    var slot = new Border
+                    {
+                        Style = (Style)FindResource(&quot;AgendaTimeSlotStyle&quot;),
+                        Tag = $&quot;{hour},{day}&quot;
+                    };
+                    slot.MouseLeftButtonDown += TimeSlot_MouseLeftButtonDown;
+
+                    Grid.SetRow(slot, row);
+                    Grid.SetColumn(slot, day + 1); // +1 car col 0 = heures
+                    TimeGrid.Children.Add(slot);
+                }
+            }
+        }
+
+        // ======================
+        // Création / Édition UI
+        // ======================
+        private void TimeSlot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not Border { Tag: string tag }) return;
+
+            var parts = tag.Split(&#x27;,&#x27;);
+            if (parts.Length != 2) return;
+
+            if (!int.TryParse(parts[0], out int hour) || !int.TryParse(parts[1], out int dayOffset)) return;
+
+            var date = _currentWeekStart.AddDays(dayOffset);
+            var time = new TimeSpan(hour, 0, 0);
+            ShowCreateEventDialog(date, time);
+        }
+
+        private void ShowCreateEventDialog(DateTime date, TimeSpan startTime)
+        {
+            var dialog = new CreateEventDialog(date, startTime, _utilisateur?.ListeActivites)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dialog.ShowDialog() == true &amp;&amp; dialog.CreatedEvent is Agenda newEvent)
+            {
+                // Refus si conflit
+                if (AgendaService.VerifierConflitHoraire(newEvent, _events.ToList()))
+                {
+                    MessageBox.Show(&quot;Conflit horaire détecté !&quot;, &quot;Erreur&quot;, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Ajout + persistance (source de vérité = AgendaService -&gt; Utilisateur)
+                AgendaService.AjouterEvenement(newEvent);
+                RefreshCalendar();
+            }
+        }
+
+        private void Event_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border { Tag: Agenda evt })
+                ShowEditEventDialog(evt);
+        }
+
+        private void ShowEditEventDialog(Agenda evt)
+        {
+            var dialog = new EditEventDialog(evt, _utilisateur?.ListeActivites)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            if (dialog.IsDeleted)
+            {
+                // Suppression centralisée (pas de manipulation directe de _events/ListeAgenda)
+                AgendaService.SupprimerEvenement(evt);
+            }
+            else
+            {
+                // Modification centralisée
+                AgendaService.ModifierEvenement(evt);
+            }
+
+            RefreshCalendar();
+        }
+
+        // =========================
+        // Affichage des événements
+        // =========================
+        private void RefreshCalendar()
+        {
+            // Retirer uniquement les &quot;event borders&quot; (Tag = Agenda)
+            var toRemove = TimeGrid.Children
+                .OfType&lt;Border&gt;()
+                .Where(b =&gt; b.Tag is Agenda)
+                .ToList();
+
+            foreach (var b in toRemove)
+                TimeGrid.Children.Remove(b);
+
+            // Afficher les events de la semaine courante
+            foreach (var evt in GetWeekEvents())
+                DisplayEvent(evt);
+
+            UpdateWeekStats();
+        }
+
+        private IEnumerable&lt;Agenda&gt; GetWeekEvents()
+        {
+            var weekEnd = _currentWeekStart.AddDays(7);
+            return _events
+                .Where(e =&gt; e.Date &gt;= _currentWeekStart &amp;&amp; e.Date &lt; weekEnd)
+                .OrderBy(e =&gt; e.Date)
+                .ThenBy(e =&gt; e.HeureDebut);
+        }
+
+        private void DisplayEvent(Agenda evt)
+        {
+            // Colonne du jour (Lundi=0..Dimanche=6)
+            int day = (int)evt.Date.DayOfWeek;
+            if (day == 0) day = 7; // Sunday =&gt; 7
+            day--;
+            int col = day + 1;     // +1 car col 0 = heures
+
+            // Fenêtre visible [START_HOUR, END_HOUR]
+            var visibleStart = new TimeSpan(START_HOUR, 0, 0);
+            var visibleEnd = new TimeSpan(END_HOUR, 0, 0);
+
+            // Entièrement en dehors -&gt; on n&#x27;affiche pas
+            if (evt.HeureFin &lt;= visibleStart || evt.HeureDebut &gt;= visibleEnd) return;
+
+            // Clamp pour rester dans la fenêtre visible
+            var start = evt.HeureDebut &lt; visibleStart ? visibleStart : evt.HeureDebut;
+            var end = evt.HeureFin &gt; visibleEnd ? visibleEnd : evt.HeureFin;
+
+            // Ligne de départ (08:00 =&gt; 0)
+            int row = start.Hours - START_HOUR;
+            if (row &lt; 0 || row &gt; (END_HOUR - START_HOUR)) return; // garde-fou
+
+            // Décalage vertical (1 px = 1 min, car 60 px = 60 min)
+            int minuteOffset = start.Minutes;
+
+            // Durée visible (en minutes)
+            double durationMinutes = (end - start).TotalMinutes;
+            if (durationMinutes &lt;= 0) return;
+
+            // Nombre de lignes &quot;spannées&quot; (pour couvrir plusieurs heures à l&#x27;affichage)
+            int rowSpan = Math.Max(1, (int)Math.Ceiling((minuteOffset + durationMinutes) / 60.0));
+
+            // Contenu visuel
+            var content = new StackPanel();
+            content.Children.Add(new TextBlock
+            {
+                Text = evt.Titre ?? &quot;Sans titre&quot;,
+                Foreground = Brushes.White,
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                TextWrapping = TextWrapping.Wrap
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = $&quot;{evt.HeureDebut:hh\\:mm} - {evt.HeureFin:hh\\:mm}&quot;,
+                Foreground = Brushes.White,
+                FontSize = 10,
+                Opacity = 0.8
+            });
+            if (evt.Activite != null)
+            {
+                content.Children.Add(new TextBlock
+                {
+                    Text = evt.Activite.Titre,
+                    Foreground = Brushes.White,
+                    FontSize = 10,
+                    Opacity = 0.7,
+                    TextWrapping = TextWrapping.Wrap
+                });
+            }
+
+            var border = new Border
+            {
+                Style = (Style)FindResource(&quot;AgendaEventStyle&quot;),
+                Height = durationMinutes,                       // 1 px = 1 min
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(2, minuteOffset, 2, 0),  // décalage dans la 1re case horaire
+                Tag = evt,                                      // pour cleanup + click
+                Child = content,
+                Background = (SolidColorBrush)(new BrushConverter().ConvertFromString(evt.Couleur ?? &quot;#AF66FF&quot;))
+        };
+            border.MouseLeftButtonDown += Event_MouseLeftButtonDown;
+
+            Grid.SetRow(border, row);
+            Grid.SetColumn(border, col);
+            Grid.SetRowSpan(border, rowSpan);
+
+            TimeGrid.Children.Add(border);
+        }
+
+        // ====================
+        // En-têtes &amp; Statistiques
+        // ====================
+        private void UpdateWeekDisplay()
+        {
+            // Ex: &quot;12-18 août 2025&quot;
+            CurrentWeekLabel.Text =
+                $&quot;{_currentWeekStart:dd}-{_currentWeekStart.AddDays(6):dd} {_currentWeekStart:MMMM yyyy}&quot;;
+
+            WeekTitleLabel.Text =
+                $&quot;Semaine du {_currentWeekStart:dd} au {_currentWeekStart.AddDays(6):dd} {_currentWeekStart:MMMM yyyy}&quot;;
+
+            // Jours affichés sous l&#x27;entête
+            MondayDate.Text = _currentWeekStart.Day.ToString();
+            TuesdayDate.Text = _currentWeekStart.AddDays(1).Day.ToString();
+            WednesdayDate.Text = _currentWeekStart.AddDays(2).Day.ToString();
+            ThursdayDate.Text = _currentWeekStart.AddDays(3).Day.ToString();
+            FridayDate.Text = _currentWeekStart.AddDays(4).Day.ToString();
+            SaturdayDate.Text = _currentWeekStart.AddDays(5).Day.ToString();
+            SundayDate.Text = _currentWeekStart.AddDays(6).Day.ToString();
+
+            RefreshCalendar();
+        }
+
+        private void UpdateWeekStats()
+        {
+            var weekEvents = GetWeekEvents().ToList();
+            EventCountLabel.Text = weekEvents.Count.ToString();
+
+            double totalHours = weekEvents.Sum(e =&gt; (e.HeureFin - e.HeureDebut).TotalHours);
+            PlannedHoursLabel.Text = $&quot;{totalHours:F1}h&quot;;
+        }
+
+        // ====================
+        // Navigation semaine
+        // ====================
+        private void PreviousWeek_Click(object sender, RoutedEventArgs e)
+        {
+            _currentWeekStart = _currentWeekStart.AddDays(-7);
+            UpdateWeekDisplay();
+        }
+
+        private void NextWeek_Click(object sender, RoutedEventArgs e)
+        {
+            _currentWeekStart = _currentWeekStart.AddDays(7);
+            UpdateWeekDisplay();
+        }
+
+        private void GoToToday_Click(object sender, RoutedEventArgs e)
+        {
+            _currentWeekStart = GetStartOfWeek(DateTime.Now);
+            UpdateWeekDisplay();
+        }
+
+        // ====================
+        // Actions rapides
+        // ====================
+        private void CreateEvent_Click(object sender, RoutedEventArgs e)
+        {
+            // Slot par défaut = prochaine heure &quot;ronde&quot; (ou START_HOUR si on dépasse la plage visible)
+            int nextHour = DateTime.Now.Hour + 1;
+            if (nextHour &gt; END_HOUR) nextHour = START_HOUR;
+            ShowCreateEventDialog(DateTime.Today, new TimeSpan(nextHour, 0, 0));
+        }
+
+        // ====================
+        // Export .ics
+        // ====================
+        private void ExportIcs_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_events == null || _events.Count == 0)
+                {
+                    MessageBox.Show(&quot;Aucun événement à exporter.&quot;);
+                    return;
+                }
+
+                var dialog = new SaveFileDialog
+                {
+                    Title = &quot;Exporter l&#x27;agenda&quot;,
+                    Filter = &quot;Fichier iCalendar (*.ics)|*.ics&quot;,
+                    DefaultExt = &quot;ics&quot;,
+                    FileName = $&quot;MonAgenda_{DateTime.Now:yyyy-MM-dd}.ics&quot;
+                };
+
+                if (dialog.ShowDialog() != true) return;
+
+                var content = GenerateIcsContent(_events);
+                File.WriteAllText(dialog.FileName, content, Encoding.UTF8);
+                MessageBox.Show(&quot;Export réussi.&quot;);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($&quot;Erreur : {ex.Message}&quot;);
+            }
+        }
+
+        private string GenerateIcsContent(IEnumerable&lt;Agenda&gt; events)
+        {
+            var ics = new StringBuilder();
+            ics.AppendLine(&quot;BEGIN:VCALENDAR&quot;);
+            ics.AppendLine(&quot;VERSION:2.0&quot;);
+            ics.AppendLine(&quot;PRODID:-//ProjetFinale//Agenda Export//FR&quot;);
+
+            foreach (var evt in events.OrderBy(e =&gt; e.Date).ThenBy(e =&gt; e.HeureDebut))
+            {
+                ics.AppendLine(&quot;BEGIN:VEVENT&quot;);
+                ics.AppendLine($&quot;UID:{GenerateEventUid(evt)}&quot;);
+                ics.AppendLine($&quot;DTSTAMP:{DateTime.UtcNow:yyyyMMddTHHmmssZ}&quot;);
+                ics.AppendLine($&quot;DTSTART:{evt.Date.Add(evt.HeureDebut):yyyyMMddTHHmmss}&quot;);
+                ics.AppendLine($&quot;DTEND:{evt.Date.Add(evt.HeureFin):yyyyMMddTHHmmss}&quot;);
+                ics.AppendLine($&quot;SUMMARY:{EscapeIcsText(evt.Titre ?? &quot;Sans titre&quot;)}&quot;);
+
+                if (!string.IsNullOrWhiteSpace(evt.Description))
+                    ics.AppendLine($&quot;DESCRIPTION:{EscapeIcsText(evt.Description)}&quot;);
+
+                if (evt.Activite != null)
+                    ics.AppendLine($&quot;CATEGORIES:{EscapeIcsText(evt.Activite.Titre)}&quot;);
+
+                ics.AppendLine(&quot;STATUS:CONFIRMED&quot;);
+                ics.AppendLine(&quot;TRANSP:OPAQUE&quot;);
+                ics.AppendLine(&quot;END:VEVENT&quot;);
+            }
+
+            ics.AppendLine(&quot;END:VCALENDAR&quot;);
+            return ics.ToString();
+        }
+
+        private string GenerateEventUid(Agenda evt)
+        {
+            // Simple et lisible : basé sur date/heure/titre (suffit pour un export local)
+            var baseString = $&quot;{evt.Date:yyyyMMdd}-{evt.HeureDebut:hhmm}-{evt.Titre ?? &quot;event&quot;}&quot;;
+            int hash = baseString.GetHashCode();
+            return $&quot;{Math.Abs(hash)}@projetfinale.com&quot;;
+        }
+
+        private string EscapeIcsText(string text) =&gt;
+            text?
+                .Replace(&quot;\\&quot;, &quot;\\\\&quot;)
+                .Replace(&quot;,&quot;, &quot;\\,&quot;)
+                .Replace(&quot;;&quot;, &quot;\\;&quot;)
+                .Replace(&quot;\n&quot;, &quot;\\n&quot;)
+                .Replace(&quot;\r&quot;, &quot;&quot;)
+            ?? &quot;&quot;;
+
+        // ====================
+        // Utilitaires
+        // ====================
+        private static DateTime GetStartOfWeek(DateTime date)
+        {
+            // Lundi = début de semaine
+            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.AddDays(-diff).Date;
+        }
+    }
+}
+
+
+
+</code></pre><p id="253d94cb-b7ac-8035-9316-d4fd19e3f2c3" class="">
+</p><p id="253d94cb-b7ac-8045-839f-f4faf3ffc12c" class="">
+</p><p id="253d94cb-b7ac-801e-aad6-c9ba08f07be5" class="">
+</p><p id="253d94cb-b7ac-80c3-ae1d-e5b7ef3cef1e" class="">
+</p><figure id="253d94cb-b7ac-8088-96c4-d930a486ec44" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/AgendaPage()%20253d94cbb7ac808896c4d930a486ec44.html">AgendaPage()</a></figure><figure id="253d94cb-b7ac-80f0-ac85-c5995b2086a5" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/InitializeCalendar%20253d94cbb7ac80f0ac85c5995b2086a5.html">InitializeCalendar</a></figure><figure id="253d94cb-b7ac-80a2-9062-d1b36f60b321" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/TimeSlot_MouseLeftButtonDown%20253d94cbb7ac80a29062d1b36f60b321.html">TimeSlot_MouseLeftButtonDown</a></figure><figure id="253d94cb-b7ac-802f-ac66-e2224954b240" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/ShowCreateEventDialog%20253d94cbb7ac802fac66e2224954b240.html">ShowCreateEventDialog</a></figure><figure id="253d94cb-b7ac-80dd-85de-f7e83ccf65f6" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/Event_MouseLeftButtonDown%20253d94cbb7ac80dd85def7e83ccf65f6.html">Event_MouseLeftButtonDown</a></figure><figure id="253d94cb-b7ac-806b-8d73-fe684a34319e" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/ShowEditEventDialog%20253d94cbb7ac806b8d73fe684a34319e.html">ShowEditEventDialog</a></figure><figure id="253d94cb-b7ac-803d-84d5-caa63592f1f6" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/RefreshCalendar()%20253d94cbb7ac803d84d5caa63592f1f6.html">RefreshCalendar()</a></figure><figure id="253d94cb-b7ac-80bd-8ba9-fc8b4f451223" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/GetWeekEvents%20253d94cbb7ac80bd8ba9fc8b4f451223.html">GetWeekEvents</a></figure><figure id="253d94cb-b7ac-80c1-89bd-c182120aa040" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/DisplayEvent%20253d94cbb7ac80c189bdc182120aa040.html">DisplayEvent</a></figure><figure id="253d94cb-b7ac-807d-b712-fc1435ba82ac" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/UpdateWeekDisplay%20253d94cbb7ac807db712fc1435ba82ac.html">UpdateWeekDisplay</a></figure><figure id="253d94cb-b7ac-80ab-a981-c425371c8766" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/UpdateWeekStats%20253d94cbb7ac80aba981c425371c8766.html">UpdateWeekStats</a></figure><figure id="253d94cb-b7ac-80ab-a408-f5f3fe5803be" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/PreviousWeek_Click%20253d94cbb7ac80aba408f5f3fe5803be.html">PreviousWeek_Click</a></figure><figure id="253d94cb-b7ac-807f-84b2-d9b27b34f726" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/NextWeek_Click%20253d94cbb7ac807f84b2d9b27b34f726.html">NextWeek_Click</a></figure><figure id="253d94cb-b7ac-80ee-a2db-c8e1ef70e98b" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/GoToToday_Click%20253d94cbb7ac80eea2dbc8e1ef70e98b.html">GoToToday_Click</a></figure><figure id="253d94cb-b7ac-80ab-9bca-db3751322f0f" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/CreateEvent_Click%20253d94cbb7ac80ab9bcadb3751322f0f.html">CreateEvent_Click</a></figure><figure id="253d94cb-b7ac-8027-9d2e-d6037e881a56" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/ExportIcs_Click%20253d94cbb7ac80279d2ed6037e881a56.html">ExportIcs_Click</a></figure><figure id="253d94cb-b7ac-802c-83fa-cbf673182848" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/GenerateIcsContent%20253d94cbb7ac802c83facbf673182848.html">GenerateIcsContent</a></figure><figure id="253d94cb-b7ac-80c2-8c88-eb0bcc637f6a" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/GenerateEventUid%20253d94cbb7ac80c28c88eb0bcc637f6a.html">GenerateEventUid</a></figure><figure id="253d94cb-b7ac-80ac-a0fd-d17f6376e234" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/EscapeIcsText%20253d94cbb7ac80aca0fdd17f6376e234.html">EscapeIcsText</a></figure><figure id="253d94cb-b7ac-8012-84d7-f051e5556965" class="link-to-page"><a href="AgendaPage%20Xaml%20cs%20253d94cbb7ac804bb40ecf1296dd1487/GetStartOfWeek%20253d94cbb7ac801284d7f051e5556965.html">GetStartOfWeek</a></figure></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

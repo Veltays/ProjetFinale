@@ -1,0 +1,967 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Export.Xaml.cs</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(50, 48, 44, 1);
+}
+.highlight-gray {
+	color: rgba(115, 114, 110, 1);
+	fill: rgba(115, 114, 110, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(205, 60, 58, 1);
+	fill: rgba(205, 60, 58, 1);
+}
+.highlight-default_background {
+	color: rgba(50, 48, 44, 1);
+}
+.highlight-gray_background {
+	background: rgba(248, 248, 247, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(248, 243, 252, 1);
+}
+.highlight-pink_background {
+	background: rgba(252, 241, 246, 1);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(115, 114, 110, 1);
+	fill: rgba(115, 114, 110, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(205, 60, 58, 1);
+	fill: rgba(205, 60, 58, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(248, 248, 247, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(248, 243, 252, 1);
+}
+.block-color-pink_background {
+	background: rgba(252, 241, 246, 1);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-default { background-color: rgba(84, 72, 49, 0.08); }
+.select-value-color-gray { background-color: rgba(84, 72, 49, 0.15); }
+.select-value-color-brown { background-color: rgba(210, 162, 141, 0.35); }
+.select-value-color-orange { background-color: rgba(224, 124, 57, 0.27); }
+.select-value-color-yellow { background-color: rgba(236, 191, 66, 0.39); }
+.select-value-color-green { background-color: rgba(123, 183, 129, 0.27); }
+.select-value-color-blue { background-color: rgba(93, 165, 206, 0.27); }
+.select-value-color-purple { background-color: rgba(168, 129, 197, 0.27); }
+.select-value-color-pink { background-color: rgba(225, 136, 179, 0.27); }
+.select-value-color-red { background-color: rgba(244, 171, 159, 0.4); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="254d94cb-b7ac-80f2-accd-f9815450cc18" class="page sans"><header><h1 class="page-title">Export.Xaml.cs</h1><p class="page-description"></p></header><div class="page-body"><p id="254d94cb-b7ac-8054-a32a-f648cc4d2b6c" class="">
+</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="254d94cb-b7ac-80dc-8c2c-c858673eba2c" class="code code-wrap"><code class="language-C#" style="white-space:pre-wrap;word-break:break-all">using Microsoft.Win32;
+using ProjetFinale.Models;
+using ProjetFinale.Services;
+using ProjetFinale.Utils;
+using System;
+using System.IO;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace ProjetFinale.WPF
+{
+    public partial class ExportsPage : Page
+    {
+        private readonly ExportService _exportService = new ExportService();
+        private Utilisateur? _utilisateur;
+
+        public ExportsPage()
+        {
+            InitializeComponent();
+            InitialiserUtilisateur();
+        }
+
+        private void InitialiserUtilisateur()
+        {
+            // Essayer d&#x27;abord l&#x27;utilisateur actif
+            _utilisateur = UserService.UtilisateurActif;
+
+            // Si pas d&#x27;utilisateur actif, charger depuis le fichier
+            if (_utilisateur == null)
+            {
+                _utilisateur = JsonService.ChargerUtilisateur();
+                if (_utilisateur != null)
+                {
+                    UserService.UtilisateurActif = _utilisateur;
+                }
+            }
+
+            // 🔥 DÉFINIR LE DATACONTEXT pour les stats dynamiques
+            if (_utilisateur != null)
+            {
+                this.DataContext = _utilisateur;
+                Console.WriteLine($&quot;✅ DataContext défini pour ExportsPage : {_utilisateur.Pseudo}&quot;);
+                Console.WriteLine($&quot;   Données à exporter :&quot;);
+                Console.WriteLine($&quot;   - {_utilisateur.ListeTaches.Count} tâches&quot;);
+                Console.WriteLine($&quot;   - {_utilisateur.ListeActivites.Count} activités&quot;);
+                Console.WriteLine($&quot;   - {_utilisateur.ListeAgenda.Count} événements agenda&quot;);
+            }
+            else
+            {
+                Console.WriteLine(&quot;⚠️ Aucun utilisateur trouvé pour ExportsPage&quot;);
+
+                // Afficher un message à l&#x27;utilisateur
+                MessageBox.Show(&quot;❌ Aucun utilisateur trouvé.\nVeuillez vous connecter ou importer des données.&quot;,
+                               &quot;Aucune donnée&quot;, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            // 🆕 S&#x27;abonner aux changements d&#x27;utilisateur (après import par exemple)
+            UserService.UtilisateurActifChanged += OnUtilisateurChanged;
+        }
+
+        // 🆕 Méthode appelée quand l&#x27;utilisateur change (après import)
+        private void OnUtilisateurChanged(Utilisateur? nouvelUtilisateur)
+        {
+            _utilisateur = nouvelUtilisateur;
+            this.DataContext = nouvelUtilisateur;
+
+            if (nouvelUtilisateur != null)
+            {
+                Console.WriteLine($&quot;🔄 ExportsPage - Utilisateur changé : {nouvelUtilisateur.Pseudo}&quot;);
+                Console.WriteLine($&quot;   Nouvelles données : {nouvelUtilisateur.ListeTaches.Count} tâches&quot;);
+            }
+        }
+
+        // === ÉVÉNEMENTS D&#x27;EXPORT (améliorés avec validation) ===
+
+        private void ExportJSON_Click(object sender, RoutedEventArgs e)
+        {
+            if (!VerifierUtilisateur()) return;
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = &quot;Fichier JSON (*.json)|*.json&quot;,
+                FileName = $&quot;{_utilisateur.Pseudo}_complet.json&quot;
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    _exportService.ExportJson(_utilisateur, dialog.FileName);
+                    AfficherSuccesExport(&quot;JSON&quot;, dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    AfficherErreurExport(&quot;JSON&quot;, ex.Message);
+                }
+            }
+        }
+
+        private void ExportSerialize_Click(object sender, RoutedEventArgs e)
+        {
+            if (!VerifierUtilisateur()) return;
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = &quot;Fichier XML (*.xml)|*.xml&quot;,
+                FileName = $&quot;{_utilisateur.Pseudo}_complet.xml&quot;
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    _exportService.ExportXml(_utilisateur, dialog.FileName);
+                    AfficherSuccesExport(&quot;XML&quot;, dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    AfficherErreurExport(&quot;XML&quot;, ex.Message);
+                }
+            }
+        }
+
+        private void ExportCSV_Click(object sender, RoutedEventArgs e)
+        {
+            if (!VerifierUtilisateur()) return;
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = &quot;Fichier CSV (*.csv)|*.csv&quot;,
+                FileName = $&quot;{_utilisateur.Pseudo}_complet.csv&quot;
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    ExportCSVToFile(dialog.FileName);
+                    AfficherSuccesExport(&quot;CSV&quot;, dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    AfficherErreurExport(&quot;CSV&quot;, ex.Message);
+                }
+            }
+        }
+
+        private void ExportAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (!VerifierUtilisateur()) return;
+
+            try
+            {
+                string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, &quot;Exports&quot;);
+                Directory.CreateDirectory(folder);
+
+                string baseFileName = $&quot;{_utilisateur.Pseudo}_{DateTime.Now:yyyyMMdd_HHmmss}&quot;;
+
+                // Export dans tous les formats
+                _exportService.ExportJson(_utilisateur, Path.Combine(folder, $&quot;{baseFileName}.json&quot;));
+                _exportService.ExportXml(_utilisateur, Path.Combine(folder, $&quot;{baseFileName}.xml&quot;));
+                ExportCSVToFile(Path.Combine(folder, $&quot;{baseFileName}.csv&quot;));
+
+                // Message de succès avec statistiques
+                var totalTaches = _utilisateur.ListeTaches.Count;
+                var totalActivites = _utilisateur.ListeActivites.Count;
+                var totalAgenda = _utilisateur.ListeAgenda.Count;
+              
+
+                MessageBox.Show($&quot;✅ Export complet réussi !\n\n&quot; +
+                               $&quot;📂 Emplacement : {folder}\n&quot; +
+                               $&quot;📊 Données exportées :\n&quot; +
+                               $&quot;   • {totalTaches} tâches\n&quot; +
+                               $&quot;   • {totalActivites} activités\n&quot; +
+                               $&quot;   • {totalAgenda} événements agenda\n&quot; +
+                               $&quot;📁 Formats créés : JSON, XML, CSV, TXT&quot;,
+                               &quot;Export terminé&quot;, MessageBoxButton.OK, MessageBoxImage.Information);
+
+                Console.WriteLine($&quot;✅ Export complet réussi pour {_utilisateur.Pseudo}&quot;);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($&quot;❌ Erreur lors de l&#x27;export complet :\n{ex.Message}&quot;,
+                               &quot;Erreur&quot;, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // === MÉTHODES UTILITAIRES ===
+
+        private bool VerifierUtilisateur()
+        {
+            if (_utilisateur == null)
+            {
+                MessageBox.Show(&quot;❌ Aucun utilisateur chargé.\nVeuillez vous connecter ou importer des données.&quot;,
+                               &quot;Aucune donnée&quot;, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
+        }
+
+        private void AfficherSuccesExport(string format, string fichier)
+        {
+            var tailleFichier = new FileInfo(fichier).Length;
+            string tailleFormatee = FormatFileSize(tailleFichier);
+
+            MessageBox.Show($&quot;✅ Export {format} réussi !\n\n&quot; +
+                           $&quot;📁 Fichier : {Path.GetFileName(fichier)}\n&quot; +
+                           $&quot;📏 Taille : {tailleFormatee}\n&quot; +
+                           $&quot;📂 Emplacement : {Path.GetDirectoryName(fichier)}&quot;,
+                           &quot;Export terminé&quot;, MessageBoxButton.OK, MessageBoxImage.Information);
+
+            Console.WriteLine($&quot;✅ Export {format} réussi : {fichier} ({tailleFormatee})&quot;);
+        }
+
+        private void AfficherErreurExport(string format, string erreur)
+        {
+            MessageBox.Show($&quot;❌ Erreur lors de l&#x27;export {format} :\n{erreur}&quot;,
+                           &quot;Erreur d&#x27;export&quot;, MessageBoxButton.OK, MessageBoxImage.Error);
+            Console.WriteLine($&quot;❌ Erreur export {format} : {erreur}&quot;);
+        }
+
+        private string FormatFileSize(long bytes)
+        {
+            if (bytes &lt; 1024)
+                return $&quot;{bytes} B&quot;;
+            else if (bytes &lt; 1024 * 1024)
+                return $&quot;{bytes / 1024:F1} KB&quot;;
+            else
+                return $&quot;{bytes / (1024 * 1024):F1} MB&quot;;
+        }
+
+        // 🆕 Méthode publique pour rafraîchir (si nécessaire)
+        public void RafraichirDonnees()
+        {
+            InitialiserUtilisateur();
+        }
+
+        // === MÉTHODES D&#x27;EXPORT (conservées) ===
+
+        private void ExportCSVToFile(string path)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine(&quot;==== Utilisateur ====&quot;);
+            sb.AppendLine($&quot;Pseudo,{_utilisateur.Pseudo}&quot;);
+            sb.AppendLine($&quot;Nom,{_utilisateur.Nom}&quot;);
+            sb.AppendLine($&quot;Prenom,{_utilisateur.Prenom}&quot;);
+            sb.AppendLine($&quot;Email,{_utilisateur.Email}&quot;);
+            sb.AppendLine($&quot;Age,{_utilisateur.Age}&quot;);
+            sb.AppendLine($&quot;Taille,{_utilisateur.Taille}&quot;);
+            sb.AppendLine($&quot;Poids,{_utilisateur.Poids}&quot;);
+            sb.AppendLine($&quot;ObjectifPoids,{_utilisateur.ObjectifPoids}&quot;);
+            sb.AppendLine($&quot;DateInscription,{_utilisateur.DateInscription:yyyy-MM-dd}&quot;);
+            sb.AppendLine($&quot;DateObjectif,{_utilisateur.DateObjectif:yyyy-MM-dd}&quot;);
+            sb.AppendLine();
+
+            sb.AppendLine(&quot;==== Tâches ====&quot;);
+            sb.AppendLine(&quot;Description,EstTerminee&quot;);
+            foreach (var t in _utilisateur.ListeTaches)
+                sb.AppendLine($&quot;{t.Description},{t.EstTerminee}&quot;);
+            sb.AppendLine();
+
+            sb.AppendLine(&quot;==== Activités ====&quot;);
+            sb.AppendLine(&quot;Titre,Duree,ImagePath,CaloriesBrulees&quot;);
+            foreach (var a in _utilisateur.ListeActivites)
+                sb.AppendLine($&quot;{a.Titre},{a.Duree},{a.ImagePath},{a.CaloriesBrulees}&quot;);
+            sb.AppendLine();
+
+            sb.AppendLine(&quot;==== Agenda ====&quot;);
+            sb.AppendLine(&quot;HeureDebut,HeureFin,Date,ActiviteTitre&quot;);
+            foreach (var a in _utilisateur.ListeAgenda)
+                sb.AppendLine($&quot;{a.HeureDebut},{a.HeureFin},{a.Date:yyyy-MM-dd},{a.Activite?.Titre}&quot;);
+            sb.AppendLine();
+
+            File.WriteAllText(path, sb.ToString());
+        }
+
+
+        // 🆕 Nettoyer les événements quand la page se ferme
+        ~ExportsPage()
+        {
+            UserService.UtilisateurActifChanged -= OnUtilisateurChanged;
+        }
+    }
+}</code></pre><p id="254d94cb-b7ac-8048-859b-f8e31a00f7a7" class="">
+</p><figure id="254d94cb-b7ac-80f3-821b-c3ce5ebfcbf3" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/ExportsPage%20254d94cbb7ac80f3821bc3ce5ebfcbf3.html">ExportsPage</a></figure><figure id="254d94cb-b7ac-80a9-9f8d-ff46e92ba634" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/InitialiserUtilisateur%20254d94cbb7ac80a99f8dff46e92ba634.html">InitialiserUtilisateur</a></figure><figure id="254d94cb-b7ac-8049-b662-fb12d2a6e5d8" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/OnUtilisateurChanged%20254d94cbb7ac8049b662fb12d2a6e5d8.html">OnUtilisateurChanged</a></figure><figure id="254d94cb-b7ac-80f9-81c1-c21db80160ec" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/ExportJSON_Click%20254d94cbb7ac80f981c1c21db80160ec.html">ExportJSON_Click</a></figure><figure id="254d94cb-b7ac-80cd-9dba-e48fecb464fb" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/ExportSerialize_Click%20254d94cbb7ac80cd9dbae48fecb464fb.html">ExportSerialize_Click</a></figure><figure id="254d94cb-b7ac-80be-bc18-f02a0f7602ea" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/ExportCSV_Click%20254d94cbb7ac80bebc18f02a0f7602ea.html">ExportCSV_Click</a></figure><figure id="254d94cb-b7ac-8024-b305-fe8781c47e85" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/ExportAll_Click%20254d94cbb7ac8024b305fe8781c47e85.html">ExportAll_Click</a></figure><figure id="254d94cb-b7ac-804c-8bf1-e80dacd52331" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/VerifierUtilisateur%20254d94cbb7ac804c8bf1e80dacd52331.html">VerifierUtilisateur</a></figure><figure id="254d94cb-b7ac-80ec-bc3c-ebb862be0275" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/AfficherSuccesExport%20254d94cbb7ac80ecbc3cebb862be0275.html">AfficherSuccesExport</a></figure><figure id="254d94cb-b7ac-809c-9c3a-e338c7c62689" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/AfficherErreurExport%20254d94cbb7ac809c9c3ae338c7c62689.html">AfficherErreurExport</a></figure><figure id="254d94cb-b7ac-8065-8921-e516e8725ae3" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/FormatFileSize%20254d94cbb7ac80658921e516e8725ae3.html">FormatFileSize</a></figure><figure id="254d94cb-b7ac-8032-b6f8-f235d41b9b67" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/RafraichirDonnees%20254d94cbb7ac8032b6f8f235d41b9b67.html">RafraichirDonnees</a></figure><figure id="254d94cb-b7ac-80df-8d0a-e9cbe439bdb4" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/ExportCSVToFile%20254d94cbb7ac80df8d0ae9cbe439bdb4.html">ExportCSVToFile</a></figure><figure id="254d94cb-b7ac-8011-9612-f1351a669719" class="link-to-page"><a href="Export%20Xaml%20cs%20254d94cbb7ac80f2accdf9815450cc18/~ExportsPage%20254d94cbb7ac80119612f1351a669719.html">~ExportsPage</a></figure></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
