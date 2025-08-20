@@ -10,10 +10,13 @@ namespace ProjetFinale.Utils
     public static class ImportHistoryService
     {
         private const int MaxItems = 5;
-        private static readonly string FilePath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                         "ProjetFinale", "import_history.json");
 
+        // 🔹 Dossier Datafile dans ton projet (pendant le dev)
+        private static readonly string DataFolder =
+            Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\..")), "Datafile");
+
+        private static readonly string FilePath =
+            Path.Combine(DataFolder, "import_history.json");
 
         public static List<ImportHistoryEntry> Load()
         {
@@ -23,22 +26,29 @@ namespace ProjetFinale.Utils
                 var json = File.ReadAllText(FilePath);
                 return JsonSerializer.Deserialize<List<ImportHistoryEntry>>(json) ?? new();
             }
-            catch { return new(); }
+            catch
+            {
+                return new();
+            }
         }
 
         public static void Add(ImportHistoryEntry item)
         {
             var list = Load();
             list.Insert(0, item);
-            if (list.Count > MaxItems) list.RemoveRange(MaxItems, list.Count - MaxItems);
+            if (list.Count > MaxItems)
+                list.RemoveRange(MaxItems, list.Count - MaxItems);
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
+                Directory.CreateDirectory(DataFolder);
                 var json = JsonSerializer.Serialize(list, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(FilePath, json);
             }
-            catch { /* noop/log si tu veux */ }
+            catch
+            {
+                // tu peux logguer ici si besoin
+            }
         }
     }
 }

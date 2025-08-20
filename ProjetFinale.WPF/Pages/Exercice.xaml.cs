@@ -31,8 +31,39 @@ namespace ProjetFinale.Views
             "ProjetFinale", "Images"
         );
 
-        // Si pas d’image fournie, on utilise un visuel de secours (présent dans /Images)
-        private const string DEFAULT_RELATIVE_PLACEHOLDER = "/Images/default_exercise.png";
+        // Constante pack
+        private const string DEFAULT_PLACEHOLDER_PACK =
+            "pack://application:,,,/ProjetFinale.WPF;component/Assets/img/default_exercise.png";
+        private void SetImageSource(Image img, string? path)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    if (Path.IsPathRooted(path) && File.Exists(path))
+                    {
+                        // chemin disque absolu
+                        img.Source = new BitmapImage(new Uri(path, UriKind.Absolute));
+                        return;
+                    }
+
+                    // sinon, on tente de charger tel quel (pack URI string)
+                    img.Source = new BitmapImage(new Uri(path, UriKind.Absolute));
+                    return;
+                }
+
+                // fallback placeholder
+                img.Source = new BitmapImage(new Uri(DEFAULT_PLACEHOLDER_PACK, UriKind.Absolute));
+            }
+            catch
+            {
+                img.Source = new BitmapImage(new Uri(DEFAULT_PLACEHOLDER_PACK, UriKind.Absolute));
+            }
+        }
+
+
+
+
 
         public ExercicesPage()
         {
@@ -162,7 +193,7 @@ namespace ProjetFinale.Views
 
             // Image à stocker (fichier copié ou placeholder)
             var imagePathFinal = string.IsNullOrWhiteSpace(_imagePathForm)
-                ? DEFAULT_RELATIVE_PLACEHOLDER
+                ? DEFAULT_PLACEHOLDER_PACK
                 : _imagePathForm;
 
             if (_estEnModeEdition && _exerciceEnEdition != null)
@@ -420,26 +451,6 @@ namespace ProjetFinale.Views
 
             TypeComboBox_SelectionChanged(TypeComboBox, null);
             afterSelect?.Invoke();
-        }
-
-        private void SetImageSource(Image img, string? path)
-        {
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(path) && Path.IsPathRooted(path) && File.Exists(path))
-                {
-                    img.Source = new BitmapImage(new Uri(path));
-                }
-                else
-                {
-                    // pack URI relatif vers une ressource incluse (si elle existe)
-                    img.Source = new BitmapImage(new Uri(DEFAULT_RELATIVE_PLACEHOLDER, UriKind.Relative));
-                }
-            }
-            catch
-            {
-                img.Source = null;
-            }
         }
 
         private void RafraichirPreview(string? path)

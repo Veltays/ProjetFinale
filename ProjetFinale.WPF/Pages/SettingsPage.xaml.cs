@@ -67,14 +67,12 @@ namespace ProjetFinale.WPF
             {
                 _settings.UpdateFormatTaille(value);
                 SettingsContext.Instance.HeightUnit = (value == "INCH") ? HeightUnit.INCH : HeightUnit.CM;
-                Afficher("Format taille changé: " + value);
                 return;
             }
 
             if (sender == SaveFrequencyComboBox)
             {
                 _settings.UpdateSaveFrequency(value);
-                Afficher("Fréquence sauvegarde: " + value);
             }
         }
 
@@ -90,7 +88,6 @@ namespace ProjetFinale.WPF
             {
                 bool active = AutoSaveToggle.IsChecked == true;
                 _settings.UpdateAutoSave(active);
-                Afficher($"Sauvegarde auto: {(active ? "Activée" : "Désactivée")}");
             }
         }
 
@@ -108,8 +105,5 @@ namespace ProjetFinale.WPF
             item is ComboBoxItem { Content: not null } c ? c.Content.ToString()! : item?.ToString() ?? string.Empty;
 
 
-
-        private static void Afficher(string msg) =>
-            MessageBox.Show(msg, "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\img\default_exercise.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ProjetFinale.Models\ProjetFinale.Models.csproj" />
     <ProjectReference Include="..\ProjetFinale.Utils\ProjetFinale.Utils.csproj" />
   </ItemGroup>
@@ -19,6 +23,9 @@
     <Resource Include="Assets\Fonts\Kameron-Regular.ttf" />
     <Resource Include="Assets\Fonts\Kameron-SemiBold.ttf" />
     <Resource Include="Assets\img\Calendar.png" />
+    <Resource Include="Assets\img\default_exercise.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\img\Dumbell.png" />
     <Resource Include="Assets\img\Export.png" />
     <Resource Include="Assets\img\Logo.png" />

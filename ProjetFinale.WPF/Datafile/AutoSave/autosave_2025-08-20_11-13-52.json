@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2025-08-20T11:13:52.6409315+02:00",
+  "user": {
+    "Pseudo": "Veltays",
+    "Nom": "Gran",
+    "Prenom": "Yassine",
+    "Email": "granyassine@gmail.com",
+    "Age": 21,
+    "MDPHash": "Yassine77!",
+    "Poids": 67,
+    "Taille": 180,
+    "ObjectifPoids": 70,
+    "DateInscription": "2025-08-20T01:16:29.0977625+02:00",
+    "DateObjectif": "2027-07-23T00:00:00",
+    "ListeActivites": [
+      {
+        "Titre": "V\u00E9lo",
+        "Duree": "00:25:00",
+        "CaloriesBrulees": 300,
+        "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\b1d89f3c4f064726badcf3f7f55ff72f.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      },
+      {
+        "Titre": "MUSCLE",
+        "Duree": "02:03:00",
+        "CaloriesBrulees": 993,
+        "ImagePath": "pack://application:,,,/ProjetFinale.WPF;component/Assets/img/default_exercise.png",
+        "Id": 0,
+        "Date": "0001-01-01T00:00:00"
+      }
+    ],
+    "ListeAgenda": [
+      {
+        "Titre": "V\u00E9lo",
+        "HeureDebut": "10:00:00",
+        "HeureFin": "13:00:00",
+        "Date": "2025-08-19T00:00:00",
+        "Activite": {
+          "Titre": "V\u00E9lo",
+          "Duree": "00:25:00",
+          "CaloriesBrulees": 300,
+          "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\b1d89f3c4f064726badcf3f7f55ff72f.png",
+          "Id": 0,
+          "Date": "0001-01-01T00:00:00"
+        },
+        "Couleur": "#6366F1",
+        "Description": "",
+        "Duree": "03:00:00",
+        "DureeFormatee": "3,0h",
+        "HeureFormatee": "10:00 - 13:00"
+      },
+      {
+        "Titre": "Pompes",
+        "HeureDebut": "10:00:00",
+        "HeureFin": "11:00:00",
+        "Date": "2025-08-21T00:00:00",
+        "Activite": {
+          "Titre": "V\u00E9lo",
+          "Duree": "00:25:00",
+          "CaloriesBrulees": 300,
+          "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\b1d89f3c4f064726badcf3f7f55ff72f.png",
+          "Id": 0,
+          "Date": "0001-01-01T00:00:00"
+        },
+        "Couleur": "#8B5CF6",
+        "Description": "",
+        "Duree": "01:00:00",
+        "DureeFormatee": "1,0h",
+        "HeureFormatee": "10:00 - 11:00"
+      },
+      {
+        "Titre": "Manuelle",
+        "HeureDebut": "11:00:00",
+        "HeureFin": "12:00:00",
+        "Date": "2025-08-20T00:00:00+02:00",
+        "Activite": {
+          "Titre": "V\u00E9lo",
+          "Duree": "00:25:00",
+          "CaloriesBrulees": 300,
+          "ImagePath": "C:\\Users\\grany\\AppData\\Roaming\\ProjetFinale\\Images\\b1d89f3c4f064726badcf3f7f55ff72f.png",
+          "Id": 0,
+          "Date": "0001-01-01T00:00:00"
+        },
+        "Couleur": "#F59E0B",
+        "Description": "",
+        "Duree": "01:00:00",
+        "DureeFormatee": "1,0h",
+        "HeureFormatee": "11:00 - 12:00"
+      },
+      {
+        "Titre": "Pompes",
+        "HeureDebut": "10:00:00",
+        "HeureFin": "11:00:00",
+        "Date": "2025-08-23T00:00:00",
+        "Couleur": "#8B5CF6",
+        "Description": "",
+        "Duree": "01:00:00",
+        "DureeFormatee": "1,0h",
+        "HeureFormatee": "10:00 - 11:00"
+      },
+      {
+        "Titre": "grff",
+        "HeureDebut": "08:00:00",
+        "HeureFin": "09:00:00",
+        "Date": "2025-08-20T00:00:00+02:00",
+        "Couleur": "#F59E0B",
+        "Description": "",
+        "Duree": "01:00:00",
+        "DureeFormatee": "1,0h",
+        "HeureFormatee": "08:00 - 09:00"
+      }
+    ],
+    "ListeTaches": [],
+    "IMC": 20.7,
+    "AgeFormate": "21 ANS",
+    "PoidsFormate": "67 KG",
+    "TailleFormatee": "180 CM",
+    "IMCFormate": "20,7",
+    "ObjectifPoidsFormate": "70 KG",
+    "DateObjectifFormatee": "2027",
+    "IMCObjectifFormate": "21,6 IMC",
+    "AnneesRestantesFormate": "2 ANS",
+    "MotDePasse": "Yassine77!"
+  }
+}

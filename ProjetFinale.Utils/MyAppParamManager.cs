@@ -66,11 +66,8 @@ namespace ProjetFinale.Utils
         {
             FormatPoids = FormatPoids,
             FormatTaille = FormatTaille,
-            ThemeCouleur = ThemeCouleur,
             FrequenceSauvegarde = FrequenceSauvegarde,
             ModeSombre = ModeSombre,
-            RappelsEntrainement = RappelsEntrainement,
-            RappelsObjectifs = RappelsObjectifs,
             SauvegardeAuto = SauvegardeAuto
         };
 
@@ -266,11 +263,8 @@ namespace ProjetFinale.Utils
     {
         public string FormatPoids { get; set; } = "KG";
         public string FormatTaille { get; set; } = "CM";
-        public string ThemeCouleur { get; set; } = "Violet";
         public string FrequenceSauvegarde { get; set; } = "5 min";
         public bool ModeSombre { get; set; } = true;
-        public bool RappelsEntrainement { get; set; } = true;
-        public bool RappelsObjectifs { get; set; } = false;
         public bool SauvegardeAuto { get; set; } = true;
     }
 }

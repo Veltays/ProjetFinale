@@ -47,7 +47,6 @@ namespace ProjetFinale
 
         private void ApplyTheme()
         {
-            ThemeManager.ApplyTheme(_settings.ThemeCouleur); // Violet/Bleu/Rose/Vert
             ThemeManager.SetDarkMode(_settings.ModeSombre);  // true = Dark
         }
 
